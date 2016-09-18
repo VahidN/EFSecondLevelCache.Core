@@ -1,0 +1,48 @@
+{
+    "version": "1.0.0-*",
+
+    "authors": [ "Vahid Nasiri" ],
+    "packOptions": {
+        "owners": [ "Vahid Nasiri" ],
+        "tags": [ "EntityFramework", "Cache", "Caching", "SecondLevelCache", "EFCore", "ORM", ".NET Core" ],
+        "licenseUrl": "https://github.com/VahidN/EFSecondLevelCache.Core/blob/master/LICENSE.md",
+        "projectUrl": "https://github.com/VahidN/EFSecondLevelCache.Core"
+    },
+    "description": "Entity Framework Core Second Level Caching Library.",
+
+
+    "dependencies": {
+        "CacheManager.Core": "0.9.0",
+        "NETStandard.Library": "1.6.0",
+        "System.Reflection.TypeExtensions": "4.1.0",
+        "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
+        "Microsoft.EntityFrameworkCore": "1.0.1",
+        "Microsoft.EntityFrameworkCore.Relational": "1.0.1"
+    },
+
+    "frameworks": {
+        "netstandard1.6": {
+            "imports": "dnxcore50"
+        }
+    },
+
+    "buildOptions": {
+        "xmlDoc": true
+    },
+
+    "configurations": {
+        "Release": {
+            "buildOptions": {
+                "optimize": true,
+                "platform": "anycpu",
+                "allowUnsafe": true
+            }
+        }
+    },
+
+    "scripts": {
+        "postcompile": [
+            "dotnet pack --no-build --configuration %compile:Configuration%"
+        ]
+    }
+}
