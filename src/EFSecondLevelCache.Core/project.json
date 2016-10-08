@@ -4,7 +4,7 @@
     "authors": [ "Vahid Nasiri" ],
     "packOptions": {
         "owners": [ "Vahid Nasiri" ],
-        "tags": [ "EntityFramework", "Cache", "Caching", "SecondLevelCache", "EFCore", "ORM", ".NET Core" ],
+        "tags": [ "EntityFramework", "Cache", "Caching", "SecondLevelCache", "EFCore", "ORM", ".NET Core", "aspnetcore" ],
         "licenseUrl": "https://github.com/VahidN/EFSecondLevelCache.Core/blob/master/LICENSE.md",
         "projectUrl": "https://github.com/VahidN/EFSecondLevelCache.Core"
     },

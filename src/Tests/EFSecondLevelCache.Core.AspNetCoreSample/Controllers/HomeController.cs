@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer;
 using Microsoft.AspNetCore.Mvc;
+using EFSecondLevelCache.Core;
 
 namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
 {
