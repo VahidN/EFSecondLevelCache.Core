@@ -20,10 +20,10 @@ To use its in-memory caching mechanism, add these entries to the `project.json` 
 ```json
 {
     "dependencies": {
-        "EFSecondLevelCache.Core": "1.0.0-*",
-        "CacheManager.Core": "0.9.0",
-        "CacheManager.Microsoft.Extensions.Caching.Memory": "0.9.0",
-        "CacheManager.Serialization.Json": "0.9.0"
+        "EFSecondLevelCache.Core": "1.0.1-*",
+        "CacheManager.Core": "0.9.1",
+        "CacheManager.Microsoft.Extensions.Caching.Memory": "0.9.1",
+        "CacheManager.Serialization.Json": "0.9.1"
     }
 }
 ```

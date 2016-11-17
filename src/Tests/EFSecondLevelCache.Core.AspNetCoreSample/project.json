@@ -1,87 +1,82 @@
 {
     "dependencies": {
-        "Microsoft.AspNetCore.Diagnostics": "1.0.0",
-        "Microsoft.AspNetCore.Server.IISIntegration": "1.0.0",
-        "Microsoft.Extensions.Logging.Console": "1.0.0",
-        "Microsoft.AspNetCore.Server.Kestrel": "1.0.1",
-        "Microsoft.NETCore.App": {
-            "version": "1.0.1",
-            "type": "platform"
-        },
-        "Microsoft.EntityFrameworkCore.Tools": {
-            "version": "1.0.0-preview2-final",
-            "type": "build"
-        },
-        "Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore": "1.0.0",
-        "Microsoft.EntityFrameworkCore": "1.0.1",
-        "Microsoft.EntityFrameworkCore.SqlServer": "1.0.1",
-        "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.0.1",
-        "Microsoft.Extensions.Logging": "1.0.0",
-        "Microsoft.Extensions.Logging.Debug": "1.0.0",
-        "Microsoft.AspNetCore.StaticFiles": "1.0.0",
-        "Microsoft.Extensions.Configuration.Json": "1.0.0",
-        "Microsoft.Extensions.Configuration.Binder": "1.0.0",
-        "Microsoft.Extensions.Options": "1.0.0",
-        "Microsoft.Extensions.FileProviders.Embedded": "1.0.0",
+        "CacheManager.Core": "0.9.1",
+        "CacheManager.Microsoft.Extensions.Caching.Memory": "0.9.1",
+        "CacheManager.Serialization.Json": "0.9.1",
+        "EFSecondLevelCache.Core": "1.0.1-*",
+        "Microsoft.AspNetCore.Diagnostics": "1.1.0",
+        "Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore": "1.1.0",
+        "Microsoft.AspNetCore.Mvc": "1.1.0",
+        "Microsoft.AspNetCore.Mvc.ViewFeatures": "1.1.0",
         "Microsoft.AspNetCore.Razor.Tools": {
-            "version": "1.0.0-preview2-final",
+            "version": "1.1.0-preview4-final",
             "type": "build"
         },
-        "Microsoft.AspNetCore.Razor.Runtime": "1.0.0",
+        "Microsoft.AspNetCore.Server.IISIntegration": "1.1.0",
+        "Microsoft.AspNetCore.StaticFiles": "1.1.0",
+        "Microsoft.EntityFrameworkCore": "1.1.0",
+        "Microsoft.EntityFrameworkCore.InMemory": "1.1.0",
+        "Microsoft.EntityFrameworkCore.SqlServer": "1.1.0",
+        "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.1.0",
+        "Microsoft.EntityFrameworkCore.Tools.DotNet": {
+            "version": "1.1.0-preview4-final",
+            "type": "build"
+        },
+        "Microsoft.Extensions.Configuration.Binder": "1.1.0",
+        "Microsoft.Extensions.Configuration.Json": "1.1.0",
+        "Microsoft.Extensions.FileProviders.Embedded": "1.1.0",
+        "Microsoft.Extensions.Logging": "1.1.0",
+        "Microsoft.Extensions.Logging.Console": "1.1.0",
+        "Microsoft.Extensions.Logging.Debug": "1.1.0",
+        "Microsoft.Extensions.Options": "1.1.0",
         "Microsoft.VisualStudio.Web.CodeGeneration.Tools": {
-            "version": "1.0.0-preview2-final",
+            "version": "1.1.0-preview4-final",
             "type": "build"
         },
         "Microsoft.VisualStudio.Web.CodeGenerators.Mvc": {
-            "version": "1.0.0-preview2-final",
+            "version": "1.1.0-preview4-final",
             "type": "build"
-        },
-        "Microsoft.AspNetCore.Mvc": "1.0.1",
-        "Microsoft.AspNetCore.Mvc.TagHelpers": "1.0.1",
-        "EFSecondLevelCache.Core": "1.0.0-*",
-        "CacheManager.Core": "0.9.0",
-        "CacheManager.Microsoft.Extensions.Caching.Memory": "0.9.0",
-        "CacheManager.Serialization.Json": "0.9.0",
-        "Microsoft.EntityFrameworkCore.InMemory": "1.0.1"
+        }
     },
-
     "tools": {
-        "Microsoft.AspNetCore.Server.IISIntegration.Tools": "1.0.0-preview2-final",
-        "Microsoft.EntityFrameworkCore.Tools": {
-            "version": "1.0.0-preview2-final",
+        "Microsoft.AspNetCore.Razor.Tools": "1.1.0-preview4-final",
+        "Microsoft.AspNetCore.Server.IISIntegration.Tools": "1.1.0-preview4-final",
+        "Microsoft.EntityFrameworkCore.Tools.DotNet": {
+            "version": "1.1.0-preview4-final",
             "imports": [
                 "portable-net45+win8"
             ]
         },
-        "Microsoft.AspNetCore.Razor.Tools": "1.0.0-preview2-final",
         "Microsoft.VisualStudio.Web.CodeGeneration.Tools": {
-            "version": "1.0.0-preview2-final",
+            "version": "1.1.0-preview4-final",
             "imports": [
                 "portable-net45+win8"
             ]
         }
     },
-
     "frameworks": {
-        "netcoreapp1.0": {
+        "netcoreapp1.1": {
+            "dependencies": {
+                "Microsoft.NETCore.App": {
+                    "type": "platform",
+                    "version": "1.1.0"
+                }
+            },
             "imports": [
-                "dotnet5.6",
+                "dnxcore50",
                 "portable-net45+win8"
             ]
         }
     },
-
     "buildOptions": {
         "emitEntryPoint": true,
         "preserveCompilationContext": true
     },
-
     "runtimeOptions": {
         "configProperties": {
             "System.GC.Server": true
         }
     },
-
     "configurations": {
         "Release": {
             "buildOptions": {
@@ -90,14 +85,12 @@
             }
         }
     },
-
     "publishOptions": {
         "include": [
             "wwwroot",
             "web.config"
         ]
     },
-
     "scripts": {
         "postpublish": [ "dotnet publish-iis --publish-folder %publish:OutputPath% --framework %publish:FullTargetFramework%" ]
     }
