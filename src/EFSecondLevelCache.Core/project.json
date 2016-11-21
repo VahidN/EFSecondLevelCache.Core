@@ -1,5 +1,5 @@
 {
-    "version": "1.0.1-*",
+    "version": "1.0.2-*",
 
     "authors": [ "Vahid Nasiri" ],
     "packOptions": {
@@ -21,17 +21,8 @@
     },
 
     "frameworks": {
-        "netcoreapp1.1": {
-            "dependencies": {
-                "Microsoft.NETCore.App": {
-                    "type": "platform",
-                    "version": "1.1.0"
-                }
-            },
-            "imports": [
-                "dnxcore50",
-                "portable-net45+win8"
-            ]
+        "netstandard1.6": {
+            "imports": "dnxcore50"
         }
     },
 
