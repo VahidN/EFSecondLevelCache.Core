@@ -114,7 +114,10 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.DataLayer
             this.ChangeTracker.DetectChanges();
             var changedEntityNames = this.GetChangedEntityNames();
 
+            this.ChangeTracker.AutoDetectChangesEnabled = false; // for performance reasons, to avoid calling DetectChanges() again.
             var result = base.SaveChanges();
+            this.ChangeTracker.AutoDetectChangesEnabled = true;
+
             _cacheServiceProvider.InvalidateCacheDependencies(changedEntityNames);
 
             return result;
@@ -125,7 +128,10 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.DataLayer
             this.ChangeTracker.DetectChanges();
             var changedEntityNames = this.GetChangedEntityNames();
 
+            this.ChangeTracker.AutoDetectChangesEnabled = false; // for performance reasons, to avoid calling DetectChanges() again.
             var result = base.SaveChangesAsync(cancellationToken);
+            this.ChangeTracker.AutoDetectChangesEnabled = true;
+
             _cacheServiceProvider.InvalidateCacheDependencies(changedEntityNames);
 
             return result;
