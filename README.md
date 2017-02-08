@@ -34,8 +34,8 @@ PM> Update-Package
 ```
 
 
-Usage:
-------
+Usage
+-----
 1- [Register the required services](/src/Tests/EFSecondLevelCache.Core.AspNetCoreSample/Startup.cs) of `EFSecondLevelCache.Core` and also `CacheManager.Core`
 ```csharp
 namespace EFSecondLevelCache.Core.AspNetCoreSample
@@ -115,9 +115,14 @@ var products = context.Products.Include(x => x.Tags).Cacheable().FirstOrDefault(
 ```
 
 
-Notes:
-------
-Good candidates for query caching are global site's settings,
-list of `public` articles or comments and not frequently changed,
-private or specific data to each user.
-If a page requires authentication, its data shouldn't be cached.
+Guidance
+--------
+
+### When to use
+Good candidates for query caching are global site settings and public data, such as infrequently changing articles or comments. It can also be beneficial to cache data specific to a user so long as the cache expires frequently enough relative to the size of the user base that memory consuption remains acceptable. Small, per-user data that frequently exceeds the cache's lifetime, such as a user's photo path, is better held in user claims, which are stored in cookies, than in this cache.
+
+### Scope
+This cache is scoped to the application, not the current user. It does not use session variables. Accordingly, when retriveing cached per-user data, be sure queries in include code such as `.Where(x => .... && x.UserId == id)`.
+
+### Invalidation
+This cache is updated when an entity is changed (insert, update, or delete) via a DbContext that uses this library. If the database is updated through some other means, such as a stored procedure or trigger, the cache becomes stale.
