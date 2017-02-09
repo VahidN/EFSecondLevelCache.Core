@@ -34,7 +34,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
 
             services.AddEFSecondLevelCache();
             services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
-            services.AddSingleton(typeof(CacheManagerConfiguration),
+            services.AddSingleton(typeof(ICacheManagerConfiguration),
                 new CacheManager.Core.ConfigurationBuilder()
                         .WithJsonSerializer()
                         .WithMicrosoftMemoryCacheHandle()

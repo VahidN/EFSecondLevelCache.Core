@@ -3,7 +3,7 @@
         "CacheManager.Core": "0.9.3",
         "CacheManager.Microsoft.Extensions.Caching.Memory": "0.9.3",
         "CacheManager.Serialization.Json": "0.9.3",
-        "EFSecondLevelCache.Core": "1.0.2-*",
+        "EFSecondLevelCache.Core": "1.0.3-*",
         "Microsoft.AspNetCore.Diagnostics": "1.1.0",
         "Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore": "1.1.0",
         "Microsoft.AspNetCore.Mvc": "1.1.1",

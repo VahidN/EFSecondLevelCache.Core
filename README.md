@@ -20,10 +20,10 @@ To use its in-memory caching mechanism, add these entries to the `project.json` 
 ```json
 {
     "dependencies": {
-        "EFSecondLevelCache.Core": "1.0.2-*",
-        "CacheManager.Core": "0.9.1",
-        "CacheManager.Microsoft.Extensions.Caching.Memory": "0.9.1",
-        "CacheManager.Serialization.Json": "0.9.1"
+        "EFSecondLevelCache.Core": "1.0.3-*",
+        "CacheManager.Core": "0.9.3",
+        "CacheManager.Microsoft.Extensions.Caching.Memory": "0.9.3",
+        "CacheManager.Serialization.Json": "0.9.3"
     }
 }
 ```
@@ -47,7 +47,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
             services.AddEFSecondLevelCache();
 
             services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
-            services.AddSingleton(typeof(CacheManagerConfiguration),
+            services.AddSingleton(typeof(ICacheManagerConfiguration),
                 new CacheManager.Core.ConfigurationBuilder()
                         .WithJsonSerializer()
                         .WithMicrosoftMemoryCacheHandle()

@@ -30,7 +30,7 @@ namespace EFSecondLevelCache.Core.Tests
             services.AddEFSecondLevelCache();
 
             services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
-            services.AddSingleton(typeof(CacheManagerConfiguration),
+            services.AddSingleton(typeof(ICacheManagerConfiguration),
                 new CacheManager.Core.ConfigurationBuilder()
                         .WithJsonSerializer()
                         .WithMicrosoftMemoryCacheHandle()
@@ -53,15 +53,15 @@ namespace EFSecondLevelCache.Core.Tests
             var services = new ServiceCollection();
             services.AddEFSecondLevelCache();
 
+            services.AddSingleton(typeof(ICacheManagerConfiguration),
+               new CacheManager.Core.ConfigurationBuilder()
+                       .WithJsonSerializer()
+                       .WithMicrosoftMemoryCacheHandle()
+                       .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromMinutes(10))
+                       .DisablePerformanceCounters()
+                       .DisableStatistics()
+                       .Build());
             services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
-            services.AddSingleton(typeof(CacheManagerConfiguration),
-                new CacheManager.Core.ConfigurationBuilder()
-                        .WithJsonSerializer()
-                        .WithMicrosoftMemoryCacheHandle()
-                        .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromMinutes(10))
-                        .DisablePerformanceCounters()
-                        .DisableStatistics()
-                        .Build());
 
             var serviceProvider = services.BuildServiceProvider();
             return serviceProvider.GetService<IEFCacheServiceProvider>();

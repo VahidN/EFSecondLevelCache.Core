@@ -3,7 +3,7 @@
 
     "testRunner": "mstest",
     "dependencies": {
-        "EFSecondLevelCache.Core": "1.0.2-*",
+        "EFSecondLevelCache.Core": "1.0.3-*",
         "EFSecondLevelCache.Core.AspNetCoreSample": "1.0.0-*",
         "Microsoft.EntityFrameworkCore": "1.1.0",
         "Microsoft.EntityFrameworkCore.InMemory": "1.1.0",
