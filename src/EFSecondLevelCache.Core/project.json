@@ -12,7 +12,7 @@
 
 
     "dependencies": {
-        "CacheManager.Core": "0.9.1",
+        "CacheManager.Core": "0.9.3",
         "Microsoft.AspNetCore.Http.Abstractions": "1.1.0",
         "Microsoft.EntityFrameworkCore": "1.1.0",
         "Microsoft.EntityFrameworkCore.Relational": "1.1.0",

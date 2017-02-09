@@ -5,14 +5,14 @@
     "dependencies": {
         "EFSecondLevelCache.Core": "1.0.2-*",
         "EFSecondLevelCache.Core.AspNetCoreSample": "1.0.0-*",
-        "CacheManager.Core": "0.9.1",
-        "CacheManager.Microsoft.Extensions.Caching.Memory": "0.9.1",
-        "CacheManager.Serialization.Json": "0.9.1",
         "Microsoft.EntityFrameworkCore": "1.1.0",
         "Microsoft.EntityFrameworkCore.InMemory": "1.1.0",
         "NETStandard.Library": "1.6.1",
-        "MSTest.TestFramework": "1.0.6-preview",
-        "dotnet-test-mstest": "1.1.2-preview"
+        "dotnet-test-mstest": "1.1.2-preview",
+        "CacheManager.Core": "0.9.3",
+        "CacheManager.Microsoft.Extensions.Caching.Memory": "0.9.3",
+        "CacheManager.Serialization.Json": "0.9.3",
+        "MSTest.TestFramework": "1.0.8-rc2"
     },
 
     "frameworks": {
