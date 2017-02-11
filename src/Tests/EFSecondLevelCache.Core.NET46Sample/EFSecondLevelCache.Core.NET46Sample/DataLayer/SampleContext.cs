@@ -8,11 +8,7 @@ namespace EFSecondLevelCache.Core.NET46Sample.DataLayer
 {
     public class SampleContext : DbContext
     {
-        private static readonly IEFCacheServiceProvider _efCacheServiceProvider;
-        static SampleContext()
-        {
-            _efCacheServiceProvider = ConfigureServices.GetEFCacheServiceProvider();
-        }
+        private static readonly IEFCacheServiceProvider _efCacheServiceProvider = ConfigureServices.GetEFCacheServiceProvider();
 
         public virtual DbSet<Post> Posts { get; set; }
 
