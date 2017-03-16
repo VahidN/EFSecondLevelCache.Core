@@ -1,22 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0C0EA45E-C765-4D41-A1DA-EDDC8F239A5B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{312DDEFA-6800-4297-9B38-0C458BB28FED}"
 	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
 		LICENSE.md = LICENSE.md
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EFSecondLevelCache.Core", "src\EFSecondLevelCache.Core\EFSecondLevelCache.Core.xproj", "{755D6A18-E67A-4E14-8289-BD33A901C52B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFSecondLevelCache.Core", "src\EFSecondLevelCache.Core\EFSecondLevelCache.Core.csproj", "{755D6A18-E67A-4E14-8289-BD33A901C52B}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EFSecondLevelCache.Core.Tests", "src\Tests\EFSecondLevelCache.Core.Tests\EFSecondLevelCache.Core.Tests.xproj", "{5475D985-85D6-4DD2-899E-8E8B333B0070}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFSecondLevelCache.Core.Tests", "src\Tests\EFSecondLevelCache.Core.Tests\EFSecondLevelCache.Core.Tests.csproj", "{5475D985-85D6-4DD2-899E-8E8B333B0070}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EFSecondLevelCache.Core.AspNetCoreSample", "src\Tests\EFSecondLevelCache.Core.AspNetCoreSample\EFSecondLevelCache.Core.AspNetCoreSample.xproj", "{EB8B44EC-D677-47B3-8A72-3E340BFDF0DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFSecondLevelCache.Core.AspNetCoreSample", "src\Tests\EFSecondLevelCache.Core.AspNetCoreSample\EFSecondLevelCache.Core.AspNetCoreSample.csproj", "{EB8B44EC-D677-47B3-8A72-3E340BFDF0DE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFSecondLevelCache.Core.NET46Sample", "src\Tests\EFSecondLevelCache.Core.NET46Sample\EFSecondLevelCache.Core.NET46Sample\EFSecondLevelCache.Core.NET46Sample.csproj", "{CEE7F26B-7A7E-4021-A37F-F9625EAF85CE}"
 EndProject

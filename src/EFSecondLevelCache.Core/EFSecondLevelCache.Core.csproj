@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Entity Framework Core Second Level Caching Library.</Description>
+    <VersionPrefix>1.0.4</VersionPrefix>
+    <Authors>Vahid Nasiri</Authors>
+    <TargetFramework>netstandard1.3</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyName>EFSecondLevelCache.Core</AssemblyName>
+    <PackageId>EFSecondLevelCache.Core</PackageId>
+    <PackageTags>EntityFramework;Cache;Caching;SecondLevelCache;EFCore;ORM;.NET Core;aspnetcore</PackageTags>
+    <PackageProjectUrl>https://github.com/VahidN/EFSecondLevelCache.Core</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/VahidN/EFSecondLevelCache.Core/blob/master/LICENSE.md</PackageLicenseUrl>
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CacheManager.Core" Version="0.9.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="1.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="1.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="1.1.1" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>anycpu</PlatformTarget>
+  </PropertyGroup>
+
+  <Target Name="PostcompileScript" AfterTargets="Build">
+    <Exec Command="dotnet pack --no-build --configuration $(Configuration)" />
+  </Target>
+
+</Project>
