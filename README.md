@@ -15,17 +15,15 @@ PM> Install-Package EFSecondLevelCache.Core
 You can also view the [package page](http://www.nuget.org/packages/EFSecondLevelCache.Core/) on NuGet.
 
 This library also uses the [CacheManager.Core](https://github.com/MichaCo/CacheManager), as a highly configurable cache manager. 
-To use its in-memory caching mechanism, add these entries to the `project.json` file:
+To use its in-memory caching mechanism, add these entries to the `.csproj` file:
 
-```json
-{
-    "dependencies": {
-        "EFSecondLevelCache.Core": "1.0.3-*",
-        "CacheManager.Core": "0.9.3",
-        "CacheManager.Microsoft.Extensions.Caching.Memory": "0.9.3",
-        "CacheManager.Serialization.Json": "0.9.3"
-    }
-}
+```xml
+  <ItemGroup>
+    <PackageReference Include="EFSecondLevelCache.Core" Version="1.0.4" />
+    <PackageReference Include="CacheManager.Core" Version="1.0.0" />
+    <PackageReference Include="CacheManager.Microsoft.Extensions.Caching.Memory" Version="1.0.0" />
+    <PackageReference Include="CacheManager.Serialization.Json" Version="1.0.0" />    
+  </ItemGroup>
 ```
 
 And to get the latest versions of these libraries you can run the following command in the Package Manager Console:

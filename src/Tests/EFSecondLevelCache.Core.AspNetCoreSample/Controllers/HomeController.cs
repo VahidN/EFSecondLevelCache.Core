@@ -2,6 +2,8 @@
 using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer;
 using Microsoft.AspNetCore.Mvc;
 using EFSecondLevelCache.Core;
+using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer.Entities;
+using EFSecondLevelCache.Core.Contracts;
 
 namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
 {
@@ -16,8 +18,10 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
 
         public IActionResult Index()
         {
-            var post1 = _context.Posts.Cacheable().FirstOrDefault();
-            return Json(new { title = post1.Title });
+            var debugInfo = new EFCacheDebugInfo();
+            //var post1 = _context.Posts.Where(x => x.Id > 0).Cacheable(debugInfo).FirstOrDefault();
+            var post1 = _context.Set<Post>().Cacheable(debugInfo).FirstOrDefault();
+            return Json(new { post1.Title, debugInfo.IsCacheHit });
         }
     }
 }

@@ -21,9 +21,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CacheManager.Core" Version="0.9.3" />
-    <PackageReference Include="CacheManager.Microsoft.Extensions.Caching.Memory" Version="0.9.3" />
-    <PackageReference Include="CacheManager.Serialization.Json" Version="0.9.3" />
+    <PackageReference Include="CacheManager.Core" Version="1.0.0" />
+    <PackageReference Include="CacheManager.Microsoft.Extensions.Caching.Memory" Version="1.0.0" />
+    <PackageReference Include="CacheManager.Serialization.Json" Version="1.0.0" />
+    <PackageReference Include="CacheManager.StackExchange.Redis" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="1.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="1.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.2" />

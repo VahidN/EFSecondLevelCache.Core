@@ -6,11 +6,34 @@ using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer.Utils;
 using EFSecondLevelCache.Core.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 
 namespace EFSecondLevelCache.Core.Tests
 {
     public static class TestsBase
     {
+        public static IEFCacheServiceProvider GetInMemoryCacheServiceProvider()
+        {
+            var services = new ServiceCollection();
+            services.AddEFSecondLevelCache();
+
+            addInMemoryCacheServiceProvider(services);
+
+            var serviceProvider = services.BuildServiceProvider();
+            return serviceProvider.GetService<IEFCacheServiceProvider>();
+        }
+
+        public static IEFCacheServiceProvider GetRedisCacheServiceProvider()
+        {
+            var services = new ServiceCollection();
+            services.AddEFSecondLevelCache();
+
+            addRedisCacheServiceProvider(services);
+
+            var serviceProvider = services.BuildServiceProvider();
+            return serviceProvider.GetService<IEFCacheServiceProvider>();
+        }
+
         public static IServiceProvider GetServiceProvider()
         {
             var services = new ServiceCollection();
@@ -29,15 +52,8 @@ namespace EFSecondLevelCache.Core.Tests
 
             services.AddEFSecondLevelCache();
 
-            services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
-            services.AddSingleton(typeof(ICacheManagerConfiguration),
-                new CacheManager.Core.ConfigurationBuilder()
-                        .WithJsonSerializer()
-                        .WithMicrosoftMemoryCacheHandle()
-                        .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromMinutes(10))
-                        .DisablePerformanceCounters()
-                        .DisableStatistics()
-                        .Build());
+            addInMemoryCacheServiceProvider(services);
+            //addRedisCacheServiceProvider(services);
 
             var serviceProvider = services.BuildServiceProvider();
             EFServiceProvider.ApplicationServices = serviceProvider; // app.UseEFSecondLevelCache();
@@ -48,23 +64,46 @@ namespace EFSecondLevelCache.Core.Tests
             return serviceProvider;
         }
 
-        public static IEFCacheServiceProvider GetCacheServiceProvider()
+        private static void addInMemoryCacheServiceProvider(IServiceCollection services)
         {
-            var services = new ServiceCollection();
-            services.AddEFSecondLevelCache();
-
             services.AddSingleton(typeof(ICacheManagerConfiguration),
-               new CacheManager.Core.ConfigurationBuilder()
-                       .WithJsonSerializer()
-                       .WithMicrosoftMemoryCacheHandle()
-                       .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromMinutes(10))
-                       .DisablePerformanceCounters()
-                       .DisableStatistics()
-                       .Build());
+                new CacheManager.Core.ConfigurationBuilder()
+                    .WithJsonSerializer()
+                    .WithMicrosoftMemoryCacheHandle()
+                    .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromMinutes(10))
+                    .DisablePerformanceCounters()
+                    .DisableStatistics()
+                    .Build());
             services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
+        }
 
-            var serviceProvider = services.BuildServiceProvider();
-            return serviceProvider.GetService<IEFCacheServiceProvider>();
+        private static void addRedisCacheServiceProvider(IServiceCollection services)
+        {
+            var jss = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+
+            const string redisConfigurationKey = "redis";
+            services.AddSingleton(typeof(ICacheManagerConfiguration),
+                new CacheManager.Core.ConfigurationBuilder()
+                    .WithJsonSerializer(serializationSettings: jss, deserializationSettings: jss)
+                    .WithUpdateMode(CacheUpdateMode.Up)
+                    .WithRedisConfiguration(redisConfigurationKey, config =>
+                    {
+                        config.WithAllowAdmin()
+                            .WithDatabase(0)
+                            .WithEndpoint("localhost", 6379);
+                    })
+                    .WithMaxRetries(100)
+                    .WithRetryTimeout(50)
+                    .WithRedisCacheHandle(redisConfigurationKey)
+                    .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromMinutes(10))
+                    .DisablePerformanceCounters()
+                    .DisableStatistics()
+                    .Build());
+            services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
         }
     }
 }
