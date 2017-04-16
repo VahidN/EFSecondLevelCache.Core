@@ -30,5 +30,33 @@ namespace EFSecondLevelCache.Core.Contracts
         {
             CacheDependencies = new HashSet<string>();
         }
+
+        /// <summary>
+        /// Equals
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            var efCacheKey = obj as EFCacheKey;
+            if (efCacheKey == null)
+                return false;
+
+            return this.KeyHash == efCacheKey.KeyHash;
+        }
+
+        /// <summary>
+        /// GetHashCode
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hash = 17;
+                hash = hash * 23 + KeyHash.GetHashCode();
+                return hash;
+            }
+        }
     }
 }

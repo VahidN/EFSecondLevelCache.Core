@@ -41,7 +41,7 @@ namespace EFSecondLevelCache.Core
         public object GetValue(string cacheKey)
         {
             var value = _valuesCacheManager.Get(cacheKey);
-            return value == _nullObject ? null : value;
+            return Equals(value, _nullObject) ? null : value;
         }
 
         /// <summary>

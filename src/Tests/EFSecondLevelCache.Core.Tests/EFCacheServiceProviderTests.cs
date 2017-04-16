@@ -93,7 +93,7 @@ namespace EFSecondLevelCache.Core.Tests
             _cacheService.InsertValue("EF_key1", null, new HashSet<string> { "entity1", "entity2" });
 
             var value1 = _cacheService.GetValue("EF_key1");
-            Assert.IsNull(value1);
+            Assert.IsNull(value1, $"value1 is `{value1}`");
         }
     }
 }
