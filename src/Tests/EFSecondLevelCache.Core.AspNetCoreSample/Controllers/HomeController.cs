@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer;
 using Microsoft.AspNetCore.Mvc;
-using EFSecondLevelCache.Core;
 using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer.Entities;
 using EFSecondLevelCache.Core.Contracts;
 

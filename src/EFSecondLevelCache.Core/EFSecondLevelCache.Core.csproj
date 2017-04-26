@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>Entity Framework Core Second Level Caching Library.</Description>
-    <VersionPrefix>1.1.1</VersionPrefix>
+    <VersionPrefix>1.2.0</VersionPrefix>
     <Authors>Vahid Nasiri</Authors>
     <TargetFrameworks>netstandard1.3;net451</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

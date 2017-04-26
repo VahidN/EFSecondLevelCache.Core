@@ -690,5 +690,32 @@ namespace EFSecondLevelCache.Core.Tests
             });
             Assert.AreEqual(true, debugInfo1.IsCacheHit);
         }
+
+        [TestMethod]
+        public void TestSecondLevelCacheUsingFindMethods()
+        {
+            var serviceProvider = TestsBase.GetServiceProvider();
+
+            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
+                {
+                    var debugInfo = new EFCacheDebugInfo();
+                    var product1 = context.Products
+                        .Cacheable(debugInfo, serviceProvider)
+                        .Find(1);
+                    Assert.AreEqual(false, debugInfo.IsCacheHit);
+                    Assert.IsTrue(product1 != null);
+
+
+                    var debugInfo2 = new EFCacheDebugInfo();
+                    product1 = context.Products
+                        .Cacheable(debugInfo2, serviceProvider)
+                        .Find(1);
+                    Assert.AreEqual(true, debugInfo2.IsCacheHit);
+                    Assert.IsTrue(product1 != null);
+                }
+            }
+        }
     }
 }

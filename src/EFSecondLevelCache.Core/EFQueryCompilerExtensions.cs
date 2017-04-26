@@ -10,7 +10,7 @@ namespace EFSecondLevelCache.Core
     /// <summary>
     /// Getting the SQL for a Query
     /// </summary>
-    public static class EFQueryCompilerExtentions
+    public static class EFQueryCompilerExtensions
     {
         private static readonly TypeInfo _queryCompilerTypeInfo =
             typeof(QueryCompiler).GetTypeInfo();

@@ -5,7 +5,6 @@ using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer.Entities;
 using EFSecondLevelCache.Core.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using EFSecondLevelCache.Core;
 
 namespace EFSecondLevelCache.Core.AspNetCoreSample.DataLayer
 {

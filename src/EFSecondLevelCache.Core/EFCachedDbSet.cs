@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using EFSecondLevelCache.Core.Contracts;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace EFSecondLevelCache.Core
@@ -11,8 +12,8 @@ namespace EFSecondLevelCache.Core
     /// <summary>
     /// Provides functionality to evaluate queries against a specific data source.
     /// </summary>
-    /// <typeparam name="TType">Type of the entity.</typeparam>
-    public class EFCachedQueryable<TType> : IQueryable<TType>, IAsyncEnumerableAccessor<TType>
+    /// <typeparam name="TType"></typeparam>
+    public class EFCachedDbSet<TType> : IQueryable<TType>, IAsyncEnumerableAccessor<TType> where TType : class
     {
         private readonly EFCachedQueryProvider<TType> _provider;
 
@@ -24,8 +25,8 @@ namespace EFSecondLevelCache.Core
         /// <param name="debugInfo">Stores the debug information of the caching process.</param>
         /// <param name="cacheKeyProvider">Gets an EF query and returns its hash to store in the cache.</param>
         /// <param name="cacheServiceProvider">Cache Service Provider.</param>
-        public EFCachedQueryable(
-            IQueryable<TType> query,
+        public EFCachedDbSet(
+            DbSet<TType> query,
             string saltKey,
             EFCacheDebugInfo debugInfo,
             IEFCacheKeyProvider cacheKeyProvider,
@@ -35,7 +36,7 @@ namespace EFSecondLevelCache.Core
             DebugInfo = debugInfo;
             CacheKeyProvider = cacheKeyProvider;
             CacheServiceProvider = cacheServiceProvider;
-            Query = query.MarkAsNoTracking();
+            Query = query;
             _provider = new EFCachedQueryProvider<TType>(Query, saltKey, debugInfo, cacheKeyProvider, cacheServiceProvider);
         }
 
@@ -62,12 +63,12 @@ namespace EFSecondLevelCache.Core
         /// <summary>
         /// Gets the type of the element(s) that are returned when the expression tree associated with this instance of System.Linq.IQueryable is executed.
         /// </summary>
-        public Type ElementType => Query.ElementType;
+        public Type ElementType => Query.AsQueryable().ElementType;
 
         /// <summary>
         /// Gets the expression tree that is associated with the instance of System.Linq.IQueryable.
         /// </summary>
-        public Expression Expression => Query.Expression;
+        public Expression Expression => Query.AsQueryable().Expression;
 
         /// <summary>
         /// Gets the query provider that is associated with this data source.
@@ -77,7 +78,7 @@ namespace EFSecondLevelCache.Core
         /// <summary>
         /// The input EF query.
         /// </summary>
-        public IQueryable<TType> Query { get; }
+        public DbSet<TType> Query { get; }
 
         /// <summary>
         /// If you think the computed hash of the query is not enough, set this value.
@@ -90,7 +91,7 @@ namespace EFSecondLevelCache.Core
         /// <returns>A collections that can be used to iterate through the collection.</returns>
         public IEnumerator GetEnumerator()
         {
-            return ((IEnumerable)_provider.Materialize(Query.Expression, () => Query.ToArray())).GetEnumerator();
+            return ((IEnumerable)_provider.Materialize(Query.AsQueryable().Expression, () => Query.ToArray())).GetEnumerator();
         }
 
         /// <summary>
@@ -99,7 +100,7 @@ namespace EFSecondLevelCache.Core
         /// <returns>A collections that can be used to iterate through the collection.</returns>
         IEnumerator<TType> IEnumerable<TType>.GetEnumerator()
         {
-            return ((IEnumerable<TType>)_provider.Materialize(Query.Expression, () => Query.ToArray())).GetEnumerator();
+            return ((IEnumerable<TType>)_provider.Materialize(Query.AsQueryable().Expression, () => Query.ToArray())).GetEnumerator();
         }
     }
 }

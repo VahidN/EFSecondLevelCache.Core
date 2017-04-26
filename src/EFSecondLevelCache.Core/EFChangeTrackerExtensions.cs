@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 
 namespace EFSecondLevelCache.Core
 {
     /// <summary>
-    /// Change Tracker Extenstions
+    /// Change Tracker Extensions
     /// </summary>
-    public static class EFChangeTrackerExtenstions
+    public static class EFChangeTrackerExtensions
     {
+        private static readonly MethodInfo _asNoTrackingMethodInfo =
+            typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking));
+
         /// <summary>
         /// Find the base types of the given type, recursively.
         /// </summary>
@@ -57,6 +61,19 @@ namespace EFSecondLevelCache.Core
                             dbEntityEntry.State == EntityState.Modified ||
                             dbEntityEntry.State == EntityState.Deleted)
                 .Select(dbEntityEntry => dbEntityEntry.Entity.GetType());
+        }
+
+        /// <summary>
+        /// Applies the AsNoTracking method dynamically
+        /// </summary>
+        public static IQueryable<TType> MarkAsNoTracking<TType>(this IQueryable<TType> query)
+        {
+            if (typeof(TType).GetTypeInfo().IsClass)
+            {
+                return query.Provider.CreateQuery<TType>(
+                    Expression.Call(null, _asNoTrackingMethodInfo.MakeGenericMethod(typeof(TType)), query.Expression));
+            }
+            return query;
         }
     }
 }

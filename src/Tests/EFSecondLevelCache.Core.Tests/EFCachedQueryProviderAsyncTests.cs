@@ -192,5 +192,32 @@ namespace EFSecondLevelCache.Core.Tests
                 }
             }
         }
+
+        [TestMethod]
+        public async Task TestSecondLevelCacheUsingFindAsyncMethods()
+        {
+            var serviceProvider = TestsBase.GetServiceProvider();
+
+            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
+                {
+                    var debugInfo = new EFCacheDebugInfo();
+                    var product1 = await context.Products
+                        .Cacheable(debugInfo, serviceProvider)
+                        .FindAsync(1);
+                    Assert.AreEqual(false, debugInfo.IsCacheHit);
+                    Assert.IsTrue(product1 != null);
+
+
+                    var debugInfo2 = new EFCacheDebugInfo();
+                    product1 = await context.Products
+                        .Cacheable(debugInfo2, serviceProvider)
+                        .FindAsync(1);
+                    Assert.AreEqual(true, debugInfo2.IsCacheHit);
+                    Assert.IsTrue(product1 != null);
+                }
+            }
+        }
     }
 }
