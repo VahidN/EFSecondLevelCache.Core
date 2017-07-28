@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer.Entities;
 using EFSecondLevelCache.Core.Contracts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 
 namespace EFSecondLevelCache.Core.AspNetCoreSample.DataLayer
@@ -42,6 +43,11 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.DataLayer
                         serverDbContextOptionsBuilder.CommandTimeout(minutes);
                     });
             }
+
+            // optionsBuilder.ConfigureWarnings(w =>
+            // {
+            //     w.Log(CoreEventId.IncludeIgnoredWarning);
+            // });
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

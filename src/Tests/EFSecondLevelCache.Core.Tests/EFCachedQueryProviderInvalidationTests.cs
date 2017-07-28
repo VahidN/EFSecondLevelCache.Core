@@ -56,6 +56,11 @@ namespace EFSecondLevelCache.Core.Tests
                         UserId = 1
                     };
                     context.Products.Add(newProduct);
+
+                    context.ChangeTracker.DetectChanges();
+                    var changedEntityNames = context.GetChangedEntityNames();
+                    Assert.IsTrue(debugInfo2.EFCacheKey.CacheDependencies.Any(item => changedEntityNames.Contains(item)));
+
                     context.SaveChanges();
 
 
@@ -113,6 +118,11 @@ namespace EFSecondLevelCache.Core.Tests
                         Name = $"User {rnd.Next()}"
                     };
                     context.Users.Add(user);
+
+                    context.ChangeTracker.DetectChanges();
+                    var changedEntityNames = context.GetChangedEntityNames();
+                    Assert.IsFalse(debugInfo2.EFCacheKey.CacheDependencies.Any(item => changedEntityNames.Contains(item)));
+
                     context.SaveChanges();
 
 
@@ -169,6 +179,11 @@ namespace EFSecondLevelCache.Core.Tests
                         Name = $"Tag {rnd.Next()}"
                     };
                     context.Tags.Add(tag);
+
+                    context.ChangeTracker.DetectChanges();
+                    var changedEntityNames = context.GetChangedEntityNames();
+                    Assert.IsTrue(debugInfo2.EFCacheKey.CacheDependencies.Any(item => changedEntityNames.Contains(item)));
+
                     context.SaveChanges();
 
 
@@ -292,6 +307,11 @@ namespace EFSecondLevelCache.Core.Tests
                     Console.WriteLine("removing data, invalidates the cache on SaveChanges");
                     var product1 = context.Products.First(product => product.ProductName == name);
                     context.Products.Remove(product1);
+
+                    context.ChangeTracker.DetectChanges();
+                    var changedEntityNames = context.GetChangedEntityNames();
+                    Assert.IsTrue(debugInfo2.EFCacheKey.CacheDependencies.Any(item => changedEntityNames.Contains(item)));
+
                     context.SaveChanges();
 
 
@@ -333,6 +353,11 @@ namespace EFSecondLevelCache.Core.Tests
                     Console.WriteLine("removing data, invalidates the cache on SaveChanges");
                     var post1 = context.Posts.First(post => post.Title == "Post1");
                     context.Posts.Remove(post1);
+
+                    context.ChangeTracker.DetectChanges();
+                    var changedEntityNames = context.GetChangedEntityNames();
+                    Assert.IsTrue(debugInfo2.EFCacheKey.CacheDependencies.Any(item => changedEntityNames.Contains(item)));
+
                     context.SaveChanges();
 
 
