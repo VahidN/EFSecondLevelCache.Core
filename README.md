@@ -65,29 +65,29 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
 If you want to use the Redis as the preferred cache provider, first install the `CacheManager.StackExchange.Redis` package and then register its required services:
 ```csharp
 // Add Redis cache service provider
-var�jss�=�new�JsonSerializerSettings
+var jss = new JsonSerializerSettings
 {
-����NullValueHandling�=�NullValueHandling.Ignore,
-����ReferenceLoopHandling�=�ReferenceLoopHandling.Ignore
+    NullValueHandling = NullValueHandling.Ignore,
+    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
 };
  
-const�string�redisConfigurationKey�=�"redis";
+const string redisConfigurationKey = "redis";
 services.AddSingleton(typeof(ICacheManagerConfiguration),
-����new�CacheManager.Core.ConfigurationBuilder()
-��������.WithJsonSerializer(serializationSettings:�jss,�deserializationSettings:�jss)
-��������.WithUpdateMode(CacheUpdateMode.Up)
-��������.WithRedisConfiguration(redisConfigurationKey,�config�=>
-��������{
-������������config.WithAllowAdmin()
-����������������.WithDatabase(0)
-����������������.WithEndpoint("localhost",�6379);
-��������})
-��������.WithMaxRetries(100)
-��������.WithRetryTimeout(50)
-��������.WithRedisCacheHandle(redisConfigurationKey)
-��������.WithExpiration(ExpirationMode.Absolute,�TimeSpan.FromMinutes(10))
-��������.Build());
-services.AddSingleton(typeof(ICacheManager<>),�typeof(BaseCacheManager<>));
+    new CacheManager.Core.ConfigurationBuilder()
+        .WithJsonSerializer(serializationSettings: jss, deserializationSettings: jss)
+        .WithUpdateMode(CacheUpdateMode.Up)
+        .WithRedisConfiguration(redisConfigurationKey, config =>
+        {
+            config.WithAllowAdmin()
+                .WithDatabase(0)
+                .WithEndpoint("localhost", 6379);
+        })
+        .WithMaxRetries(100)
+        .WithRetryTimeout(50)
+        .WithRedisCacheHandle(redisConfigurationKey)
+        .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromMinutes(10))
+        .Build());
+services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
 ```
 
 
