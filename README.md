@@ -19,10 +19,10 @@ To use its in-memory caching mechanism, add these entries to the `.csproj` file:
 
 ```xml
   <ItemGroup>
-    <PackageReference Include="EFSecondLevelCache.Core" Version="1.3.0" />
-    <PackageReference Include="CacheManager.Core" Version="1.1.0" />
-    <PackageReference Include="CacheManager.Microsoft.Extensions.Caching.Memory" Version="1.1.0" />
-    <PackageReference Include="CacheManager.Serialization.Json" Version="1.1.0" />    
+    <PackageReference Include="EFSecondLevelCache.Core" Version="1.3.1" />
+    <PackageReference Include="CacheManager.Core" Version="1.1.1" />
+    <PackageReference Include="CacheManager.Microsoft.Extensions.Caching.Memory" Version="1.1.1" />
+    <PackageReference Include="CacheManager.Serialization.Json" Version="1.1.1" />    
   </ItemGroup>
 ```
 
@@ -65,29 +65,29 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
 If you want to use the Redis as the preferred cache provider, first install the `CacheManager.StackExchange.Redis` package and then register its required services:
 ```csharp
 // Add Redis cache service provider
-var jss = new JsonSerializerSettings
+varï¿½jssï¿½=ï¿½newï¿½JsonSerializerSettings
 {
-    NullValueHandling = NullValueHandling.Ignore,
-    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+ï¿½ï¿½ï¿½ï¿½NullValueHandlingï¿½=ï¿½NullValueHandling.Ignore,
+ï¿½ï¿½ï¿½ï¿½ReferenceLoopHandlingï¿½=ï¿½ReferenceLoopHandling.Ignore
 };
  
-const string redisConfigurationKey = "redis";
+constï¿½stringï¿½redisConfigurationKeyï¿½=ï¿½"redis";
 services.AddSingleton(typeof(ICacheManagerConfiguration),
-    new CacheManager.Core.ConfigurationBuilder()
-        .WithJsonSerializer(serializationSettings: jss, deserializationSettings: jss)
-        .WithUpdateMode(CacheUpdateMode.Up)
-        .WithRedisConfiguration(redisConfigurationKey, config =>
-        {
-            config.WithAllowAdmin()
-                .WithDatabase(0)
-                .WithEndpoint("localhost", 6379);
-        })
-        .WithMaxRetries(100)
-        .WithRetryTimeout(50)
-        .WithRedisCacheHandle(redisConfigurationKey)
-        .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromMinutes(10))
-        .Build());
-services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
+ï¿½ï¿½ï¿½ï¿½newï¿½CacheManager.Core.ConfigurationBuilder()
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.WithJsonSerializer(serializationSettings:ï¿½jss,ï¿½deserializationSettings:ï¿½jss)
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.WithUpdateMode(CacheUpdateMode.Up)
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.WithRedisConfiguration(redisConfigurationKey,ï¿½configï¿½=>
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½{
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½config.WithAllowAdmin()
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.WithDatabase(0)
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.WithEndpoint("localhost",ï¿½6379);
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½})
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.WithMaxRetries(100)
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.WithRetryTimeout(50)
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.WithRedisCacheHandle(redisConfigurationKey)
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.WithExpiration(ExpirationMode.Absolute,ï¿½TimeSpan.FromMinutes(10))
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.Build());
+services.AddSingleton(typeof(ICacheManager<>),ï¿½typeof(BaseCacheManager<>));
 ```
 
 

@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>EFSecondLevelCache.Core.Tests</AssemblyName>
@@ -8,30 +7,24 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <IsPackable>false</IsPackable>    
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\EFSecondLevelCache.Core\EFSecondLevelCache.Core.csproj" />
     <ProjectReference Include="..\EFSecondLevelCache.Core.AspNetCoreSample\EFSecondLevelCache.Core.AspNetCoreSample.csproj" />
   </ItemGroup>
-
-  <ItemGroup>   
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.0-preview2-final" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.0.0-preview2-final" />
-
-    <PackageReference Include="CacheManager.StackExchange.Redis" Version="1.1.0" />    
-    <PackageReference Include="CacheManager.Core" Version="1.1.0" />
-    <PackageReference Include="CacheManager.Microsoft.Extensions.Caching.Memory" Version="1.1.0" />
-    <PackageReference Include="CacheManager.Serialization.Json" Version="1.1.0" />
-
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0-preview-20170427-09" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.1.17" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.1.17" />
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.0.0" />
+    <PackageReference Include="CacheManager.StackExchange.Redis" Version="1.1.1" />
+    <PackageReference Include="CacheManager.Core" Version="1.1.1" />
+    <PackageReference Include="CacheManager.Microsoft.Extensions.Caching.Memory" Version="1.1.1" />
+    <PackageReference Include="CacheManager.Serialization.Json" Version="1.1.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
   </ItemGroup>
-
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
-
 </Project>

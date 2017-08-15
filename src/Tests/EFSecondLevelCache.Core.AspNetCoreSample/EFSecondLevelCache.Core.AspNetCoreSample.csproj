@@ -4,41 +4,34 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>EFSecondLevelCache.Core.AspNetCoreSample</AssemblyName>
     <OutputType>Exe</OutputType>
-    <PackageId>EFSecondLevelCache.Core.AspNetCoreSample</PackageId>      
+    <PackageId>EFSecondLevelCache.Core.AspNetCoreSample</PackageId>
   </PropertyGroup>
-
   <ItemGroup>
     <None Update="wwwroot\**\*">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\EFSecondLevelCache.Core\EFSecondLevelCache.Core.csproj" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0-preview2-final" />
-
-    <PackageReference Include="CacheManager.Core" Version="1.1.0" />
-    <PackageReference Include="CacheManager.Microsoft.Extensions.Caching.Memory" Version="1.1.0" />
-    <PackageReference Include="CacheManager.Serialization.Json" Version="1.1.0" />
-    <PackageReference Include="CacheManager.StackExchange.Redis" Version="1.1.0" />
-
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.0-preview2-final" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.0.0-preview2-final" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.0-preview2-final" />    
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.0-preview2-final">
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
+    <PackageReference Include="CacheManager.Core" Version="1.1.1" />
+    <PackageReference Include="CacheManager.Microsoft.Extensions.Caching.Memory" Version="1.1.1" />
+    <PackageReference Include="CacheManager.Serialization.Json" Version="1.1.1" />
+    <PackageReference Include="CacheManager.StackExchange.Redis" Version="1.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <PlatformTarget>anycpu</PlatformTarget>
   </PropertyGroup>
-
   <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.0-preview2-final" />
-    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0-preview2-final" />
+    <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.0" />
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
   </ItemGroup>
 </Project>
