@@ -32,5 +32,11 @@ namespace EFSecondLevelCache.Core.Contracts
         /// </summary>
         /// <param name="rootCacheKeys">cache dependencies</param>
         void InvalidateCacheDependencies(string[] rootCacheKeys);
+
+        /// <summary>
+        /// Some cache providers won't accept null values.
+        /// So we need a custom Null object here. It should be defined `static readonly` in your code.
+        /// </summary>
+        object NullObject { get; }
     }
 }

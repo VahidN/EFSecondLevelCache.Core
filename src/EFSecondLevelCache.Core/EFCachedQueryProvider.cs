@@ -128,13 +128,13 @@ namespace EFSecondLevelCache.Core
             var cacheKey = _cacheKeyProvider.GetEFCacheKey(_query, expression, _saltKey);
             _debugInfo.EFCacheKey = cacheKey;
             var queryCacheKey = cacheKey.KeyHash;
-            var result = _cacheServiceProvider.GetValue(queryCacheKey);			
-            if(Equals(result, EFCacheServiceProvider.NullObject))
+            var result = _cacheServiceProvider.GetValue(queryCacheKey);
+            if (Equals(result, _cacheServiceProvider.NullObject))
             {
                 _debugInfo.IsCacheHit = true;
                 return null;
             }
-			
+
             if (result != null)
             {
                 _debugInfo.IsCacheHit = true;

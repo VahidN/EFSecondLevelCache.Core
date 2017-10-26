@@ -9,14 +9,15 @@ namespace EFSecondLevelCache.Core
     /// </summary>
     public class EFCacheServiceProvider : IEFCacheServiceProvider
     {
+        private static readonly EFCacheKey _nullObject = new EFCacheKey();
         private readonly ICacheManager<ISet<string>> _dependenciesCacheManager;
         private readonly ICacheManager<object> _valuesCacheManager;
 
         /// <summary>
-        /// NullObject
+        /// Some cache providers won't accept null values.
+        /// So we need a custom Null object here. It should be defined `static readonly` in your code.
         /// </summary>
-        /// <returns></returns>
-        public static readonly EFCacheKey NullObject = new EFCacheKey();
+        public object NullObject => _nullObject;
 
         /// <summary>
         /// Using ICacheManager as a cache service.
