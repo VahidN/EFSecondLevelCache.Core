@@ -14,15 +14,15 @@ PM> Install-Package EFSecondLevelCache.Core
 
 You can also view the [package page](http://www.nuget.org/packages/EFSecondLevelCache.Core/) on NuGet.
 
-This library also uses the [CacheManager.Core](https://github.com/MichaCo/CacheManager), as a highly configurable cache manager. 
+This library also uses the [CacheManager.Core](https://github.com/MichaCo/CacheManager), as a highly configurable cache manager.
 To use its in-memory caching mechanism, add these entries to the `.csproj` file:
 
 ```xml
   <ItemGroup>
-    <PackageReference Include="EFSecondLevelCache.Core" Version="1.3.1" />
+    <PackageReference Include="EFSecondLevelCache.Core" Version="1.3.2" />
     <PackageReference Include="CacheManager.Core" Version="1.1.1" />
     <PackageReference Include="CacheManager.Microsoft.Extensions.Caching.Memory" Version="1.1.1" />
-    <PackageReference Include="CacheManager.Serialization.Json" Version="1.1.1" />    
+    <PackageReference Include="CacheManager.Serialization.Json" Version="1.1.1" />
   </ItemGroup>
 ```
 
@@ -70,7 +70,7 @@ var jss = new JsonSerializerSettings
     NullValueHandling = NullValueHandling.Ignore,
     ReferenceLoopHandling = ReferenceLoopHandling.Ignore
 };
- 
+
 const string redisConfigurationKey = "redis";
 services.AddSingleton(typeof(ICacheManagerConfiguration),
     new CacheManager.Core.ConfigurationBuilder()

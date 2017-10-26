@@ -9,9 +9,14 @@ namespace EFSecondLevelCache.Core
     /// </summary>
     public class EFCacheServiceProvider : IEFCacheServiceProvider
     {
-        private static readonly EFCacheKey _nullObject = new EFCacheKey();
         private readonly ICacheManager<ISet<string>> _dependenciesCacheManager;
         private readonly ICacheManager<object> _valuesCacheManager;
+
+        /// <summary>
+        /// NullObject
+        /// </summary>
+        /// <returns></returns>
+        public static readonly EFCacheKey NullObject = new EFCacheKey();
 
         /// <summary>
         /// Using ICacheManager as a cache service.
@@ -40,8 +45,7 @@ namespace EFSecondLevelCache.Core
         /// <returns>cached value</returns>
         public object GetValue(string cacheKey)
         {
-            var value = _valuesCacheManager.Get(cacheKey);
-            return Equals(value, _nullObject) ? null : value;
+            return _valuesCacheManager.Get(cacheKey);
         }
 
         /// <summary>
@@ -55,7 +59,7 @@ namespace EFSecondLevelCache.Core
         {
             if (value == null)
             {
-                value = _nullObject; // `HttpRuntime.Cache.Insert` won't accept null values.
+                value = NullObject; // `HttpRuntime.Cache.Insert` won't accept null values.
             }
 
             foreach (var rootCacheKey in rootCacheKeys)

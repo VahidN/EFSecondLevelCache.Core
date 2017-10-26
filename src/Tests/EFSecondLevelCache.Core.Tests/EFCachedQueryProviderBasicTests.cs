@@ -717,5 +717,36 @@ namespace EFSecondLevelCache.Core.Tests
                 }
             }
         }
+
+        [TestMethod]
+        public void TestNullValuesWillUseTheCache()
+        {
+            var serviceProvider = TestsBase.GetServiceProvider();
+            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
+                {
+                    Console.WriteLine("1st query, reading from db.");
+                    var debugInfo1 = new EFCacheDebugInfo();
+                    var item1 = context.Products
+                        .OrderBy(product => product.ProductNumber)
+                        .Where(product => product.IsActive && product.ProductName == "Product1xx")
+                        .Cacheable(debugInfo1)
+                        .FirstOrDefault();
+                    Assert.AreEqual(false, debugInfo1.IsCacheHit);
+                    Assert.IsNull(item1);
+
+                    Console.WriteLine("2nd query, reading from cache.");
+                    var debugInfo2 = new EFCacheDebugInfo();
+                    var item2 = context.Products
+                        .OrderBy(product => product.ProductNumber)
+                        .Where(product => product.IsActive && product.ProductName == "Product1xx")
+                        .Cacheable(debugInfo2)
+                        .FirstOrDefault();
+                    Assert.AreEqual(true, debugInfo2.IsCacheHit);
+                    Assert.IsNull(item2);
+                }
+            }
+        }
     }
 }
