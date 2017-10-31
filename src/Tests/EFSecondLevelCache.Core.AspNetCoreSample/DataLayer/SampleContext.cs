@@ -1,54 +1,22 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer.Entities;
 using EFSecondLevelCache.Core.Contracts;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace EFSecondLevelCache.Core.AspNetCoreSample.DataLayer
 {
     public class SampleContext : DbContext
     {
-        private readonly IConfigurationRoot _configuration;
-        private readonly IEFCacheServiceProvider _cacheServiceProvider;
-
-        public SampleContext(IConfigurationRoot configuration, IEFCacheServiceProvider cacheServiceProvider)
-        {
-            _configuration = configuration;
-            _cacheServiceProvider = cacheServiceProvider;
-        }
-
         public virtual DbSet<Post> Posts { get; set; }
         public virtual DbSet<Product> Products { get; set; }
         public virtual DbSet<TagProduct> TagProducts { get; set; }
         public virtual DbSet<Tag> Tags { get; set; }
         public virtual DbSet<User> Users { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            var useInMemoryDatabase = _configuration["UseInMemoryDatabase"].Equals("true", StringComparison.OrdinalIgnoreCase);
-            if (useInMemoryDatabase)
-            {
-                optionsBuilder.UseInMemoryDatabase();
-            }
-            else
-            {
-                optionsBuilder.UseSqlServer(
-                    _configuration["ConnectionStrings:ApplicationDbContextConnection"]
-                    , serverDbContextOptionsBuilder =>
-                    {
-                        var minutes = (int)TimeSpan.FromMinutes(3).TotalSeconds;
-                        serverDbContextOptionsBuilder.CommandTimeout(minutes);
-                    });
-            }
-
-            // optionsBuilder.ConfigureWarnings(w =>
-            // {
-            //     w.Log(CoreEventId.IncludeIgnoredWarning);
-            // });
-        }
+        public SampleContext(DbContextOptions<SampleContext> options) : base(options)
+        { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -123,7 +91,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.DataLayer
             var result = base.SaveChanges();
             this.ChangeTracker.AutoDetectChangesEnabled = true;
 
-            _cacheServiceProvider.InvalidateCacheDependencies(changedEntityNames);
+            this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
 
             return result;
         }
@@ -137,7 +105,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.DataLayer
             var result = base.SaveChangesAsync(cancellationToken);
             this.ChangeTracker.AutoDetectChangesEnabled = true;
 
-            _cacheServiceProvider.InvalidateCacheDependencies(changedEntityNames);
+            this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
 
             return result;
         }

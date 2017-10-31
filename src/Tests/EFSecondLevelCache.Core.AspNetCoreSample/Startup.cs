@@ -4,6 +4,7 @@ using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer;
 using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -13,10 +14,13 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
 {
     public class Startup
     {
+        private readonly string _contentRootPath;
+
         public Startup(IHostingEnvironment env)
         {
+            _contentRootPath = env.ContentRootPath;
             var builder = new Microsoft.Extensions.Configuration.ConfigurationBuilder()
-                                .SetBasePath(env.ContentRootPath)
+                                .SetBasePath(_contentRootPath)
                                 .AddJsonFile("appsettings.json", reloadOnChange: true, optional: false)
                                 .AddJsonFile($"appsettings.{env}.json", optional: true)
                                 .AddEnvironmentVariables();
@@ -56,7 +60,34 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IConfigurationRoot>(provider => { return Configuration; });
-            services.AddDbContext<SampleContext>(ServiceLifetime.Scoped);
+            services.AddDbContext<SampleContext>(optionsBuilder =>
+            {
+                var useInMemoryDatabase = Configuration["UseInMemoryDatabase"].Equals("true", StringComparison.OrdinalIgnoreCase);
+                if (useInMemoryDatabase)
+                {
+                    optionsBuilder.UseInMemoryDatabase("TestDb");
+                }
+                else
+                {
+                    var connectionString = Configuration["ConnectionStrings:ApplicationDbContextConnection"];
+                    if (connectionString.Contains("%CONTENTROOTPATH%"))
+                    {
+                        connectionString = connectionString.Replace("%CONTENTROOTPATH%", _contentRootPath);
+                    }
+                    optionsBuilder.UseSqlServer(
+                        connectionString
+                        , serverDbContextOptionsBuilder =>
+                        {
+                            var minutes = (int)TimeSpan.FromMinutes(3).TotalSeconds;
+                            serverDbContextOptionsBuilder.CommandTimeout(minutes);
+                        });
+                }
+
+                // optionsBuilder.ConfigureWarnings(w =>
+                // {
+                //     w.Log(CoreEventId.IncludeIgnoredWarning);
+                // });
+            });
 
             services.AddMvc();
             services.AddDirectoryBrowser();

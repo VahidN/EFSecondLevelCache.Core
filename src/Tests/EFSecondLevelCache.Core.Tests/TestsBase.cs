@@ -4,6 +4,7 @@ using CacheManager.Core;
 using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer;
 using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer.Utils;
 using EFSecondLevelCache.Core.Contracts;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -48,7 +49,10 @@ namespace EFSecondLevelCache.Core.Tests
                                 .Build();
             });
 
-            services.AddEntityFrameworkInMemoryDatabase().AddDbContext<SampleContext>(ServiceLifetime.Scoped);
+            services.AddEntityFrameworkInMemoryDatabase().AddDbContext<SampleContext>(optionsBuilder =>
+            {
+                optionsBuilder.UseInMemoryDatabase("TestDb");
+            });
 
             services.AddEFSecondLevelCache();
 

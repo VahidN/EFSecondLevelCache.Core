@@ -98,24 +98,10 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.DataLayer
 {
     public class SampleContext : DbContext
     {
-        private readonly IConfigurationRoot _configuration;
-        private readonly IEFCacheServiceProvider _cacheServiceProvider;
-
-        public SampleContext(IConfigurationRoot configuration, IEFCacheServiceProvider cacheServiceProvider)
-        {
-            _configuration = configuration;
-            _cacheServiceProvider = cacheServiceProvider;
-        }
+        public SampleContext(DbContextOptions<SampleContext> options) : base(options)
+        { }
 
         public virtual DbSet<Post> Posts { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-        }
 
         public override int SaveChanges()
         {
@@ -123,7 +109,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.DataLayer
             var changedEntityNames = this.GetChangedEntityNames();
 
             var result = base.SaveChanges();
-            _cacheServiceProvider.InvalidateCacheDependencies(changedEntityNames);
+            this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
 
             return result;
         }
