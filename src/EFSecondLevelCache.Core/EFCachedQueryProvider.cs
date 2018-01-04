@@ -20,6 +20,8 @@ namespace EFSecondLevelCache.Core
         private readonly EFCacheDebugInfo _debugInfo;
         private readonly string _saltKey;
         private readonly IQueryable<TType> _query;
+        private static readonly Object _syncLock = new Object();
+
         /// <summary>
         /// Defines methods to create and execute queries that are described by an System.Linq.IQueryable object.
         /// </summary>
@@ -125,27 +127,30 @@ namespace EFSecondLevelCache.Core
         /// <returns>The value that results from executing the specified query.</returns>
         public object Materialize(Expression expression, Func<object> materializer)
         {
-            var cacheKey = _cacheKeyProvider.GetEFCacheKey(_query, expression, _saltKey);
-            _debugInfo.EFCacheKey = cacheKey;
-            var queryCacheKey = cacheKey.KeyHash;
-            var result = _cacheServiceProvider.GetValue(queryCacheKey);
-            if (Equals(result, _cacheServiceProvider.NullObject))
+            lock (_syncLock)
             {
-                _debugInfo.IsCacheHit = true;
-                return null;
-            }
+                var cacheKey = _cacheKeyProvider.GetEFCacheKey(_query, expression, _saltKey);
+                _debugInfo.EFCacheKey = cacheKey;
+                var queryCacheKey = cacheKey.KeyHash;
+                var result = _cacheServiceProvider.GetValue(queryCacheKey);
+                if (Equals(result, _cacheServiceProvider.NullObject))
+                {
+                    _debugInfo.IsCacheHit = true;
+                    return null;
+                }
 
-            if (result != null)
-            {
-                _debugInfo.IsCacheHit = true;
+                if (result != null)
+                {
+                    _debugInfo.IsCacheHit = true;
+                    return result;
+                }
+
+                result = materializer();
+
+                _cacheServiceProvider.InsertValue(queryCacheKey, result, cacheKey.CacheDependencies);
+
                 return result;
             }
-
-            result = materializer();
-
-            _cacheServiceProvider.InsertValue(queryCacheKey, result, cacheKey.CacheDependencies);
-
-            return result;
         }
     }
 }
