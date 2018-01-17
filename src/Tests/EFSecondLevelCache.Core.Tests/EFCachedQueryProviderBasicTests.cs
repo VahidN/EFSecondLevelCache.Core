@@ -748,5 +748,43 @@ namespace EFSecondLevelCache.Core.Tests
                 }
             }
         }
+
+        [TestMethod]
+        public void TestEqualsMethodWillUseTheCache()
+        {
+            var serviceProvider = TestsBase.GetServiceProvider();
+            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
+                {
+                    Console.WriteLine("1st query, reading from db.");
+                    var debugInfo1 = new EFCacheDebugInfo();
+                    var item1 = context.Products
+                        .Where(product => product.ProductId == 2 && product.ProductName.Equals("Product1"))
+                        .Cacheable(debugInfo1)
+                        .FirstOrDefault();
+                    Assert.AreEqual(false, debugInfo1.IsCacheHit);
+                    Assert.IsNotNull(item1);
+
+                    Console.WriteLine("2nd query, reading from cache.");
+                    var debugInfo2 = new EFCacheDebugInfo();
+                    var item2 = context.Products
+                        .Where(product => product.ProductId == 2 && product.ProductName.Equals("Product1"))
+                        .Cacheable(debugInfo2)
+                        .FirstOrDefault();
+                    Assert.AreEqual(true, debugInfo2.IsCacheHit);
+                    Assert.IsNotNull(item2);
+
+                    Console.WriteLine("3rd query, reading from db.");
+                    var debugInfo3 = new EFCacheDebugInfo();
+                    var item3 = context.Products
+                        .Where(product => product.ProductId == 1 && product.ProductName.Equals("Product1"))
+                        .Cacheable(debugInfo3)
+                        .FirstOrDefault();
+                    Assert.AreEqual(false, debugInfo3.IsCacheHit);
+                    Assert.IsNull(item3);
+                }
+            }
+        }
     }
 }
