@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Ben.Diagnostics;
 
 namespace EFSecondLevelCache.Core.AspNetCoreSample
 {
@@ -34,11 +35,14 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
             ILoggerFactory loggerFactory,
             IServiceScopeFactory scopeFactory)
         {
+            app.UseBlockingDetection();
+
             scopeFactory.Initialize();
             scopeFactory.SeedData();
 
             app.UseEFSecondLevelCache();
 
+            loggerFactory.AddConsole();
             loggerFactory.AddDebug(minLevel: LogLevel.Debug);
 
             if (env.IsDevelopment())
