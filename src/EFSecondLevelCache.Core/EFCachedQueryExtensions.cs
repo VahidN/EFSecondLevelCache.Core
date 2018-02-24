@@ -263,7 +263,6 @@ namespace EFSecondLevelCache.Core
             _defaultCacheKeyProvider = applicationServices.GetService<IEFCacheKeyProvider>();
         }
 
-
         #region IQueryable.Cacheable()
         /// <summary>
         /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
