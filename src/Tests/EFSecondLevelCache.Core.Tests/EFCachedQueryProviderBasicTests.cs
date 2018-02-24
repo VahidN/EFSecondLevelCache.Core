@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -783,6 +784,39 @@ namespace EFSecondLevelCache.Core.Tests
                         .FirstOrDefault();
                     Assert.AreEqual(false, debugInfo3.IsCacheHit);
                     Assert.IsNull(item3);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void TestSecondLevelCacheDoesNotHitTheDatabaseForIQueryableCacheables()
+        {
+            var serviceProvider = TestsBase.GetServiceProvider();
+            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
+                {
+                    var isActive = true;
+                    var name = "Product1";
+
+                    Console.WriteLine("1st query, reading from db.");
+                    var debugInfo1 = new EFCacheDebugInfo();
+                    var list1IQueryable = context.Products
+                            .OrderBy(product => product.ProductNumber)
+                            .Where(product => product.IsActive == isActive && product.ProductName == name) as IQueryable;
+                    var list1 = (list1IQueryable.Cacheable(debugInfo1, serviceProvider) as IEnumerable).Cast<object>().ToList();
+                    Assert.AreEqual(false, debugInfo1.IsCacheHit);
+                    Assert.IsTrue(list1.Any());
+
+
+                    Console.WriteLine("same query, reading from 2nd level cache.");
+                    var debugInfo2 = new EFCacheDebugInfo();
+                    var list2IQueryable = context.Products
+                                       .OrderBy(product => product.ProductNumber)
+                                       .Where(product => product.IsActive == isActive && product.ProductName == name) as IQueryable;
+                    var list2 = (list2IQueryable.Cacheable(debugInfo2, serviceProvider) as IEnumerable).Cast<object>().ToList();
+                    Assert.AreEqual(true, debugInfo2.IsCacheHit);
+                    Assert.IsTrue(list2.Any());
                 }
             }
         }
