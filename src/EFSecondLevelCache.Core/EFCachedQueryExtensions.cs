@@ -262,5 +262,51 @@ namespace EFSecondLevelCache.Core
             _defaultCacheServiceProvider = applicationServices.GetService<IEFCacheServiceProvider>();
             _defaultCacheKeyProvider = applicationServices.GetService<IEFCacheKeyProvider>();
         }
+
+        #region IQueryable.Cacheable()
+        /// <summary>
+        /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
+        /// </summary>
+        /// <param name="query">The input EF query.</param>
+        /// <param name="saltKey">If you think the computed hash of the query is not enough, set this value.</param>
+        /// <param name="debugInfo">Stores the debug information of the caching process.</param>
+        /// <param name="cacheKeyProvider">Gets an EF query and returns its hash to store in the cache.</param>
+        /// <param name="cacheServiceProvider">Cache Service Provider.</param>
+        /// <returns>Provides functionality to evaluate queries against a specific data source.</returns>
+        public static IQueryable Cacheable(
+           this IQueryable query, string saltKey, EFCacheDebugInfo debugInfo,
+           IEFCacheKeyProvider cacheKeyProvider, IEFCacheServiceProvider cacheServiceProvider)
+        {
+            var type = typeof(EFCachedQueryable<>).MakeGenericType(query.ElementType);
+            var cachedQueryable = Activator.CreateInstance(type, query, saltKey, debugInfo, cacheKeyProvider, cacheServiceProvider);
+            return cachedQueryable as IQueryable;
+        }
+
+        /// <summary>
+        /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
+        /// Please add `AddEFSecondLevelCache` method to `IServiceCollection` and also add `UseEFSecondLevelCache` method to `IApplicationBuilder` before using this method.
+        /// </summary>
+        /// <param name="query">The input EF query.</param>
+        /// <param name="saltKey">If you think the computed hash of the query is not enough, set this value.</param>
+        /// <param name="debugInfo">Stores the debug information of the caching process.</param>
+        /// <returns>Provides functionality to evaluate queries against a specific data source.</returns>
+        public static IQueryable Cacheable(
+            this IQueryable query, string saltKey, EFCacheDebugInfo debugInfo)
+        {
+            configureProviders();
+            return Cacheable(query, saltKey, debugInfo, _defaultCacheKeyProvider, _defaultCacheServiceProvider);
+        }
+
+        /// <summary>
+        /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
+        /// Please add `AddEFSecondLevelCache` method to `IServiceCollection` and also add `UseEFSecondLevelCache` method to `IApplicationBuilder` before using this method.
+        /// </summary>
+        /// <param name="query">The input EF query.</param>
+        /// <returns>Provides functionality to evaluate queries against a specific data source.</returns>
+        public static IQueryable Cacheable(this IQueryable query)
+        {
+            return Cacheable(query, string.Empty, new EFCacheDebugInfo());
+        }
+        #endregion
     }
 }
