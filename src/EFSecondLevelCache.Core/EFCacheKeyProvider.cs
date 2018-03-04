@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using EFSecondLevelCache.Core.Contracts;
 
 namespace EFSecondLevelCache.Core
@@ -34,6 +35,11 @@ namespace EFSecondLevelCache.Core
             var expressionVisitorResult = EFQueryExpressionVisitor.GetDebugView(expression);
             var sql = query.ToSql();
             var key = $"{sql}{Environment.NewLine}{expressionVisitorResult.DebugView}{Environment.NewLine}{saltKey}";
+
+            var guidPattern = "[?a-zA-Z0-9]{8}-[?a-zA-Z0-9]{4}-[?a-zA-Z0-9]{4}-[?a-zA-Z0-9]{4}-[?a-zA-Z0-9]{12}";
+            var removeStringPattern = $"ModelID = \"{guidPattern}\",";
+            key = Regex.Replace(key, removeStringPattern, "");
+
             var keyHash = _cacheKeyHashProvider.ComputeHash(key);
             return new EFCacheKey
             {
