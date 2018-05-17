@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Ben.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 
 namespace EFSecondLevelCache.Core.AspNetCoreSample
 {
@@ -51,6 +52,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseHttpsRedirection();
             app.UseFileServer();
 
             app.UseMvc(routes =>
@@ -93,7 +95,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
                 // });
             });
 
-            services.AddMvc();
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddDirectoryBrowser();
 
             services.AddEFSecondLevelCache();

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿#if !NETSTANDARD2_0 && !NET4_6_1
+using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -22,14 +23,8 @@ namespace EFSecondLevelCache.Core
             _queryCompilerTypeInfo.DeclaredMethods.First(x => x.Name == "CreateQueryParser");
         private static readonly FieldInfo _dataBaseField =
             _queryCompilerTypeInfo.DeclaredFields.Single(x => x.Name == "_database");
-
-#if NETSTANDARD2_0 || NET4_6_1           
-       private static readonly PropertyInfo _databaseDependenciesProperty = 
-           typeof(Database).GetTypeInfo().DeclaredProperties.Single(x => x.Name == "Dependencies");
-#else
         private static readonly FieldInfo _queryCompilationContextFactoryField =
             typeof(Database).GetTypeInfo().DeclaredFields.Single(x => x.Name == "_queryCompilationContextFactory");
-#endif
 
         /// <summary>
         /// Getting the SQL for a Query
@@ -42,14 +37,7 @@ namespace EFSecondLevelCache.Core
             var parser = (IQueryParser)_createQueryParserMethod.Invoke(queryCompiler, new object[] { nodeTypeProvider });
             var queryModel = parser.GetParsedQuery(query.Expression);
             var database = _dataBaseField.GetValue(queryCompiler);
-
-#if NETSTANDARD2_0 || NET4_6_1           
-		    var databaseDependencies = (DatabaseDependencies)_databaseDependenciesProperty.GetValue(database); 
-		    var queryCompilationContextFactory = databaseDependencies.QueryCompilationContextFactory;
-#else
             var queryCompilationContextFactory = (IQueryCompilationContextFactory)_queryCompilationContextFactoryField.GetValue(database);
-#endif            
-
             var queryCompilationContext = queryCompilationContextFactory.Create(false);
             var modelVisitor = queryCompilationContext.CreateQueryModelVisitor();
             modelVisitor.CreateQueryExecutor<TEntity>(queryModel);
@@ -65,3 +53,4 @@ namespace EFSecondLevelCache.Core
         }
     }
 }
+#endif
