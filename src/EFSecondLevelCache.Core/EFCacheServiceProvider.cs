@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CacheManager.Core;
 using EFSecondLevelCache.Core.Contracts;
 
@@ -12,6 +13,7 @@ namespace EFSecondLevelCache.Core
         private static readonly EFCacheKey _nullObject = new EFCacheKey();
         private readonly ICacheManager<ISet<string>> _dependenciesCacheManager;
         private readonly ICacheManager<object> _valuesCacheManager;
+        private static readonly Object _syncLock = new Object();
 
         /// <summary>
         /// Some cache providers won't accept null values.
@@ -82,15 +84,18 @@ namespace EFSecondLevelCache.Core
         /// <param name="rootCacheKeys">cache dependencies</param>
         public void InvalidateCacheDependencies(string[] rootCacheKeys)
         {
-            foreach (var rootCacheKey in rootCacheKeys)
+            lock (_syncLock)
             {
-                if (string.IsNullOrWhiteSpace(rootCacheKey))
+                foreach (var rootCacheKey in rootCacheKeys)
                 {
-                    continue;
-                }
+                    if (string.IsNullOrWhiteSpace(rootCacheKey))
+                    {
+                        continue;
+                    }
 
-                clearDependencyValues(rootCacheKey);
-                _dependenciesCacheManager.Remove(rootCacheKey);
+                    clearDependencyValues(rootCacheKey);
+                    _dependenciesCacheManager.Remove(rootCacheKey);
+                }
             }
         }
 

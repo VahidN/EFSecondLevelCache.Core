@@ -1,5 +1,7 @@
 EFSecondLevelCache.Core
 =======
+[![Build status](https://ci.appveyor.com/api/projects/status/2vulcij72pc59ghv?svg=true)](https://ci.appveyor.com/project/VahidN/efsecondlevelcache-core)
+
 Entity Framework Core Second Level Caching Library.
 
 Second level caching is a query cache. The results of EF commands will be stored in the cache, so that the same EF commands will retrieve their data from the cache rather than executing them against the database again.
