@@ -658,37 +658,27 @@ namespace EFSecondLevelCache.Core.Tests
             }
         }
 
-        protected static void ExecuteInParallel(Action test, int count = 40)
-        {
-            var tests = new Action[count];
-            for (var i = 0; i < count; i++)
-            {
-                tests[i] = test;
-            }
-            Parallel.Invoke(tests);
-        }
-
         [TestMethod]
         public void TestParallelQueriesShouldCacheData()
         {
             var serviceProvider = TestsBase.GetServiceProvider();
             var debugInfo1 = new EFCacheDebugInfo();
-            ExecuteInParallel(() =>
-            {
-                using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
-                {
-                    using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
-                    {
-                        var firstProductIncludeTags = context.Products
-                            .Include(x => x.TagProducts).ThenInclude(x => x.Tag)
-                            .Select(x => new { Name = x.ProductName, Tag = x.TagProducts.Select(y => y.Tag) })
-                            .OrderBy(x => x.Name)
-                            .Cacheable(debugInfo1, serviceProvider)
-                            .FirstOrDefault();
-                        Assert.IsNotNull(firstProductIncludeTags);
-                    }
-                }
-            });
+            TestsBase.ExecuteInParallel(() =>
+             {
+                 using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+                 {
+                     using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
+                     {
+                         var firstProductIncludeTags = context.Products
+                             .Include(x => x.TagProducts).ThenInclude(x => x.Tag)
+                             .Select(x => new { Name = x.ProductName, Tag = x.TagProducts.Select(y => y.Tag) })
+                             .OrderBy(x => x.Name)
+                             .Cacheable(debugInfo1, serviceProvider)
+                             .FirstOrDefault();
+                         Assert.IsNotNull(firstProductIncludeTags);
+                     }
+                 }
+             });
             Assert.AreEqual(true, debugInfo1.IsCacheHit);
         }
 

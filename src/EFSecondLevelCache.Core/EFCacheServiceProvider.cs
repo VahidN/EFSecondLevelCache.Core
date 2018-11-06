@@ -13,7 +13,7 @@ namespace EFSecondLevelCache.Core
         private static readonly EFCacheKey _nullObject = new EFCacheKey();
         private readonly ICacheManager<ISet<string>> _dependenciesCacheManager;
         private readonly ICacheManager<object> _valuesCacheManager;
-        private static readonly Object _syncLock = new Object();
+        private readonly TimeSpan _cacheItemRemoveTimeout = TimeSpan.FromTicks(1);
 
         /// <summary>
         /// Some cache providers won't accept null values.
@@ -84,18 +84,15 @@ namespace EFSecondLevelCache.Core
         /// <param name="rootCacheKeys">cache dependencies</param>
         public void InvalidateCacheDependencies(string[] rootCacheKeys)
         {
-            lock (_syncLock)
+            foreach (var rootCacheKey in rootCacheKeys)
             {
-                foreach (var rootCacheKey in rootCacheKeys)
+                if (string.IsNullOrWhiteSpace(rootCacheKey))
                 {
-                    if (string.IsNullOrWhiteSpace(rootCacheKey))
-                    {
-                        continue;
-                    }
-
-                    clearDependencyValues(rootCacheKey);
-                    _dependenciesCacheManager.Remove(rootCacheKey);
+                    continue;
                 }
+
+                clearDependencyValues(rootCacheKey);
+                _dependenciesCacheManager.Expire(rootCacheKey, ExpirationMode.Absolute, _cacheItemRemoveTimeout);
             }
         }
 
@@ -109,7 +106,7 @@ namespace EFSecondLevelCache.Core
 
             foreach (var dependencyKey in dependencyKeys)
             {
-                _valuesCacheManager.Remove(dependencyKey);
+                _valuesCacheManager.Expire(dependencyKey, ExpirationMode.Absolute, _cacheItemRemoveTimeout);
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using CacheManager.Core;
 using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer;
 using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer.Utils;
@@ -66,6 +67,16 @@ namespace EFSecondLevelCache.Core.Tests
             serviceScope.SeedData();
 
             return serviceProvider;
+        }
+
+        public static void ExecuteInParallel(Action test, int count = 40)
+        {
+            var tests = new Action[count];
+            for (var i = 0; i < count; i++)
+            {
+                tests[i] = test;
+            }
+            Parallel.Invoke(tests);
         }
 
         private static void addInMemoryCacheServiceProvider(IServiceCollection services)

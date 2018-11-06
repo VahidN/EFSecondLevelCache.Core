@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using EFSecondLevelCache.Core.Contracts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -94,6 +97,35 @@ namespace EFSecondLevelCache.Core.Tests
 
             var value1 = _cacheService.GetValue("EF_key1");
             Assert.IsTrue(Equals(value1, _cacheService.NullObject), $"value1 is `{value1}`");
+        }
+
+        [TestMethod]
+        public void TestParallelInsertsAndRemoves()
+        {
+            var tests = new List<Action>();
+
+            for (var i = 0; i < 4000; i++)
+            {
+                tests.Add(() => _cacheService.InsertValue($"EF_key{i}", i, new HashSet<string> { "entity1", "entity2" }));
+            }
+
+            for (var i = 0; i < 400; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    tests.Add(() => _cacheService.InvalidateCacheDependencies(new[] { "entity1" }));
+                }
+                else
+                {
+                    tests.Add(() => _cacheService.InvalidateCacheDependencies(new[] { "entity2" }));
+                }
+            }
+
+            var rnd = new Random();
+            Parallel.Invoke(tests.OrderBy(a => rnd.Next()).ToArray());
+
+            var value1 = _cacheService.GetValue("EF_key1");
+            Assert.IsNull(value1);
         }
     }
 }
