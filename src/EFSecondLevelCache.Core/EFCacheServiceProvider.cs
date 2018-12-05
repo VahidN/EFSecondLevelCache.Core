@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Threading;
 using CacheManager.Core;
 using EFSecondLevelCache.Core.Contracts;
 
@@ -13,7 +13,8 @@ namespace EFSecondLevelCache.Core
         private static readonly EFCacheKey _nullObject = new EFCacheKey();
         private readonly ICacheManager<ISet<string>> _dependenciesCacheManager;
         private readonly ICacheManager<object> _valuesCacheManager;
-        private readonly TimeSpan _cacheItemRemoveTimeout = TimeSpan.FromTicks(1);
+        private readonly ReaderWriterLockSlim _vcmReaderWriterLock = new ReaderWriterLockSlim();
+        private readonly ReaderWriterLockSlim _dcReaderWriterLock = new ReaderWriterLockSlim();
 
         /// <summary>
         /// Some cache providers won't accept null values.
@@ -37,8 +38,8 @@ namespace EFSecondLevelCache.Core
         /// </summary>
         public void ClearAllCachedEntries()
         {
-            _valuesCacheManager.Clear();
-            _dependenciesCacheManager.Clear();
+            _vcmReaderWriterLock.TryWriteLocked(() => _valuesCacheManager.Clear());
+            _dcReaderWriterLock.TryWriteLocked(() => _dependenciesCacheManager.Clear());
         }
 
         /// <summary>
@@ -67,15 +68,18 @@ namespace EFSecondLevelCache.Core
 
             foreach (var rootCacheKey in rootCacheKeys)
             {
-                _dependenciesCacheManager.AddOrUpdate(rootCacheKey, new HashSet<string> { cacheKey },
-                    updateValue: set =>
-                                    {
-                                        set.Add(cacheKey);
-                                        return set;
-                                    });
+                _dcReaderWriterLock.TryWriteLocked(() =>
+                {
+                    _dependenciesCacheManager.AddOrUpdate(rootCacheKey, new HashSet<string> { cacheKey },
+                        updateValue: set =>
+                        {
+                            set.Add(cacheKey);
+                            return set;
+                        });
+                });
             }
 
-            _valuesCacheManager.Add(cacheKey, value);
+            _vcmReaderWriterLock.TryWriteLocked(() => _valuesCacheManager.Add(cacheKey, value));
         }
 
         /// <summary>
@@ -92,22 +96,25 @@ namespace EFSecondLevelCache.Core
                 }
 
                 clearDependencyValues(rootCacheKey);
-                _dependenciesCacheManager.Expire(rootCacheKey, ExpirationMode.Absolute, _cacheItemRemoveTimeout);
+                _dcReaderWriterLock.TryWriteLocked(() => _dependenciesCacheManager.Remove(rootCacheKey));
             }
         }
 
         private void clearDependencyValues(string rootCacheKey)
         {
-            var dependencyKeys = _dependenciesCacheManager.Get(rootCacheKey);
-            if (dependencyKeys == null)
+            _dcReaderWriterLock.TryReadLocked(() =>
             {
-                return;
-            }
+                var dependencyKeys = _dependenciesCacheManager.Get(rootCacheKey);
+                if (dependencyKeys == null)
+                {
+                    return;
+                }
 
-            foreach (var dependencyKey in dependencyKeys)
-            {
-                _valuesCacheManager.Expire(dependencyKey, ExpirationMode.Absolute, _cacheItemRemoveTimeout);
-            }
+                foreach (var dependencyKey in dependencyKeys)
+                {
+                    _vcmReaderWriterLock.TryWriteLocked(() => _valuesCacheManager.Remove(dependencyKey));
+                }
+            });
         }
     }
 }

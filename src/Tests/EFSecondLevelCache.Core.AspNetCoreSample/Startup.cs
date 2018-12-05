@@ -43,9 +43,6 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
 
             app.UseEFSecondLevelCache();
 
-            loggerFactory.AddConsole();
-            loggerFactory.AddDebug(minLevel: LogLevel.Debug);
-
             if (env.IsDevelopment())
             {
                 app.UseDatabaseErrorPage();

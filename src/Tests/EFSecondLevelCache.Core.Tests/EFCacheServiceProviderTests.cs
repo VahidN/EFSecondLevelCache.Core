@@ -106,7 +106,8 @@ namespace EFSecondLevelCache.Core.Tests
 
             for (var i = 0; i < 4000; i++)
             {
-                tests.Add(() => _cacheService.InsertValue($"EF_key{i}", i, new HashSet<string> { "entity1", "entity2" }));
+                var i1 = i;
+                tests.Add(() => _cacheService.InsertValue($"EF_key{i1}", i1, new HashSet<string> { "entity1", "entity2" }));
             }
 
             for (var i = 0; i < 400; i++)
