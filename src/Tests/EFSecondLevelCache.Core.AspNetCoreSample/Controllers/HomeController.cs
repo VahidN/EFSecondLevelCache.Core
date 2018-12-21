@@ -20,15 +20,21 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
         public IActionResult Index()
         {
             var debugInfo = new EFCacheDebugInfo();
-            //var post1 = _context.Posts.Where(x => x.Id > 0).Cacheable(debugInfo).FirstOrDefault();
-            var post1 = _context.Set<Post>().OrderBy(x => x.Id).Cacheable(debugInfo).FirstOrDefault();
+            var post1 = _context.Set<Post>()
+                                .Where(x => x.Id > 0)
+                                .OrderBy(x => x.Id)
+                                .Cacheable(debugInfo)
+                                .FirstOrDefault();
             return Json(new { post1.Title, debugInfo.IsCacheHit });
         }
 
         public async Task<IActionResult> AsyncTest()
         {
             var debugInfo = new EFCacheDebugInfo();
-            var post1 = await _context.Posts.Where(x => x.Id > 0).Cacheable(debugInfo).FirstOrDefaultAsync();
+            var post1 = await _context.Posts
+                                      .Where(x => x.Id > 0)
+                                      .Cacheable(debugInfo)
+                                      .FirstOrDefaultAsync();
             return Json(new { post1.Title, debugInfo.IsCacheHit });
         }
     }
