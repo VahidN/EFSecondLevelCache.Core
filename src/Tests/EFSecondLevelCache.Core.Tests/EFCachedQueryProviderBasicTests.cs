@@ -810,5 +810,34 @@ namespace EFSecondLevelCache.Core.Tests
                 }
             }
         }
+
+        [TestMethod]
+        public void Test2DiffernetCollectionsWillNotUseTheCache()
+        {
+            var serviceProvider = TestsBase.GetServiceProvider();
+            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
+                {
+                    var collection1 = new[] { 1, 2, 3 };
+                    var debugInfo1 = new EFCacheDebugInfo();
+                    var item1 = context.Products
+                        .Where(product => collection1.Contains(product.ProductId))
+                        .Cacheable(debugInfo1)
+                        .FirstOrDefault();
+                    Assert.AreEqual(false, debugInfo1.IsCacheHit);
+                    Assert.IsNotNull(item1);
+
+                    var collection2 = new[] { 1, 2, 3, 4 };
+                    var debugInfo2 = new EFCacheDebugInfo();
+                    var item2 = context.Products
+                        .Where(product => collection1.Contains(product.ProductId))
+                        .Cacheable(debugInfo2)
+                        .FirstOrDefault();
+                    Assert.AreEqual(false, debugInfo2.IsCacheHit);
+                    Assert.IsNotNull(item2);
+                }
+            }
+        }
     }
 }

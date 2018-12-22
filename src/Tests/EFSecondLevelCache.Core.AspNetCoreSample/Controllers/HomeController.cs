@@ -37,5 +37,16 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
                                       .FirstOrDefaultAsync();
             return Json(new { post1.Title, debugInfo.IsCacheHit });
         }
+
+        public async Task<IActionResult> CollectionsTest()
+        {
+            var collection1 = new[] { 1, 2, 3 };
+            var debugInfo = new EFCacheDebugInfo();
+            var post1 = await _context.Posts
+                                      .Where(x => collection1.Contains(x.Id))
+                                      .Cacheable(debugInfo)
+                                      .FirstOrDefaultAsync();
+            return Json(new { post1.Title, debugInfo.IsCacheHit });
+        }
     }
 }
