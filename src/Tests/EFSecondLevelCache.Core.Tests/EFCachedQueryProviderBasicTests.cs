@@ -812,7 +812,7 @@ namespace EFSecondLevelCache.Core.Tests
         }
 
         [TestMethod]
-        public void Test2DiffernetCollectionsWillNotUseTheCache()
+        public void Test2DifferentCollectionsWillNotUseTheCache()
         {
             var serviceProvider = TestsBase.GetServiceProvider();
             using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
@@ -834,7 +834,7 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => collection1.Contains(product.ProductId))
                         .Cacheable(debugInfo2)
                         .FirstOrDefault();
-                    Assert.AreEqual(false, debugInfo2.IsCacheHit);
+                    Assert.AreEqual(false, debugInfo2.IsCacheHit); // Works with `RelationalQueryModelVisitor`
                     Assert.IsNotNull(item2);
                 }
             }
