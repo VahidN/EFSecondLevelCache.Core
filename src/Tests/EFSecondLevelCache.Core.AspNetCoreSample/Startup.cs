@@ -106,7 +106,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
             services.AddSingleton(typeof(ICacheManagerConfiguration),
                 new CacheManager.Core.ConfigurationBuilder()
                     .WithJsonSerializer()
-                    .WithMicrosoftMemoryCacheHandle()
+                    .WithMicrosoftMemoryCacheHandle(instanceName: "MemoryCache1")
                     .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromMinutes(10))
                     .Build());
         }

@@ -31,7 +31,7 @@ namespace Issue15
             services.AddSingleton(typeof(ICacheManagerConfiguration),
                 new CacheManager.Core.ConfigurationBuilder()
                         .WithJsonSerializer()
-                        .WithMicrosoftMemoryCacheHandle()
+                        .WithMicrosoftMemoryCacheHandle(instanceName: "MemoryCache1")
                         .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromMinutes(10))
                         .DisablePerformanceCounters()
                         .DisableStatistics()

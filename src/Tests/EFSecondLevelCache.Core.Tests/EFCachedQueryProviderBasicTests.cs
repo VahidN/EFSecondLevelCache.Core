@@ -839,5 +839,42 @@ namespace EFSecondLevelCache.Core.Tests
                 }
             }
         }
+
+        [TestMethod]
+        public void TestSubqueriesWillUseTheCache()
+        {
+            var serviceProvider = TestsBase.GetServiceProvider();
+            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
+                {
+                    var debugInfo1 = new EFCacheDebugInfo();
+                    var item1 = context.Products.Select(product => new
+                    {
+                        prop1 = product.UserId,
+                        prop2 = context.TagProducts.Where(tag => tag.ProductProductId == product.ProductId)
+                               .Cacheable().Select(tag => new
+                               {
+                                   tag.TagId
+                               })
+                    }).FirstOrDefault();
+                    Assert.AreEqual(false, debugInfo1.IsCacheHit);
+                    Assert.IsNotNull(item1);
+
+                    var debugInfo2 = new EFCacheDebugInfo();
+                    var item2 = context.Products.Select(product => new
+                    {
+                        prop1 = product.UserId,
+                        prop2 = context.TagProducts.Where(tag => tag.ProductProductId == product.ProductId)
+                           .Cacheable().Select(tag => new
+                           {
+                               tag.TagId
+                           })
+                    }).FirstOrDefault();
+                    Assert.AreEqual(false, debugInfo2.IsCacheHit);
+                    Assert.IsNotNull(item2);
+                }
+            }
+        }
     }
 }
