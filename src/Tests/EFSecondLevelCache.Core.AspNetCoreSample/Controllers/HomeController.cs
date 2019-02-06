@@ -5,6 +5,7 @@ using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer.Entities;
 using EFSecondLevelCache.Core.Contracts;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
 {
@@ -47,6 +48,21 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
                                       .Cacheable(debugInfo)
                                       .FirstOrDefaultAsync();
             return Json(new { post1.Title, debugInfo.IsCacheHit });
+        }
+
+        /// <summary>
+        /// Get https://localhost:5001/home/StringEqualsTest
+        /// </summary>
+        public async Task<IActionResult> StringEqualsTest()
+        {
+            var debugInfo = new EFCacheDebugInfo();
+            var rnd = new Random();
+            var value = rnd.Next(1, 1000000).ToString();
+            var post1 = await _context.Posts
+                                      .Where(x => x.Title.Equals(value))
+                                      .Cacheable(debugInfo)
+                                      .FirstOrDefaultAsync();
+            return Json(new { value, debugInfo.IsCacheHit });
         }
     }
 }
