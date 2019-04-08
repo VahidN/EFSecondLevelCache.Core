@@ -33,6 +33,7 @@ namespace EFSecondLevelCache.Core
 
         /// <summary>
         /// Using the ChangeTracker to find names of the changed entities.
+        /// It calls ChangeTracker.DetectChanges() explicitly.
         /// </summary>
         public static string[] GetChangedEntityNames(this DbContext dbContext)
         {
@@ -53,9 +54,16 @@ namespace EFSecondLevelCache.Core
 
         /// <summary>
         /// Using the ChangeTracker to find types of the changed entities.
+        /// It calls ChangeTracker.DetectChanges() explicitly.
         /// </summary>
         public static IEnumerable<Type> GetChangedEntityTypes(this DbContext dbContext)
         {
+            if (!dbContext.ChangeTracker.AutoDetectChangesEnabled)
+            {
+                // ChangeTracker.Entries() only calls `Try`DetectChanges() behind the scene.
+                dbContext.ChangeTracker.DetectChanges();
+            }
+
             return dbContext.ChangeTracker.Entries().Where(
                             dbEntityEntry => dbEntityEntry.State == EntityState.Added ||
                             dbEntityEntry.State == EntityState.Modified ||

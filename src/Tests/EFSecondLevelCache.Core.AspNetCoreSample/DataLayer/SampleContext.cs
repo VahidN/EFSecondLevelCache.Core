@@ -84,7 +84,6 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.DataLayer
 
         public override int SaveChanges()
         {
-            this.ChangeTracker.DetectChanges();
             var changedEntityNames = this.GetChangedEntityNames();
 
             this.ChangeTracker.AutoDetectChangesEnabled = false; // for performance reasons, to avoid calling DetectChanges() again.
@@ -98,7 +97,6 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.DataLayer
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
-            this.ChangeTracker.DetectChanges();
             var changedEntityNames = this.GetChangedEntityNames();
 
             this.ChangeTracker.AutoDetectChangesEnabled = false; // for performance reasons, to avoid calling DetectChanges() again.
