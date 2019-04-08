@@ -106,11 +106,13 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.DataLayer
         public virtual DbSet<Post> Posts { get; set; }
 
         public override int SaveChanges()
-        {
-            this.ChangeTracker.DetectChanges();
+        {            
             var changedEntityNames = this.GetChangedEntityNames();
 
+            this.ChangeTracker.AutoDetectChangesEnabled = false; // for performance reasons, to avoid calling DetectChanges() again.
             var result = base.SaveChanges();
+            this.ChangeTracker.AutoDetectChangesEnabled = true;
+
             this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
 
             return result;
