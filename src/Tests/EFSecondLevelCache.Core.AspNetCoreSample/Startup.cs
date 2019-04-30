@@ -41,8 +41,6 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
             scopeFactory.Initialize();
             scopeFactory.SeedData();
 
-            app.UseEFSecondLevelCache();
-
             if (env.IsDevelopment())
             {
                 app.UseDatabaseErrorPage();

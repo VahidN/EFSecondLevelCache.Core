@@ -22,7 +22,7 @@ namespace EFSecondLevelCache.Core.Tests
             addInMemoryCacheServiceProvider(services);
 
             var serviceProvider = services.BuildServiceProvider();
-            return serviceProvider.GetService<IEFCacheServiceProvider>();
+            return serviceProvider.GetRequiredService<IEFCacheServiceProvider>();
         }
 
         public static IEFCacheServiceProvider GetRedisCacheServiceProvider()
@@ -33,7 +33,7 @@ namespace EFSecondLevelCache.Core.Tests
             addRedisCacheServiceProvider(services);
 
             var serviceProvider = services.BuildServiceProvider();
-            return serviceProvider.GetService<IEFCacheServiceProvider>();
+            return serviceProvider.GetRequiredService<IEFCacheServiceProvider>();
         }
 
         public static IServiceProvider GetServiceProvider()
@@ -61,8 +61,6 @@ namespace EFSecondLevelCache.Core.Tests
             //addRedisCacheServiceProvider(services);
 
             var serviceProvider = services.BuildServiceProvider();
-            EFServiceProvider.ApplicationServices = serviceProvider; // app.UseEFSecondLevelCache();
-
             var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>();
             serviceScope.SeedData();
 

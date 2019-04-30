@@ -19,7 +19,7 @@ namespace Issue15
 
         public static IEFCacheServiceProvider GetEFCacheServiceProvider()
         {
-            return Instance.GetService<IEFCacheServiceProvider>();
+            return Instance.GetRequiredService<IEFCacheServiceProvider>();
         }
 
         private static IServiceProvider getServiceProvider()
@@ -38,8 +38,6 @@ namespace Issue15
                         .Build());
 
             var serviceProvider = services.BuildServiceProvider();
-            EFServiceProvider.ApplicationServices = serviceProvider; // app.UseEFSecondLevelCache();
-
             return serviceProvider;
         }
     }

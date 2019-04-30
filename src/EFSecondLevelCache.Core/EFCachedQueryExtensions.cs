@@ -78,8 +78,8 @@ namespace EFSecondLevelCache.Core
         public static EFCachedQueryable<TType> Cacheable<TType>(
             this IQueryable<TType> query, string saltKey, EFCacheDebugInfo debugInfo, IServiceProvider serviceProvider)
         {
-            var cacheServiceProvider = serviceProvider.GetService<IEFCacheServiceProvider>();
-            var cacheKeyProvider = serviceProvider.GetService<IEFCacheKeyProvider>();
+            var cacheServiceProvider = serviceProvider.GetRequiredService<IEFCacheServiceProvider>();
+            var cacheKeyProvider = serviceProvider.GetRequiredService<IEFCacheKeyProvider>();
             return new EFCachedQueryable<TType>(query, saltKey, debugInfo, cacheKeyProvider, cacheServiceProvider);
         }
 
@@ -94,8 +94,8 @@ namespace EFSecondLevelCache.Core
         public static IQueryable Cacheable(
             this IQueryable query, string saltKey, EFCacheDebugInfo debugInfo, IServiceProvider serviceProvider)
         {
-            var cacheServiceProvider = serviceProvider.GetService<IEFCacheServiceProvider>();
-            var cacheKeyProvider = serviceProvider.GetService<IEFCacheKeyProvider>();
+            var cacheServiceProvider = serviceProvider.GetRequiredService<IEFCacheServiceProvider>();
+            var cacheKeyProvider = serviceProvider.GetRequiredService<IEFCacheKeyProvider>();
             return Cacheable(query, saltKey, debugInfo, cacheKeyProvider, cacheServiceProvider);
         }
 
@@ -111,8 +111,8 @@ namespace EFSecondLevelCache.Core
         public static EFCachedDbSet<TType> Cacheable<TType>(
             this DbSet<TType> query, string saltKey, EFCacheDebugInfo debugInfo, IServiceProvider serviceProvider) where TType : class
         {
-            var cacheServiceProvider = serviceProvider.GetService<IEFCacheServiceProvider>();
-            var cacheKeyProvider = serviceProvider.GetService<IEFCacheKeyProvider>();
+            var cacheServiceProvider = serviceProvider.GetRequiredService<IEFCacheServiceProvider>();
+            var cacheKeyProvider = serviceProvider.GetRequiredService<IEFCacheKeyProvider>();
             return new EFCachedDbSet<TType>(query, saltKey, debugInfo, cacheKeyProvider, cacheServiceProvider);
         }
 
@@ -185,7 +185,6 @@ namespace EFSecondLevelCache.Core
 
         /// <summary>
         /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
-        /// Please add `AddEFSecondLevelCache` method to `IServiceCollection` and also add `UseEFSecondLevelCache` method to `IApplicationBuilder` before using this method.
         /// </summary>
         /// <typeparam name="TType">Entity type.</typeparam>
         /// <param name="query">The input EF query.</param>
@@ -201,7 +200,6 @@ namespace EFSecondLevelCache.Core
 
         /// <summary>
         /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
-        /// Please add `AddEFSecondLevelCache` method to `IServiceCollection` and also add `UseEFSecondLevelCache` method to `IApplicationBuilder` before using this method.
         /// </summary>
         /// <typeparam name="TType">Entity type.</typeparam>
         /// <param name="query">The input EF query.</param>
@@ -217,7 +215,6 @@ namespace EFSecondLevelCache.Core
 
         /// <summary>
         /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
-        /// Please add `AddEFSecondLevelCache` method to `IServiceCollection` and also add `UseEFSecondLevelCache` method to `IApplicationBuilder` before using this method.
         /// </summary>
         /// <param name="query">The input EF query.</param>
         /// <param name="saltKey">If you think the computed hash of the query is not enough, set this value.</param>
@@ -231,7 +228,6 @@ namespace EFSecondLevelCache.Core
 
         /// <summary>
         /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
-        /// Please add `AddEFSecondLevelCache` method to `IServiceCollection` and also add `UseEFSecondLevelCache` method to `IApplicationBuilder` before using this method.
         /// </summary>
         /// <typeparam name="TType">Entity type.</typeparam>
         /// <param name="query">The input EF query.</param>
@@ -243,7 +239,6 @@ namespace EFSecondLevelCache.Core
 
         /// <summary>
         /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
-        /// Please add `AddEFSecondLevelCache` method to `IServiceCollection` and also add `UseEFSecondLevelCache` method to `IApplicationBuilder` before using this method.
         /// </summary>
         /// <param name="query">The input EF query.</param>
         /// <returns>Provides functionality to evaluate queries against a specific data source.</returns>
@@ -254,7 +249,6 @@ namespace EFSecondLevelCache.Core
 
         /// <summary>
         /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
-        /// Please add `AddEFSecondLevelCache` method to `IServiceCollection` and also add `UseEFSecondLevelCache` method to `IApplicationBuilder` before using this method.
         /// </summary>
         /// <typeparam name="TType">Entity type.</typeparam>
         /// <param name="query">The input EF query.</param>
@@ -266,7 +260,6 @@ namespace EFSecondLevelCache.Core
 
         /// <summary>
         /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
-        /// Please add `AddEFSecondLevelCache` method to `IServiceCollection` and also add `UseEFSecondLevelCache` method to `IApplicationBuilder` before using this method.
         /// </summary>
         /// <typeparam name="TType">Entity type.</typeparam>
         /// <param name="query">The input EF query.</param>
@@ -279,7 +272,6 @@ namespace EFSecondLevelCache.Core
 
         /// <summary>
         /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
-        /// Please add `AddEFSecondLevelCache` method to `IServiceCollection` and also add `UseEFSecondLevelCache` method to `IApplicationBuilder` before using this method.
         /// </summary>
         /// <typeparam name="TType">Entity type.</typeparam>
         /// <param name="query">The input EF query.</param>
@@ -292,7 +284,6 @@ namespace EFSecondLevelCache.Core
 
         /// <summary>
         /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
-        /// Please add `AddEFSecondLevelCache` method to `IServiceCollection` and also add `UseEFSecondLevelCache` method to `IApplicationBuilder` before using this method.
         /// </summary>
         /// <typeparam name="TType">Entity type.</typeparam>
         /// <param name="query">The input EF query.</param>
@@ -305,7 +296,6 @@ namespace EFSecondLevelCache.Core
 
         /// <summary>
         /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
-        /// Please add `AddEFSecondLevelCache` method to `IServiceCollection` and also add `UseEFSecondLevelCache` method to `IApplicationBuilder` before using this method.
         /// </summary>
         /// <param name="query">The input EF query.</param>
         /// <param name="saltKey">If you think the computed hash of the query is not enough, set this value.</param>
@@ -317,7 +307,6 @@ namespace EFSecondLevelCache.Core
 
         /// <summary>
         /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
-        /// Please add `AddEFSecondLevelCache` method to `IServiceCollection` and also add `UseEFSecondLevelCache` method to `IApplicationBuilder` before using this method.
         /// </summary>
         /// <typeparam name="TType">Entity type.</typeparam>
         /// <param name="query">The input EF query.</param>
@@ -336,14 +325,14 @@ namespace EFSecondLevelCache.Core
                 return;
             }
 
-            var applicationServices = EFServiceProvider.ApplicationServices;
+            var applicationServices = EFServiceCollectionExtensions.ServiceCollection?.BuildServiceProvider();
             if (applicationServices == null)
             {
-                throw new InvalidOperationException("Please add `AddEFSecondLevelCache` method to `IServiceCollection` and also add `UseEFSecondLevelCache` method to `IApplicationBuilder`.");
+                throw new InvalidOperationException("Please add `AddEFSecondLevelCache()` method to your `IServiceCollection`.");
             }
 
-            _defaultCacheServiceProvider = applicationServices.GetService<IEFCacheServiceProvider>();
-            _defaultCacheKeyProvider = applicationServices.GetService<IEFCacheKeyProvider>();
+            _defaultCacheServiceProvider = applicationServices.GetRequiredService<IEFCacheServiceProvider>();
+            _defaultCacheKeyProvider = applicationServices.GetRequiredService<IEFCacheKeyProvider>();
         }
     }
 }

@@ -18,7 +18,7 @@ namespace EFSecondLevelCache.Core.NET46Sample.DataLayer
 
         public static IEFCacheServiceProvider GetEFCacheServiceProvider()
         {
-            return Instance.GetService<IEFCacheServiceProvider>();
+            return Instance.GetRequiredService<IEFCacheServiceProvider>();
         }
 
         private static IServiceProvider getServiceProvider()
@@ -41,8 +41,6 @@ namespace EFSecondLevelCache.Core.NET46Sample.DataLayer
                         .Build());
 
             var serviceProvider = services.BuildServiceProvider();
-            EFServiceProvider.ApplicationServices = serviceProvider; // app.UseEFSecondLevelCache();
-
             return serviceProvider;
         }
     }

@@ -57,7 +57,7 @@ namespace EFSecondLevelCache.Core
             where TEntity : class
         {
             var set = cachedQueryable.Query;
-            var context = set.GetInfrastructure().GetService<IDbContextServices>().CurrentContext.Context;
+            var context = set.GetInfrastructure().GetRequiredService<IDbContextServices>().CurrentContext.Context;
             var keyProperties = context.Model.FindEntityType(typeof(TEntity)).FindPrimaryKey().Properties;
 
             if (keyProperties.Count != keyValues.Length)

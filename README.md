@@ -55,11 +55,6 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
                         .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromMinutes(10))
                         .Build());
         }
-
-        public void Configure(IApplicationBuilder app)
-        {
-            app.UseEFSecondLevelCache();
-        }
     }
 }
 ```
@@ -106,7 +101,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.DataLayer
         public virtual DbSet<Post> Posts { get; set; }
 
         public override int SaveChanges()
-        {            
+        {
             var changedEntityNames = this.GetChangedEntityNames();
 
             this.ChangeTracker.AutoDetectChangesEnabled = false; // for performance reasons, to avoid calling DetectChanges() again.
