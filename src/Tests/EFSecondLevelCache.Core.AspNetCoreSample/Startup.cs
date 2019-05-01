@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Ben.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace EFSecondLevelCache.Core.AspNetCoreSample
 {
@@ -36,7 +37,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
             ILoggerFactory loggerFactory,
             IServiceScopeFactory scopeFactory)
         {
-            app.UseBlockingDetection();
+            //app.UseBlockingDetection();
 
             scopeFactory.Initialize();
             scopeFactory.SeedData();
@@ -82,12 +83,13 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
                             var minutes = (int)TimeSpan.FromMinutes(3).TotalSeconds;
                             serverDbContextOptionsBuilder.CommandTimeout(minutes);
                         });
+                    optionsBuilder.EnableSensitiveDataLogging();
+                    optionsBuilder.ConfigureWarnings(w =>
+                    {
+                        w.Log(CoreEventId.IncludeIgnoredWarning);
+                        w.Throw(RelationalEventId.QueryClientEvaluationWarning);
+                    });
                 }
-
-                // optionsBuilder.ConfigureWarnings(w =>
-                // {
-                //     w.Log(CoreEventId.IncludeIgnoredWarning);
-                // });
             });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);

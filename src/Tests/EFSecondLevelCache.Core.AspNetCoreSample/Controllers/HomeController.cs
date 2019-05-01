@@ -64,5 +64,75 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
                                       .FirstOrDefaultAsync();
             return Json(new { value, debugInfo.IsCacheHit });
         }
+
+        /// <summary>
+        /// Get https://localhost:5001/home/Issue36
+        /// </summary>
+        public IActionResult Issue36()
+        {
+            User user1;
+            const string user1Name = "User1";
+            if (!_context.Users.Any(user => user.Name == user1Name))
+            {
+                user1 = new User { Name = user1Name };
+                user1 = _context.Users.Add(user1).Entity;
+            }
+            else
+            {
+                user1 = _context.Users.First(user => user.Name == user1Name);
+            }
+
+            var product = new Product
+            {
+                ProductName = "P98",
+                IsActive = true,
+                Notes = "Notes ...",
+                ProductNumber = "098",
+                User = user1
+            };
+
+            _context.Products.Add(product);
+            _context.SaveChanges();
+
+            // 1st query, reading from db
+            var debugInfo1 = new EFCacheDebugInfo();
+            var firstQueryResult = _context.Products
+                             .Cacheable(debugInfo1)
+                             .FirstOrDefault(p => p.ProductId == product.ProductId);
+
+            // Delete it from db, invalidates the cache on SaveChanges
+            _context.Products.Remove(product);
+            _context.SaveChanges();
+
+            // same query, reading from 2nd level cache? Yes. Because its ToSQL() has no where clause yet!
+			// The ToSql() method (which will be used to calculate the hash of the query or the cache key automatically) doesn't see the x => x.ID == a.ID predicate. It will be evaluated where the Cacheable(debugger) method is located (It doesn't see anything after it).
+            var debugInfo2 = new EFCacheDebugInfo();
+            var secondQueryResult = _context.Products
+                         .Cacheable(debugInfo2)
+                         .FirstOrDefault(p => p.ProductId == product.ProductId);
+
+            // same query, reading from 2nd level cache? No. Because its ToSQL() has a where clause.
+            var debugInfo3 = new EFCacheDebugInfo();
+            var thirdQueryResult = _context.Products.Where(p => p.ProductId == product.ProductId)
+                         .Cacheable(debugInfo3)
+                         .FirstOrDefault();
+
+            // retrieving it directly from database
+            var p98 = _context.Products.FirstOrDefault(p => p.ProductId == product.ProductId);
+
+            return Json(new
+            {
+                firstQueryResult,
+                isFirstQueryCached = debugInfo1,
+
+                secondQueryResult,
+                isSecondQueryCached = debugInfo2,
+
+                thirdQueryResult,
+                isThirdQueryCached = debugInfo3,
+
+                directlyFromDatabase = p98
+            });
+        }
     }
 }

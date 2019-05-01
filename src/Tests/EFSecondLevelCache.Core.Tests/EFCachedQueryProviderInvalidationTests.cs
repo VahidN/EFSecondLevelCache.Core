@@ -369,5 +369,66 @@ namespace EFSecondLevelCache.Core.Tests
                 }
             }
         }
+
+        [TestMethod]
+        public void TestAddThenRemoveDataShouldInvalidateTheCacheAutomatically()
+        {
+            var serviceProvider = TestsBase.GetServiceProvider();
+            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
+                {
+                    User user1;
+                    const string user1Name = "User1";
+                    if (!context.Users.Any(user => user.Name == user1Name))
+                    {
+                        user1 = new User { Name = user1Name };
+                        user1 = context.Users.Add(user1).Entity;
+                    }
+                    else
+                    {
+                        user1 = context.Users.First(user => user.Name == user1Name);
+                    }
+
+                    var product = new Product
+                    {
+                        ProductName = "P98",
+                        IsActive = true,
+                        Notes = "Notes ...",
+                        ProductNumber = "098",
+                        User = user1
+                    };
+
+                    context.Products.Add(product);
+                    context.SaveChanges();
+
+                    Console.WriteLine("1st query, reading from db");
+                    var debugInfo1 = new EFCacheDebugInfo();
+                    var p98 = context.Products
+                                     .Cacheable(debugInfo1, serviceProvider)
+                                     .FirstOrDefault(p => p.ProductId == product.ProductId);
+                    Assert.AreEqual(false, debugInfo1.IsCacheHit);
+                    Assert.IsNotNull(p98);
+
+                    Console.WriteLine("Delete it from db, invalidates the cache on SaveChanges");
+                    context.Products.Remove(product);
+                    context.SaveChanges();
+
+                    Console.WriteLine("same query, reading from 2nd level cache?");
+                    var debugInfo2 = new EFCacheDebugInfo();
+                    p98 = context.Products
+                                 .Cacheable(debugInfo2, serviceProvider)
+                                 .FirstOrDefault(p => p.ProductId == product.ProductId);
+                    Assert.AreEqual(false, debugInfo2.IsCacheHit);
+                    Assert.IsNull(p98);
+
+
+                    Console.WriteLine("retrieving it directly from database");
+                    p98 = context.Products
+                                 .FirstOrDefault(p => p.ProductId == product.ProductId);
+                    Assert.IsNull(p98);
+                }
+            }
+        }
     }
 }
