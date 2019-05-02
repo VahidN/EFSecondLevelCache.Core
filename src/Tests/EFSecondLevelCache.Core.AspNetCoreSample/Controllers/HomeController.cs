@@ -84,14 +84,14 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
 
             var product = new Product
             {
-                ProductName = "P98",
+                ProductName = "P98112",
                 IsActive = true,
                 Notes = "Notes ...",
-                ProductNumber = "098",
+                ProductNumber = "098112",
                 User = user1
             };
 
-            _context.Products.Add(product);
+            product = _context.Products.Add(product).Entity;
             _context.SaveChanges();
 
             // 1st query, reading from db
@@ -100,12 +100,17 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
                              .Cacheable(debugInfo1)
                              .FirstOrDefault(p => p.ProductId == product.ProductId);
 
+            var debugInfoWithWhere1 = new EFCacheDebugInfo();
+            var firstQueryWithWhereClauseResult = _context.Products.Where(p => p.ProductId == product.ProductId)
+                            .Cacheable(debugInfoWithWhere1)
+                            .FirstOrDefault();
+
             // Delete it from db, invalidates the cache on SaveChanges
             _context.Products.Remove(product);
             _context.SaveChanges();
 
             // same query, reading from 2nd level cache? Yes. Because its ToSQL() has no where clause yet!
-			// The ToSql() method (which will be used to calculate the hash of the query or the cache key automatically) doesn't see the x => x.ID == a.ID predicate. It will be evaluated where the Cacheable(debugger) method is located (It doesn't see anything after it).
+            // The ToSql() method (which will be used to calculate the hash of the query or the cache key automatically) doesn't see the x => x.ID == a.ID predicate. It will be evaluated where the Cacheable(debugger) method is located (It doesn't see anything after it).
             var debugInfo2 = new EFCacheDebugInfo();
             var secondQueryResult = _context.Products
                          .Cacheable(debugInfo2)
@@ -124,6 +129,9 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
             {
                 firstQueryResult,
                 isFirstQueryCached = debugInfo1,
+
+                firstQueryWithWhereClauseResult,
+                isFirstQueryWithWhereClauseCached = debugInfoWithWhere1,
 
                 secondQueryResult,
                 isSecondQueryCached = debugInfo2,

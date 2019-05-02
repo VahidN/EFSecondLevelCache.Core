@@ -1437,7 +1437,7 @@ namespace EFSecondLevelCache.Core
                 foreach (var genericType in type.GetGenericArguments())
                 {
                     var genericTypeInfo = genericType.GetTypeInfo();
-                    if(genericTypeInfo.IsGenericType)
+                    if (genericTypeInfo.IsGenericType)
                     {
                         addType(genericType);
                     }
@@ -1445,7 +1445,11 @@ namespace EFSecondLevelCache.Core
                     {
                         if (genericTypeInfo.IsClass)
                         {
-                            _types.Add(genericType.ToString());
+                            var item = genericType.ToString();
+                            if (!isCompilerGenerated(item))
+                            {
+                                _types.Add(item);
+                            }
                         }
                     }
                 }
@@ -1454,9 +1458,18 @@ namespace EFSecondLevelCache.Core
             {
                 if (typeInfo.IsClass)
                 {
-                    _types.Add(type.ToString());
+                    var item = type.ToString();
+                    if (!isCompilerGenerated(item))
+                    {
+                        _types.Add(item);
+                    }
                 }
             }
+        }
+
+        private bool isCompilerGenerated(string name)
+        {
+            return name.Contains("c__DisplayClass");
         }
     }
 }

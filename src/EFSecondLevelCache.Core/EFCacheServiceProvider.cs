@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using Microsoft.Extensions.DependencyInjection;
 using CacheManager.Core;
 using EFSecondLevelCache.Core.Contracts;
 
@@ -11,27 +12,21 @@ namespace EFSecondLevelCache.Core
     public class EFCacheServiceProvider : IEFCacheServiceProvider
     {
         private static readonly EFCacheKey _nullObject = new EFCacheKey();
-        private readonly ICacheManager<ISet<string>> _dependenciesCacheManager;
-        private readonly ICacheManager<object> _valuesCacheManager;
-        private readonly ReaderWriterLockSlim _vcmReaderWriterLock = new ReaderWriterLockSlim();
-        private readonly ReaderWriterLockSlim _dcReaderWriterLock = new ReaderWriterLockSlim();
+
+        private static readonly ICacheManager<ISet<string>> _dependenciesCacheManager =
+            EFStaticServiceProvider.Instance.GetRequiredService<ICacheManager<ISet<string>>>();
+
+        private static readonly ICacheManager<object> _valuesCacheManager =
+            EFStaticServiceProvider.Instance.GetRequiredService<ICacheManager<object>>();
+
+        private static readonly ReaderWriterLockSlim _vcmReaderWriterLock = new ReaderWriterLockSlim();
+        private static readonly ReaderWriterLockSlim _dcReaderWriterLock = new ReaderWriterLockSlim();
 
         /// <summary>
         /// Some cache providers won't accept null values.
         /// So we need a custom Null object here. It should be defined `static readonly` in your code.
         /// </summary>
         public object NullObject => _nullObject;
-
-        /// <summary>
-        /// Using ICacheManager as a cache service.
-        /// </summary>
-        public EFCacheServiceProvider(
-            ICacheManager<object> valuesCacheManager,
-            ICacheManager<ISet<string>> dependenciesCacheManager)
-        {
-            _valuesCacheManager = valuesCacheManager;
-            _dependenciesCacheManager = dependenciesCacheManager;
-        }
 
         /// <summary>
         /// Removes the cached entries added by this library.

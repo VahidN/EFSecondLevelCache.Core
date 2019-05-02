@@ -11,8 +11,15 @@ namespace EFSecondLevelCache.Core
     /// </summary>
     public static class EFCachedQueryExtensions
     {
-        private static IEFCacheKeyProvider _defaultCacheKeyProvider;
-        private static IEFCacheServiceProvider _defaultCacheServiceProvider;
+        private static readonly IEFCacheKeyProvider _defaultCacheKeyProvider;
+        private static readonly IEFCacheServiceProvider _defaultCacheServiceProvider;
+
+        static EFCachedQueryExtensions()
+        {
+            var serviceProvider = EFStaticServiceProvider.Instance;
+            _defaultCacheServiceProvider = serviceProvider.GetRequiredService<IEFCacheServiceProvider>();
+            _defaultCacheKeyProvider = serviceProvider.GetRequiredService<IEFCacheKeyProvider>();
+        }
 
         /// <summary>
         /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
@@ -194,7 +201,6 @@ namespace EFSecondLevelCache.Core
         public static EFCachedQueryable<TType> Cacheable<TType>(
             this IQueryable<TType> query, string saltKey, EFCacheDebugInfo debugInfo)
         {
-            configureProviders();
             return Cacheable(query, saltKey, debugInfo, _defaultCacheKeyProvider, _defaultCacheServiceProvider);
         }
 
@@ -209,7 +215,6 @@ namespace EFSecondLevelCache.Core
         public static EFCachedDbSet<TType> Cacheable<TType>(
             this DbSet<TType> query, string saltKey, EFCacheDebugInfo debugInfo) where TType : class
         {
-            configureProviders();
             return Cacheable(query, saltKey, debugInfo, _defaultCacheKeyProvider, _defaultCacheServiceProvider);
         }
 
@@ -222,7 +227,6 @@ namespace EFSecondLevelCache.Core
         /// <returns>Provides functionality to evaluate queries against a specific data source.</returns>
         public static IQueryable Cacheable(this IQueryable query, string saltKey, EFCacheDebugInfo debugInfo)
         {
-            configureProviders();
             return Cacheable(query, saltKey, debugInfo, _defaultCacheKeyProvider, _defaultCacheServiceProvider);
         }
 
@@ -316,23 +320,6 @@ namespace EFSecondLevelCache.Core
             this DbSet<TType> query, string saltKey) where TType : class
         {
             return Cacheable(query, saltKey, new EFCacheDebugInfo());
-        }
-
-        private static void configureProviders()
-        {
-            if (_defaultCacheServiceProvider != null && _defaultCacheKeyProvider != null)
-            {
-                return;
-            }
-
-            var applicationServices = EFServiceCollectionExtensions.ServiceCollection?.BuildServiceProvider();
-            if (applicationServices == null)
-            {
-                throw new InvalidOperationException("Please add `AddEFSecondLevelCache()` method to your `IServiceCollection`.");
-            }
-
-            _defaultCacheServiceProvider = applicationServices.GetRequiredService<IEFCacheServiceProvider>();
-            _defaultCacheKeyProvider = applicationServices.GetRequiredService<IEFCacheKeyProvider>();
         }
     }
 }

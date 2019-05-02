@@ -410,6 +410,13 @@ namespace EFSecondLevelCache.Core.Tests
                     Assert.AreEqual(false, debugInfo1.IsCacheHit);
                     Assert.IsNotNull(p98);
 
+                    var debugInfoWithWhere1 = new EFCacheDebugInfo();
+                    var firstQueryWithWhereClauseResult = context.Products.Where(p => p.ProductId == product.ProductId)
+                                    .Cacheable(debugInfoWithWhere1)
+                                    .FirstOrDefault();
+                    Assert.AreEqual(false, debugInfoWithWhere1.IsCacheHit);
+                    Assert.IsNotNull(firstQueryWithWhereClauseResult);
+
                     Console.WriteLine("Delete it from db, invalidates the cache on SaveChanges");
                     context.Products.Remove(product);
                     context.SaveChanges();
@@ -422,6 +429,12 @@ namespace EFSecondLevelCache.Core.Tests
                     Assert.AreEqual(false, debugInfo2.IsCacheHit);
                     Assert.IsNull(p98);
 
+                    var debugInfoWithWhere2 = new EFCacheDebugInfo();
+                    var firstQueryWithWhereClauseResult2 = context.Products.Where(p => p.ProductId == product.ProductId)
+                                    .Cacheable(debugInfoWithWhere2)
+                                    .FirstOrDefault();
+                    Assert.AreEqual(false, debugInfoWithWhere2.IsCacheHit);
+                    Assert.IsNull(firstQueryWithWhereClauseResult2);
 
                     Console.WriteLine("retrieving it directly from database");
                     p98 = context.Products

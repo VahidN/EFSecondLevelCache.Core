@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer.Entities;
 using EFSecondLevelCache.Core.Contracts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -11,6 +12,7 @@ namespace EFSecondLevelCache.Core.Tests
     public class EFCacheServiceProviderTests
     {
         private readonly IEFCacheServiceProvider _cacheService;
+
         public EFCacheServiceProviderTests()
         {
             _cacheService = TestsBase.GetInMemoryCacheServiceProvider();
@@ -66,6 +68,32 @@ namespace EFSecondLevelCache.Core.Tests
 
             value2 = _cacheService.GetValue("EF_key2");
             Assert.IsNull(value2);
+        }
+
+        [TestMethod]
+        public void TestObjectCacheInvalidationWithOneRoot()
+        {
+            const string rootCacheKey = "EFSecondLevelCache.Core.AspNetCoreSample.DataLayer.Entities.Product";
+
+            _cacheService.InvalidateCacheDependencies(new string[] { rootCacheKey });
+
+            var val11888622 = _cacheService.GetValue("11888622");
+            Assert.IsNull(val11888622);
+
+            _cacheService.InsertValue("11888622", new Product { ProductId = 5041 }, new HashSet<string> { rootCacheKey });
+
+            var val44513A63 = _cacheService.GetValue("44513A63");
+            Assert.IsNull(val44513A63);
+
+            _cacheService.InsertValue("44513A63", new Product { ProductId = 5041 }, new HashSet<string> { rootCacheKey });
+
+            _cacheService.InvalidateCacheDependencies(new string[] { rootCacheKey });
+
+            val11888622 = _cacheService.GetValue("11888622");
+            Assert.IsNull(val11888622);
+
+            val44513A63 = _cacheService.GetValue("44513A63");
+            Assert.IsNull(val44513A63);
         }
 
         [TestMethod]

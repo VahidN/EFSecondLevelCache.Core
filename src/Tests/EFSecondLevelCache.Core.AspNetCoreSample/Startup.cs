@@ -61,6 +61,10 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddEFSecondLevelCache();
+            addInMemoryCacheServiceProvider(services);
+            //addRedisCacheServiceProvider(services);
+
             services.AddSingleton<IConfigurationRoot>(provider => { return Configuration; });
             services.AddDbContext<SampleContext>(optionsBuilder =>
             {
@@ -94,21 +98,19 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddDirectoryBrowser();
-
-            services.AddEFSecondLevelCache();
-            addInMemoryCacheServiceProvider(services);
-            //addRedisCacheServiceProvider(services);
         }
 
         private static void addInMemoryCacheServiceProvider(IServiceCollection services)
         {
-            services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
             services.AddSingleton(typeof(ICacheManagerConfiguration),
                 new CacheManager.Core.ConfigurationBuilder()
                     .WithJsonSerializer()
                     .WithMicrosoftMemoryCacheHandle(instanceName: "MemoryCache1")
                     .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromMinutes(10))
+                    .DisablePerformanceCounters()
+                    .DisableStatistics()
                     .Build());
+            services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
         }
 
         private static void addRedisCacheServiceProvider(IServiceCollection services)
