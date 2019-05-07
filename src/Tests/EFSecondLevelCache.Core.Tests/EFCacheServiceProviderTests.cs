@@ -28,9 +28,9 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestCacheInvalidationWithTwoRoots()
         {
-            _cacheService.InsertValue("EF_key1", "value1", new HashSet<string> { "entity1.model", "entity2.model" });
+            _cacheService.InsertValue("EF_key1", "value1", new HashSet<string> { "entity1.model", "entity2.model" }, null);
 
-            _cacheService.InsertValue("EF_key2", "value2", new HashSet<string> { "entity1.model", "entity2.model" });
+            _cacheService.InsertValue("EF_key2", "value2", new HashSet<string> { "entity1.model", "entity2.model" }, null);
 
 
             var value1 = _cacheService.GetValue("EF_key1");
@@ -51,9 +51,9 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestCacheInvalidationWithOneRoot()
         {
-            _cacheService.InsertValue("EF_key1", "value1", new HashSet<string> { "entity1" });
+            _cacheService.InsertValue("EF_key1", "value1", new HashSet<string> { "entity1" }, null);
 
-            _cacheService.InsertValue("EF_key2", "value2", new HashSet<string> { "entity1" });
+            _cacheService.InsertValue("EF_key2", "value2", new HashSet<string> { "entity1" }, null);
 
             var value1 = _cacheService.GetValue("EF_key1");
             Assert.IsNotNull(value1);
@@ -80,12 +80,12 @@ namespace EFSecondLevelCache.Core.Tests
             var val11888622 = _cacheService.GetValue("11888622");
             Assert.IsNull(val11888622);
 
-            _cacheService.InsertValue("11888622", new Product { ProductId = 5041 }, new HashSet<string> { rootCacheKey });
+            _cacheService.InsertValue("11888622", new Product { ProductId = 5041 }, new HashSet<string> { rootCacheKey }, null);
 
             var val44513A63 = _cacheService.GetValue("44513A63");
             Assert.IsNull(val44513A63);
 
-            _cacheService.InsertValue("44513A63", new Product { ProductId = 5041 }, new HashSet<string> { rootCacheKey });
+            _cacheService.InsertValue("44513A63", new Product { ProductId = 5041 }, new HashSet<string> { rootCacheKey }, null);
 
             _cacheService.InvalidateCacheDependencies(new string[] { rootCacheKey });
 
@@ -99,9 +99,9 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestCacheInvalidationWithSimilarRoots()
         {
-            _cacheService.InsertValue("EF_key1", "value1", new HashSet<string> { "entity1", "entity2" });
+            _cacheService.InsertValue("EF_key1", "value1", new HashSet<string> { "entity1", "entity2" }, null);
 
-            _cacheService.InsertValue("EF_key2", "value2", new HashSet<string> { "entity2" });
+            _cacheService.InsertValue("EF_key2", "value2", new HashSet<string> { "entity2" }, null);
 
             var value1 = _cacheService.GetValue("EF_key1");
             Assert.IsNotNull(value1);
@@ -121,7 +121,7 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestInsertingNullValues()
         {
-            _cacheService.InsertValue("EF_key1", null, new HashSet<string> { "entity1", "entity2" });
+            _cacheService.InsertValue("EF_key1", null, new HashSet<string> { "entity1", "entity2" }, null);
 
             var value1 = _cacheService.GetValue("EF_key1");
             Assert.IsTrue(Equals(value1, _cacheService.NullObject), $"value1 is `{value1}`");
@@ -135,7 +135,7 @@ namespace EFSecondLevelCache.Core.Tests
             for (var i = 0; i < 4000; i++)
             {
                 var i1 = i;
-                tests.Add(() => _cacheService.InsertValue($"EF_key{i1}", i1, new HashSet<string> { "entity1", "entity2" }));
+                tests.Add(() => _cacheService.InsertValue($"EF_key{i1}", i1, new HashSet<string> { "entity1", "entity2" }, null));
             }
 
             for (var i = 0; i < 400; i++)

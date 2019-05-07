@@ -21,7 +21,7 @@ To use its in-memory caching mechanism, add these entries to the `.csproj` file:
 
 ```xml
   <ItemGroup>
-    <PackageReference Include="EFSecondLevelCache.Core" Version="1.8.1" />
+    <PackageReference Include="EFSecondLevelCache.Core" Version="2.0.0" />
     <PackageReference Include="CacheManager.Core" Version="1.2.0" />
     <PackageReference Include="CacheManager.Microsoft.Extensions.Caching.Memory" Version="1.2.0" />
     <PackageReference Include="CacheManager.Serialization.Json" Version="1.2.0" />
@@ -124,7 +124,20 @@ var products = context.Products.Include(x => x.Tags).FirstOrDefault();
 ```
 We can use the new `Cacheable()` extension method:
 ```csharp
+
+// If you don't specify the `EFCachePolicy`, the global `new CacheManager.Core.ConfigurationBuilder().WithExpiration()` setting will be used automatically.
 var products = context.Products.Include(x => x.Tags).Cacheable().FirstOrDefault(); // Async methods are supported too.
+
+// Or you can specify the `EFCachePolicy` explicitly to override the global settings.
+var post1 = context.Posts
+                   .Where(x => x.Id > 0)
+                   .OrderBy(x => x.Id)
+                   .Cacheable(new EFCachePolicy
+                              {
+                                ExpirationMode = CacheExpirationMode.Sliding,
+                                Timeout = TimeSpan.FromMinutes(5)
+                              })
+                   .FirstOrDefault();
 ```
 
 

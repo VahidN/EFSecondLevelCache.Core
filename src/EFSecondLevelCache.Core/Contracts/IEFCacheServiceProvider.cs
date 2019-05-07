@@ -25,7 +25,8 @@ namespace EFSecondLevelCache.Core.Contracts
         /// <param name="cacheKey">key</param>
         /// <param name="value">value</param>
         /// <param name="rootCacheKeys">cache dependencies</param>
-        void InsertValue(string cacheKey, object value, ISet<string> rootCacheKeys);
+        /// <param name="cachePolicy">Defines the expiration mode of the cache item. If you set it to null, the global `new CacheManager.Core.ConfigurationBuilder().WithExpiration()` setting will be used automatically.</param>
+        void InsertValue(string cacheKey, object value, ISet<string> rootCacheKeys, EFCachePolicy cachePolicy);
 
         /// <summary>
         /// Invalidates all of the cache entries which are dependent on any of the specified root keys.

@@ -29,6 +29,24 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
             return Json(new { post1.Title, debugInfo.IsCacheHit });
         }
 
+        /// <summary>
+        /// Get https://localhost:5001/home/WithSlidingExpiration
+        /// </summary>
+        public IActionResult WithSlidingExpiration()
+        {
+            var debugInfo = new EFCacheDebugInfo();
+            var post1 = _context.Set<Post>()
+                                .Where(x => x.Id > 0)
+                                .OrderBy(x => x.Id)
+                                .Cacheable(new EFCachePolicy
+                                {
+                                    ExpirationMode = CacheExpirationMode.Sliding,
+                                    Timeout = TimeSpan.FromMinutes(5)
+                                }, debugInfo)
+                                .FirstOrDefault();
+            return Json(new { post1.Title, debugInfo.IsCacheHit });
+        }
+
         public async Task<IActionResult> AsyncTest()
         {
             var debugInfo = new EFCacheDebugInfo();

@@ -21,23 +21,23 @@ namespace EFSecondLevelCache.Core
         /// Provides functionality to evaluate queries against a specific data source.
         /// </summary>
         /// <param name="query">The input EF query.</param>
-        /// <param name="saltKey">If you think the computed hash of the query is not enough, set this value.</param>
+        /// <param name="cachePolicy">Defines the expiration mode of the cache item.</param>
         /// <param name="debugInfo">Stores the debug information of the caching process.</param>
         /// <param name="cacheKeyProvider">Gets an EF query and returns its hash to store in the cache.</param>
         /// <param name="cacheServiceProvider">Cache Service Provider.</param>
         public EFCachedDbSet(
             DbSet<TType> query,
-            string saltKey,
+            EFCachePolicy cachePolicy,
             EFCacheDebugInfo debugInfo,
             IEFCacheKeyProvider cacheKeyProvider,
             IEFCacheServiceProvider cacheServiceProvider)
         {
-            SaltKey = saltKey;
+            CachePolicy = cachePolicy;
             DebugInfo = debugInfo;
             CacheKeyProvider = cacheKeyProvider;
             CacheServiceProvider = cacheServiceProvider;
             Query = query;
-            _provider = new EFCachedQueryProvider<TType>(Query, saltKey, debugInfo, cacheKeyProvider, cacheServiceProvider);
+            _provider = new EFCachedQueryProvider<TType>(Query, cachePolicy, debugInfo, cacheKeyProvider, cacheServiceProvider);
         }
 
         /// <summary>
@@ -81,9 +81,9 @@ namespace EFSecondLevelCache.Core
         public DbSet<TType> Query { get; }
 
         /// <summary>
-        /// If you think the computed hash of the query is not enough, set this value.
+        /// Defines the expiration mode of the cache item.
         /// </summary>
-        public string SaltKey { get; }
+        public EFCachePolicy CachePolicy { get; }
 
         /// <summary>
         /// Returns an enumerator that iterates through a collection.

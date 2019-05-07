@@ -53,8 +53,8 @@ namespace EFSecondLevelCache.Core
         /// <param name="cacheKey">key</param>
         /// <param name="value">value</param>
         /// <param name="rootCacheKeys">cache dependencies</param>
-        public void InsertValue(string cacheKey, object value,
-                                ISet<string> rootCacheKeys)
+        /// <param name="cachePolicy">Defines the expiration mode of the cache item.</param>
+        public void InsertValue(string cacheKey, object value, ISet<string> rootCacheKeys, EFCachePolicy cachePolicy)
         {
             if (value == null)
             {
@@ -74,7 +74,21 @@ namespace EFSecondLevelCache.Core
                 });
             }
 
-            _vcmReaderWriterLock.TryWriteLocked(() => _valuesCacheManager.Add(cacheKey, value));
+            _vcmReaderWriterLock.TryWriteLocked(() =>
+            {
+                if (cachePolicy == null)
+                {
+                    _valuesCacheManager.Add(cacheKey, value);
+                }
+                else
+                {
+                    _valuesCacheManager.Add(new CacheItem<object>(
+                      cacheKey,
+                      value,
+                      cachePolicy.ExpirationMode == CacheExpirationMode.Absolute ? ExpirationMode.Absolute : ExpirationMode.Sliding,
+                      cachePolicy.Timeout));
+                }
+            });
         }
 
         /// <summary>

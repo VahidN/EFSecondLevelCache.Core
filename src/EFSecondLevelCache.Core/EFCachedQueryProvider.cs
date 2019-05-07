@@ -18,7 +18,7 @@ namespace EFSecondLevelCache.Core
         private readonly IEFCacheKeyProvider _cacheKeyProvider;
         private readonly IEFCacheServiceProvider _cacheServiceProvider;
         private readonly EFCacheDebugInfo _debugInfo;
-        private readonly string _saltKey;
+        private readonly EFCachePolicy _cachePolicy;
         private readonly IQueryable<TType> _query;
         private static readonly Object _syncLock = new Object();
 
@@ -26,19 +26,19 @@ namespace EFSecondLevelCache.Core
         /// Defines methods to create and execute queries that are described by an System.Linq.IQueryable object.
         /// </summary>
         /// <param name="query">The input EF query.</param>
-        /// <param name="saltKey">If you think the computed hash of the query is not enough, set this value.</param>
+        /// <param name="cachePolicy">Defines the expiration mode of the cache item.</param>
         /// <param name="debugInfo">Stores the debug information of the caching process.</param>
         /// <param name="cacheKeyProvider">Gets an EF query and returns its hash to store in the cache.</param>
         /// <param name="cacheServiceProvider">The Cache Service Provider.</param>
         public EFCachedQueryProvider(
             IQueryable<TType> query,
-            string saltKey,
+            EFCachePolicy cachePolicy,
             EFCacheDebugInfo debugInfo,
             IEFCacheKeyProvider cacheKeyProvider,
             IEFCacheServiceProvider cacheServiceProvider)
         {
             _query = query;
-            _saltKey = saltKey;
+            _cachePolicy = cachePolicy;
             _debugInfo = debugInfo;
             _cacheKeyProvider = cacheKeyProvider;
             _cacheServiceProvider = cacheServiceProvider;
@@ -129,7 +129,7 @@ namespace EFSecondLevelCache.Core
         {
             lock (_syncLock)
             {
-                var cacheKey = _cacheKeyProvider.GetEFCacheKey(_query, expression, _saltKey);
+                var cacheKey = _cacheKeyProvider.GetEFCacheKey(_query, expression, _cachePolicy?.SaltKey);
                 _debugInfo.EFCacheKey = cacheKey;
                 var queryCacheKey = cacheKey.KeyHash;
                 var result = _cacheServiceProvider.GetValue(queryCacheKey);
@@ -147,7 +147,7 @@ namespace EFSecondLevelCache.Core
 
                 result = materializer();
 
-                _cacheServiceProvider.InsertValue(queryCacheKey, result, cacheKey.CacheDependencies);
+                _cacheServiceProvider.InsertValue(queryCacheKey, result, cacheKey.CacheDependencies, _cachePolicy);
 
                 return result;
             }
