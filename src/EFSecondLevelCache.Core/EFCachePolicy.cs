@@ -42,5 +42,34 @@ namespace EFSecondLevelCache.Core
         /// Its deafult value is string.Empty.
         /// </summary>
         public string SaltKey { set; get; } = string.Empty;
+
+        /// <summary>
+        /// EFCachePolicy determines the Expiration time of the cache.
+        /// </summary>
+        public EFCachePolicy() { }
+
+        /// <summary>
+        /// EFCachePolicy determines the Expiration time of the cache.
+        /// </summary>
+        /// <param name="expirationMode">Defines the expiration mode of the cache item.</param>
+        /// <param name="timeout">The expiration timeout.</param>
+        public EFCachePolicy(CacheExpirationMode expirationMode, TimeSpan timeout)
+        {
+            ExpirationMode = expirationMode;
+            Timeout = timeout;
+        }
+
+        /// <summary>
+        /// EFCachePolicy determines the Expiration time of the cache.
+        /// </summary>
+        /// <param name="expirationMode">Defines the expiration mode of the cache item.</param>
+        /// <param name="timeout">The expiration timeout.</param>
+        /// <param name="saltKey">If you think the computed hash of the query to calculate the cache-key is not enough, set this value.</param>
+        public EFCachePolicy(CacheExpirationMode expirationMode, TimeSpan timeout, string saltKey)
+        {
+            ExpirationMode = expirationMode;
+            Timeout = timeout;
+            SaltKey = saltKey;
+        }
     }
 }

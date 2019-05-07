@@ -38,11 +38,21 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
             var post1 = _context.Set<Post>()
                                 .Where(x => x.Id > 0)
                                 .OrderBy(x => x.Id)
-                                .Cacheable(new EFCachePolicy
-                                {
-                                    ExpirationMode = CacheExpirationMode.Sliding,
-                                    Timeout = TimeSpan.FromMinutes(5)
-                                }, debugInfo)
+                                .Cacheable(new EFCachePolicy(CacheExpirationMode.Sliding, TimeSpan.FromMinutes(5)), debugInfo)
+                                .FirstOrDefault();
+            return Json(new { post1.Title, debugInfo.IsCacheHit });
+        }
+
+        /// <summary>
+        /// Get https://localhost:5001/home/WithAbsoluteExpiration
+        /// </summary>
+        public IActionResult WithAbsoluteExpiration()
+        {
+            var debugInfo = new EFCacheDebugInfo();
+            var post1 = _context.Set<Post>()
+                                .Where(x => x.Id > 0)
+                                .OrderBy(x => x.Id)
+                                .Cacheable(CacheExpirationMode.Absolute, TimeSpan.FromMinutes(5), debugInfo)
                                 .FirstOrDefault();
             return Json(new { post1.Title, debugInfo.IsCacheHit });
         }

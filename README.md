@@ -21,7 +21,7 @@ To use its in-memory caching mechanism, add these entries to the `.csproj` file:
 
 ```xml
   <ItemGroup>
-    <PackageReference Include="EFSecondLevelCache.Core" Version="2.0.0" />
+    <PackageReference Include="EFSecondLevelCache.Core" Version="2.1.0" />
     <PackageReference Include="CacheManager.Core" Version="1.2.0" />
     <PackageReference Include="CacheManager.Microsoft.Extensions.Caching.Memory" Version="1.2.0" />
     <PackageReference Include="CacheManager.Serialization.Json" Version="1.2.0" />
@@ -132,11 +132,7 @@ var products = context.Products.Include(x => x.Tags).Cacheable().FirstOrDefault(
 var post1 = context.Posts
                    .Where(x => x.Id > 0)
                    .OrderBy(x => x.Id)
-                   .Cacheable(new EFCachePolicy
-                              {
-                                ExpirationMode = CacheExpirationMode.Sliding,
-                                Timeout = TimeSpan.FromMinutes(5)
-                              })
+                   .Cacheable(CacheExpirationMode.Sliding, TimeSpan.FromMinutes(5))
                    .FirstOrDefault();
 ```
 

@@ -301,6 +301,35 @@ namespace EFSecondLevelCache.Core
         /// <summary>
         /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
         /// </summary>
+        /// <typeparam name="TType">Entity type.</typeparam>
+        /// <param name="query">The input EF query.</param>
+        /// <param name="expirationMode">Defines the expiration mode of the cache item.</param>
+        /// <param name="timeout">The expiration timeout.</param>
+        /// <returns>Provides functionality to evaluate queries against a specific data source.</returns>
+        public static EFCachedQueryable<TType> Cacheable<TType>(
+            this IQueryable<TType> query, CacheExpirationMode expirationMode, TimeSpan timeout)
+        {
+            return Cacheable(query, new EFCachePolicy(expirationMode, timeout), new EFCacheDebugInfo());
+        }
+
+        /// <summary>
+        /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
+        /// </summary>
+        /// <typeparam name="TType">Entity type.</typeparam>
+        /// <param name="query">The input EF query.</param>
+        /// <param name="expirationMode">Defines the expiration mode of the cache item.</param>
+        /// <param name="timeout">The expiration timeout.</param>
+        /// <param name="debugInfo">Stores the debug information of the caching process.</param>
+        /// <returns>Provides functionality to evaluate queries against a specific data source.</returns>
+        public static EFCachedQueryable<TType> Cacheable<TType>(
+            this IQueryable<TType> query, CacheExpirationMode expirationMode, TimeSpan timeout, EFCacheDebugInfo debugInfo)
+        {
+            return Cacheable(query, new EFCachePolicy(expirationMode, timeout), debugInfo);
+        }
+
+        /// <summary>
+        /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
+        /// </summary>
         /// <param name="query">The input EF query.</param>
         /// <param name="cachePolicy">Defines the expiration mode of the cache item. If you set it to null or don't specify it, the global `new CacheManager.Core.ConfigurationBuilder().WithExpiration()` setting will be used automatically.</param>
         /// <returns>Provides functionality to evaluate queries against a specific data source.</returns>
@@ -320,6 +349,35 @@ namespace EFSecondLevelCache.Core
             this DbSet<TType> query, EFCachePolicy cachePolicy) where TType : class
         {
             return Cacheable(query, cachePolicy, new EFCacheDebugInfo());
+        }
+
+        /// <summary>
+        /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
+        /// </summary>
+        /// <typeparam name="TType">Entity type.</typeparam>
+        /// <param name="query">The input EF query.</param>
+        /// <param name="expirationMode">Defines the expiration mode of the cache item.</param>
+        /// <param name="timeout">The expiration timeout.</param>
+        /// <returns>Provides functionality to evaluate queries against a specific data source.</returns>
+        public static EFCachedDbSet<TType> Cacheable<TType>(
+            this DbSet<TType> query, CacheExpirationMode expirationMode, TimeSpan timeout) where TType : class
+        {
+            return Cacheable(query, new EFCachePolicy(expirationMode, timeout), new EFCacheDebugInfo());
+        }
+
+        /// <summary>
+        /// Returns a new query where the entities returned will be cached in the IEFCacheServiceProvider.
+        /// </summary>
+        /// <typeparam name="TType">Entity type.</typeparam>
+        /// <param name="query">The input EF query.</param>
+        /// <param name="expirationMode">Defines the expiration mode of the cache item.</param>
+        /// <param name="timeout">The expiration timeout.</param>
+        /// <param name="debugInfo">Stores the debug information of the caching process.</param>
+        /// <returns>Provides functionality to evaluate queries against a specific data source.</returns>
+        public static EFCachedDbSet<TType> Cacheable<TType>(
+            this DbSet<TType> query, CacheExpirationMode expirationMode, TimeSpan timeout, EFCacheDebugInfo debugInfo) where TType : class
+        {
+            return Cacheable(query, new EFCachePolicy(expirationMode, timeout), debugInfo);
         }
     }
 }
