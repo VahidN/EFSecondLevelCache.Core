@@ -1,10 +1,12 @@
 #if NETSTANDARD2_0 || NET4_6_1
+using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Remotion.Linq.Parsing.Structure;
+using System.Linq.Expressions;
 
 namespace EFSecondLevelCache.Core
 {
@@ -34,22 +36,30 @@ namespace EFSecondLevelCache.Core
         /// Getting the SQL for a Query
         /// </summary>
         /// <param name="query">The query</param>
-        public static string ToSql<TEntity>(this IQueryable<TEntity> query)
+        /// <param name="expression">The expressin tree</param>
+        public static string ToSql<TEntity>(this IQueryable<TEntity> query, Expression expression)
         {
             var queryCompiler = (IQueryCompiler)_queryCompilerField.GetValue(query.Provider);
             var queryModelGenerator = _queryModelGeneratorField.GetValue(queryCompiler);
             var nodeTypeProvider = (INodeTypeProvider)_nodeTypeProviderField.GetValue(queryModelGenerator);
             var parser = (IQueryParser)_createQueryParserMethod.Invoke(queryModelGenerator, new object[] { nodeTypeProvider });
-            var queryModel = parser.GetParsedQuery(query.Expression);
+            var queryModel = parser.GetParsedQuery(expression);
             var database = _dataBaseField.GetValue(queryCompiler);
             var databaseDependencies = (DatabaseDependencies)_databaseDependenciesProperty.GetValue(database);
             var queryCompilationContextFactory = databaseDependencies.QueryCompilationContextFactory;
             var queryCompilationContext = queryCompilationContextFactory.Create(false);
             var modelVisitor = queryCompilationContext.CreateQueryModelVisitor();
-            modelVisitor.CreateQueryExecutor<TEntity>(queryModel);
 
-            var relationalQueryModelVisitor = modelVisitor as RelationalQueryModelVisitor;
-            if (relationalQueryModelVisitor == null)
+            try
+            {
+               modelVisitor.CreateQueryExecutor<TEntity>(queryModel);
+            }
+            catch (ArgumentException)
+            {
+               // we don't care about its final casting and result.
+            }
+
+            if (!(modelVisitor is RelationalQueryModelVisitor relationalQueryModelVisitor))
             {
                 return queryModel.ToString();
             }

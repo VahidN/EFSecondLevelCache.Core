@@ -26,7 +26,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
                                 .OrderBy(x => x.Id)
                                 .Cacheable(debugInfo)
                                 .FirstOrDefault();
-            return Json(new { post1.Title, debugInfo.IsCacheHit });
+            return Json(new { post1.Title, debugInfo });
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
                                 .OrderBy(x => x.Id)
                                 .Cacheable(new EFCachePolicy(CacheExpirationMode.Sliding, TimeSpan.FromMinutes(5)), debugInfo)
                                 .FirstOrDefault();
-            return Json(new { post1.Title, debugInfo.IsCacheHit });
+            return Json(new { post1.Title, debugInfo });
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
                                 .OrderBy(x => x.Id)
                                 .Cacheable(CacheExpirationMode.Absolute, TimeSpan.FromMinutes(5), debugInfo)
                                 .FirstOrDefault();
-            return Json(new { post1.Title, debugInfo.IsCacheHit });
+            return Json(new { post1.Title, debugInfo });
         }
 
         public async Task<IActionResult> AsyncTest()
@@ -64,7 +64,26 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
                                       .Where(x => x.Id > 0)
                                       .Cacheable(debugInfo)
                                       .FirstOrDefaultAsync();
-            return Json(new { post1.Title, debugInfo.IsCacheHit });
+            return Json(new { post1.Title, debugInfo });
+        }
+
+        public async Task<IActionResult> CountTest()
+        {
+            var debugInfo = new EFCacheDebugInfo();
+            var count = await _context.Posts
+                                      .Where(x => x.Id > 0)
+                                      .Cacheable(debugInfo)
+                                      .CountAsync();
+            return Json(new { count, debugInfo });
+        }
+
+        public async Task<IActionResult> CountWithParamsTest()
+        {
+            var debugInfo = new EFCacheDebugInfo();
+            var count = await _context.Posts
+                                      .Cacheable(debugInfo)
+                                      .CountAsync(x => x.Id > 0);
+            return Json(new { count, debugInfo });
         }
 
         public async Task<IActionResult> CollectionsTest()
@@ -75,7 +94,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
                                       .Where(x => collection1.Contains(x.Id))
                                       .Cacheable(debugInfo)
                                       .FirstOrDefaultAsync();
-            return Json(new { post1.Title, debugInfo.IsCacheHit });
+            return Json(new { post1.Title, debugInfo });
         }
 
         /// <summary>
@@ -90,7 +109,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
                                       .Where(x => x.Title.Equals(value))
                                       .Cacheable(debugInfo)
                                       .FirstOrDefaultAsync();
-            return Json(new { value, debugInfo.IsCacheHit });
+            return Json(new { value, debugInfo });
         }
 
         /// <summary>
@@ -112,7 +131,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
 
             var product = new Product
             {
-                ProductName = "P98112",
+                ProductName = "P981122",
                 IsActive = true,
                 Notes = "Notes ...",
                 ProductNumber = "098112",

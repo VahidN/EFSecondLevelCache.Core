@@ -933,8 +933,7 @@ namespace EFSecondLevelCache.Core
             }
             else
             {
-                int id;
-                if (!ids.TryGetValue(e, out id))
+                if (!ids.TryGetValue(e, out int id))
                 {
                     // e is met the first time
                     id = ids.Count + 1;
@@ -1068,8 +1067,7 @@ namespace EFSecondLevelCache.Core
 
         private static bool isSimpleExpression(Expression node)
         {
-            var binary = node as BinaryExpression;
-            if (binary != null)
+            if (node is BinaryExpression binary)
             {
                 return !(binary.Left is BinaryExpression || binary.Right is BinaryExpression);
             }
@@ -1145,8 +1143,8 @@ namespace EFSecondLevelCache.Core
 
             // Special case: negate of a constant needs parentheses, to
             // disambiguate it from a negative constant.
-            if (child.NodeType == ExpressionType.Constant &&
-                (parent.NodeType == ExpressionType.Negate || parent.NodeType == ExpressionType.NegateChecked))
+            if (child.NodeType == ExpressionType.Constant
+                && (parent.NodeType == ExpressionType.Negate || parent.NodeType == ExpressionType.NegateChecked))
             {
                 return true;
             }
@@ -1159,6 +1157,7 @@ namespace EFSecondLevelCache.Core
         {
             return string.Format(CultureInfo.CurrentCulture, "'{0}'", name);
         }
+
         private Flow checkBreak(Flow flow)
         {
             if ((flow & Flow.Break) != 0)
@@ -1238,10 +1237,12 @@ namespace EFSecondLevelCache.Core
         {
             Delta += Tab;
         }
+
         private void newLine()
         {
             _flow = Flow.NewLine;
         }
+
         private void Out(string s)
         {
             Out(Flow.None, s, Flow.None);
@@ -1406,8 +1407,7 @@ namespace EFSecondLevelCache.Core
 
         private void writeTo(Expression node)
         {
-            var lambda = node as LambdaExpression;
-            if (lambda != null)
+            if (node is LambdaExpression lambda)
             {
                 writeLambda(lambda);
             }
@@ -1421,7 +1421,7 @@ namespace EFSecondLevelCache.Core
             // Output all lambda expression definitions.
             // in the order of their appearances in the tree.
             //
-            while (_lambdas != null && _lambdas.Count > 0)
+            while (_lambdas?.Count > 0)
             {
                 writeLine();
                 writeLine();
