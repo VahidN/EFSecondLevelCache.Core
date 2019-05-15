@@ -1,4 +1,5 @@
 ﻿using System;
+using AutoMapper;
 using CacheManager.Core;
 using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer;
 using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer.Utils;
@@ -12,6 +13,8 @@ using Newtonsoft.Json;
 using Ben.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using EFSecondLevelCache.Core.AspNetCoreSample.Profiles;
+using System.Reflection;
 
 namespace EFSecondLevelCache.Core.AspNetCoreSample
 {
@@ -98,6 +101,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddDirectoryBrowser();
+            services.AddAutoMapper(typeof(PostProfile).GetTypeInfo().Assembly);
         }
 
         private static void addInMemoryCacheServiceProvider(IServiceCollection services)

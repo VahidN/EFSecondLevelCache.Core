@@ -6,16 +6,21 @@ using EFSecondLevelCache.Core.Contracts;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System;
+using AutoMapper;
+using EFSecondLevelCache.Core.AspNetCoreSample.Models;
+using AutoMapper.QueryableExtensions;
 
 namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
 {
     public class HomeController : Controller
     {
         private readonly SampleContext _context;
+        private readonly IMapper _mapper;
 
-        public HomeController(SampleContext context)
+        public HomeController(SampleContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public IActionResult Index()
@@ -27,6 +32,28 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
                                 .Cacheable(debugInfo)
                                 .FirstOrDefault();
             return Json(new { post1.Title, debugInfo });
+        }
+
+        public IActionResult MapToDtoBefore()
+        {
+            var debugInfo = new EFCacheDebugInfo();
+            var postDto = _context.Set<Post>()
+                                .Where(x => x.Id > 0)
+                                .OrderBy(x => x.Id)
+                                .ProjectTo<PostDto>(configuration: _mapper.ConfigurationProvider)
+                                .Cacheable(debugInfo);
+            return Json(new { postDto, debugInfo });
+        }
+
+        public IActionResult MapToDtoAfter()
+        {
+            var debugInfo = new EFCacheDebugInfo();
+            var postDto = _context.Set<Post>()
+                                .Where(x => x.Id > 0)
+                                .OrderBy(x => x.Id)
+                                .Cacheable(debugInfo)
+                                .ProjectTo<PostDto>(configuration: _mapper.ConfigurationProvider);
+            return Json(new { postDto, debugInfo });
         }
 
         /// <summary>
@@ -156,14 +183,13 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
             _context.Products.Remove(product);
             _context.SaveChanges();
 
-            // same query, reading from 2nd level cache? Yes. Because its ToSQL() has no where clause yet!
-            // The ToSql() method (which will be used to calculate the hash of the query or the cache key automatically) doesn't see the x => x.ID == a.ID predicate. It will be evaluated where the Cacheable(debugger) method is located (It doesn't see anything after it).
+            // same query, reading from 2nd level cache? No.
             var debugInfo2 = new EFCacheDebugInfo();
             var secondQueryResult = _context.Products
                          .Cacheable(debugInfo2)
                          .FirstOrDefault(p => p.ProductId == product.ProductId);
 
-            // same query, reading from 2nd level cache? No. Because its ToSQL() has a where clause.
+            // same query, reading from 2nd level cache? No.
             var debugInfo3 = new EFCacheDebugInfo();
             var thirdQueryResult = _context.Products.Where(p => p.ProductId == product.ProductId)
                          .Cacheable(debugInfo3)
