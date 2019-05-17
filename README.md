@@ -154,7 +154,7 @@ Guidance
 --------
 
 ### When to use
-Good candidates for query caching are global site settings and public data, such as infrequently changing articles or comments. It can also be beneficial to cache data specific to a user so long as the cache expires frequently enough relative to the size of the user base that memory consuption remains acceptable. Small, per-user data that frequently exceeds the cache's lifetime, such as a user's photo path, is better held in user claims, which are stored in cookies, than in this cache.
+Good candidates for query caching are global site settings and public data, such as infrequently changing articles or comments. It can also be beneficial to cache data specific to a user so long as the cache expires frequently enough relative to the size of the user base that memory consumption remains acceptable. Small, per-user data that frequently exceeds the cache's lifetime, such as a user's photo path, is better held in user claims, which are stored in cookies, than in this cache.
 
 ### Scope
 This cache is scoped to the application, not the current user. It does not use session variables. Accordingly, when retriveing cached per-user data, be sure queries in include code such as `.Where(x => .... && x.UserId == id)`.
