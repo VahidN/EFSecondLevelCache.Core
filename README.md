@@ -141,12 +141,12 @@ var post1 = context.Posts
 Also AutoMapper's `ProjectTo()` method is supported:
 
 ```csharp
-var postDto = context.Posts
-                     .Where(x => x.Id > 0)
-                     .OrderBy(x => x.Id)
-                     .Cacheable()
-                     .ProjectTo<PostDto>(configuration: _mapper.ConfigurationProvider)
-                     .ToList();
+var posts = context.Posts
+                   .Where(x => x.Id > 0)
+                   .OrderBy(x => x.Id)
+                   .Cacheable()
+                   .ProjectTo<PostDto>(configuration: _mapper.ConfigurationProvider)
+                   .ToList();
 ```
 
 
