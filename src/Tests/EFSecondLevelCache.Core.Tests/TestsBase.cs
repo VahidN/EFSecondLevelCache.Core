@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
+using AutoMapper;
 using CacheManager.Core;
 using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer;
 using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer.Utils;
+using EFSecondLevelCache.Core.AspNetCoreSample.Profiles;
 using EFSecondLevelCache.Core.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -54,6 +57,8 @@ namespace EFSecondLevelCache.Core.Tests
             {
                 optionsBuilder.UseInMemoryDatabase("TestDb");
             });
+
+            services.AddAutoMapper(typeof(PostProfile).GetTypeInfo().Assembly);
 
             services.AddEFSecondLevelCache();
 

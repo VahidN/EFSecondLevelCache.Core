@@ -3,7 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer;
+using EFSecondLevelCache.Core.AspNetCoreSample.Models;
 using EFSecondLevelCache.Core.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -873,6 +876,38 @@ namespace EFSecondLevelCache.Core.Tests
                     }).FirstOrDefault();
                     Assert.AreEqual(false, debugInfo2.IsCacheHit);
                     Assert.IsNotNull(item2);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void TestSecondLevelCacheUsingProjectToMethods()
+        {
+            var serviceProvider = TestsBase.GetServiceProvider();
+            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
+                {
+                    var mapper = serviceScope.ServiceProvider.GetRequiredService<IMapper>();
+                    var debugInfo = new EFCacheDebugInfo();
+                    var posts = context.Posts
+                        .Where(x => x.Id > 0)
+                        .OrderBy(x => x.Id)
+                        .Cacheable(debugInfo, serviceProvider)
+                        .ProjectTo<PostDto>(configuration: mapper.ConfigurationProvider)
+                        .ToList();
+                    Assert.AreEqual(false, debugInfo.IsCacheHit);
+                    Assert.IsTrue(posts != null);
+
+                    var debugInfo2 = new EFCacheDebugInfo();
+                    posts = context.Posts
+                        .Where(x => x.Id > 0)
+                        .OrderBy(x => x.Id)
+                        .Cacheable(debugInfo2, serviceProvider)
+                        .ProjectTo<PostDto>(configuration: mapper.ConfigurationProvider)
+                        .ToList();
+                    Assert.AreEqual(true, debugInfo2.IsCacheHit);
+                    Assert.IsTrue(posts != null);
                 }
             }
         }

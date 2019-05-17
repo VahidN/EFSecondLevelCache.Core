@@ -37,23 +37,25 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
         public IActionResult MapToDtoBefore()
         {
             var debugInfo = new EFCacheDebugInfo();
-            var postDto = _context.Set<Post>()
+            var posts = _context.Set<Post>()
                                 .Where(x => x.Id > 0)
                                 .OrderBy(x => x.Id)
                                 .ProjectTo<PostDto>(configuration: _mapper.ConfigurationProvider)
-                                .Cacheable(debugInfo);
-            return Json(new { postDto, debugInfo });
+                                .Cacheable(debugInfo)
+                                .ToList();
+            return Json(new { posts, debugInfo });
         }
 
         public IActionResult MapToDtoAfter()
         {
             var debugInfo = new EFCacheDebugInfo();
-            var postDto = _context.Set<Post>()
+            var posts = _context.Set<Post>()
                                 .Where(x => x.Id > 0)
                                 .OrderBy(x => x.Id)
                                 .Cacheable(debugInfo)
-                                .ProjectTo<PostDto>(configuration: _mapper.ConfigurationProvider);
-            return Json(new { postDto, debugInfo });
+                                .ProjectTo<PostDto>(configuration: _mapper.ConfigurationProvider)
+                                .ToList();
+            return Json(new { posts, debugInfo });
         }
 
         /// <summary>

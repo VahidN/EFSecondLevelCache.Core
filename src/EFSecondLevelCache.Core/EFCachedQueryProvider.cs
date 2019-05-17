@@ -52,7 +52,7 @@ namespace EFSecondLevelCache.Core
         /// <returns>An System.Linq.IQueryable of T that can evaluate the query represented by the specified expression tree.</returns>
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
-            return _query.Provider.CreateQuery<TElement>(expression);
+            return (IQueryable<TElement>)CreateQuery(expression);
         }
 
         /// <summary>
@@ -62,7 +62,17 @@ namespace EFSecondLevelCache.Core
         /// <returns>An System.Linq.IQueryable that can evaluate the query represented by the specified expression tree.</returns>
         public IQueryable CreateQuery(Expression expression)
         {
-            return _query.Provider.CreateQuery(expression);
+            var argumentType = expression.Type.GenericTypeArguments[0];
+            var cachedQueryable = typeof(EFCachedQueryable<>).MakeGenericType(argumentType);
+            var constructorArgs = new object[]
+            {
+                _query.Provider.CreateQuery(expression),
+                _cachePolicy,
+                _debugInfo,
+                _cacheKeyProvider,
+                _cacheServiceProvider
+            };
+            return (IQueryable)Activator.CreateInstance(cachedQueryable, constructorArgs);
         }
 
         /// <summary>

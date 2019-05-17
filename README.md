@@ -21,7 +21,7 @@ To use its in-memory caching mechanism, add these entries to the `.csproj` file:
 
 ```xml
   <ItemGroup>
-    <PackageReference Include="EFSecondLevelCache.Core" Version="2.2.0" />
+    <PackageReference Include="EFSecondLevelCache.Core" Version="2.3.0" />
     <PackageReference Include="CacheManager.Core" Version="1.2.0" />
     <PackageReference Include="CacheManager.Microsoft.Extensions.Caching.Memory" Version="1.2.0" />
     <PackageReference Include="CacheManager.Serialization.Json" Version="1.2.0" />
@@ -119,12 +119,14 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.DataLayer
 
 
 3- Then to cache the results of the normal queries like:
+
 ```csharp
 var products = context.Products.Include(x => x.Tags).FirstOrDefault();
 ```
-We can use the new `Cacheable()` extension method:
-```csharp
 
+We can use the new `Cacheable()` extension method:
+
+```csharp
 // If you don't specify the `EFCachePolicy`, the global `new CacheManager.Core.ConfigurationBuilder().WithExpiration()` setting will be used automatically.
 var products = context.Products.Include(x => x.Tags).Cacheable().FirstOrDefault(); // Async methods are supported too.
 
@@ -134,6 +136,17 @@ var post1 = context.Posts
                    .OrderBy(x => x.Id)
                    .Cacheable(CacheExpirationMode.Sliding, TimeSpan.FromMinutes(5))
                    .FirstOrDefault();
+```
+
+Also AutoMapper's `ProjectTo()` method is supported:
+
+```csharp
+var postDto = context.Posts
+                     .Where(x => x.Id > 0)
+                     .OrderBy(x => x.Id)
+                     .Cacheable()
+                     .ProjectTo<PostDto>(configuration: _mapper.ConfigurationProvider)
+                     .ToList();
 ```
 
 
