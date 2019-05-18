@@ -19,14 +19,14 @@ namespace EFSecondLevelCache.Core
                     typeof(QueryCompiler).GetTypeInfo();
         private static readonly FieldInfo _queryCompilerField =
             typeof(EntityQueryProvider).GetTypeInfo().DeclaredFields.First(x => x.Name == "_queryCompiler");
-        private static readonly TypeInfo _gueryModelGeneratorInfo =
+        private static readonly TypeInfo _queryModelGeneratorInfo =
             typeof(QueryModelGenerator).GetTypeInfo();
         private static readonly FieldInfo _queryModelGeneratorField =
             _queryCompilerTypeInfo.DeclaredFields.First(x => x.Name == "_queryModelGenerator");
         private static readonly FieldInfo _nodeTypeProviderField =
-            _gueryModelGeneratorInfo.DeclaredFields.Single(x => x.Name == "_nodeTypeProvider");
+            _queryModelGeneratorInfo.DeclaredFields.Single(x => x.Name == "_nodeTypeProvider");
         private static readonly MethodInfo _createQueryParserMethod =
-            _gueryModelGeneratorInfo.DeclaredMethods.First(x => x.Name == "CreateQueryParser");
+            _queryModelGeneratorInfo.DeclaredMethods.First(x => x.Name == "CreateQueryParser");
         private static readonly FieldInfo _dataBaseField =
             _queryCompilerTypeInfo.DeclaredFields.Single(x => x.Name == "_database");
         private static readonly PropertyInfo _databaseDependenciesProperty =
