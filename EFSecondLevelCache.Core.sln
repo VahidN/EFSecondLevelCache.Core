@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26228.4
@@ -24,6 +24,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Issues", "Issues", "{EDE35C41-BFB7-492F-A8FD-C13FB276486C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Issue15", "src\Tests\Issues\Issue15\Issue15.csproj", "{767215E4-AF19-4AD0-968C-532BE14AF75A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFSecondLevelCache.Core.PerformanceTests", "src\Tests\EFSecondLevelCache.Core.PerformanceTests\EFSecondLevelCache.Core.PerformanceTests.csproj", "{01DE3CF0-AA97-43B3-B95C-45184DF223CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,18 @@ Global
 		{767215E4-AF19-4AD0-968C-532BE14AF75A}.Release|x64.Build.0 = Release|x64
 		{767215E4-AF19-4AD0-968C-532BE14AF75A}.Release|x86.ActiveCfg = Release|x86
 		{767215E4-AF19-4AD0-968C-532BE14AF75A}.Release|x86.Build.0 = Release|x86
+		{01DE3CF0-AA97-43B3-B95C-45184DF223CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01DE3CF0-AA97-43B3-B95C-45184DF223CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01DE3CF0-AA97-43B3-B95C-45184DF223CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01DE3CF0-AA97-43B3-B95C-45184DF223CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01DE3CF0-AA97-43B3-B95C-45184DF223CB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{01DE3CF0-AA97-43B3-B95C-45184DF223CB}.Debug|x64.Build.0 = Debug|Any CPU
+		{01DE3CF0-AA97-43B3-B95C-45184DF223CB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{01DE3CF0-AA97-43B3-B95C-45184DF223CB}.Debug|x86.Build.0 = Debug|Any CPU
+		{01DE3CF0-AA97-43B3-B95C-45184DF223CB}.Release|x64.ActiveCfg = Release|Any CPU
+		{01DE3CF0-AA97-43B3-B95C-45184DF223CB}.Release|x64.Build.0 = Release|Any CPU
+		{01DE3CF0-AA97-43B3-B95C-45184DF223CB}.Release|x86.ActiveCfg = Release|Any CPU
+		{01DE3CF0-AA97-43B3-B95C-45184DF223CB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -75,5 +89,6 @@ Global
 		{4D31E9D7-B686-44FF-8BCD-C17BA26A0333} = {0C0EA45E-C765-4D41-A1DA-EDDC8F239A5B}
 		{EDE35C41-BFB7-492F-A8FD-C13FB276486C} = {4D31E9D7-B686-44FF-8BCD-C17BA26A0333}
 		{767215E4-AF19-4AD0-968C-532BE14AF75A} = {EDE35C41-BFB7-492F-A8FD-C13FB276486C}
+		{01DE3CF0-AA97-43B3-B95C-45184DF223CB} = {4D31E9D7-B686-44FF-8BCD-C17BA26A0333}
 	EndGlobalSection
 EndGlobal
