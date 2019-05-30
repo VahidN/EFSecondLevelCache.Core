@@ -136,6 +136,8 @@ var post1 = context.Posts
                    .OrderBy(x => x.Id)
                    .Cacheable(CacheExpirationMode.Sliding, TimeSpan.FromMinutes(5))
                    .FirstOrDefault();
+
+// NOTE: It's better to add the `Cacheable()` method before the materialization methods such as `ToList()` or `FirstOrDefault()` to cover the whole expression tree.
 ```
 
 Also AutoMapper's `ProjectTo()` method is supported:
