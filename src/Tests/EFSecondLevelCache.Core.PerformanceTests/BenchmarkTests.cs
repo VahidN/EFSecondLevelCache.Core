@@ -40,7 +40,7 @@ namespace EFSecondLevelCache.Core.PerformanceTests
             }
         }
 
-        [Benchmark]
+        [Benchmark(Baseline = true)]
         public void RunQueryDirectly()
         {
             using (var serviceScope = TestsServiceProvider.WithJsonSerializerInstance.GetRequiredService<IServiceScopeFactory>().CreateScope())

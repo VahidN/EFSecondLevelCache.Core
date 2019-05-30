@@ -244,3 +244,4 @@ ModelManifest.xml
 # FAKE - F# Make
 .fake/
 /.idea
+/src/Tests/EFSecondLevelCache.Core.PerformanceTests/BenchmarkDotNet.Artifacts
