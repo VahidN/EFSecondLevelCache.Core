@@ -10,7 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Ben.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using EFSecondLevelCache.Core.AspNetCoreSample.Profiles;
@@ -99,16 +98,23 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
                 }
             });
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
+              .AddJsonOptions(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
             services.AddDirectoryBrowser();
             services.AddAutoMapper(typeof(PostProfile).GetTypeInfo().Assembly);
         }
 
         private static void addInMemoryCacheServiceProvider(IServiceCollection services)
         {
+            var jss = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+
             services.AddSingleton(typeof(ICacheManagerConfiguration),
                 new CacheManager.Core.ConfigurationBuilder()
-                    .WithJsonSerializer()
+                    .WithJsonSerializer(serializationSettings: jss, deserializationSettings: jss)
                     .WithMicrosoftMemoryCacheHandle(instanceName: "MemoryCache1")
                     .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromMinutes(10))
                     .DisablePerformanceCounters()

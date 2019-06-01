@@ -9,6 +9,7 @@ using System;
 using AutoMapper;
 using EFSecondLevelCache.Core.AspNetCoreSample.Models;
 using AutoMapper.QueryableExtensions;
+using EFSecondLevelCache.Core.AspNetCoreSample.Others;
 
 namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
 {
@@ -216,6 +217,20 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
 
                 directlyFromDatabase = p98
             });
+        }
+
+        public IActionResult DynamicGetWithCacheableAtFirst()
+        {
+            var debugInfo = new EFCacheDebugInfo();
+            var users = _context.Users.DynamicGetWithCacheableAtFirst(debugInfo, x => x.Id > 0, x => x.Posts);
+            return Json(new { users, debugInfo });
+        }
+
+        public IActionResult DynamicGetWithCacheableAtEnd()
+        {
+            var debugInfo = new EFCacheDebugInfo();
+            var users = _context.Users.DynamicGetWithCacheableAtEnd(debugInfo, x => x.Id > 0, x => x.Posts);
+            return Json(new { users, debugInfo }); // https://github.com/aspnet/EntityFrameworkCore/issues/12098
         }
     }
 }
