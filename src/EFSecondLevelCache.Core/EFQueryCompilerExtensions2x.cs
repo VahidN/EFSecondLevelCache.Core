@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Remotion.Linq.Parsing.Structure;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace EFSecondLevelCache.Core
 {
@@ -64,7 +65,7 @@ namespace EFSecondLevelCache.Core
                 return queryModel.ToString();
             }
 
-            var sql = relationalQueryModelVisitor.Queries.First().ToString();
+            var sql = relationalQueryModelVisitor.Queries.Join(Environment.NewLine);
             return sql;
         }
     }

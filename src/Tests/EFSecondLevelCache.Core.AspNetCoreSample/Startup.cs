@@ -92,7 +92,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
                     optionsBuilder.EnableSensitiveDataLogging();
                     optionsBuilder.ConfigureWarnings(w =>
                     {
-                        w.Log(CoreEventId.IncludeIgnoredWarning);
+                        w.Throw(CoreEventId.IncludeIgnoredWarning);
                         w.Throw(RelationalEventId.QueryClientEvaluationWarning);
                     });
                 }
