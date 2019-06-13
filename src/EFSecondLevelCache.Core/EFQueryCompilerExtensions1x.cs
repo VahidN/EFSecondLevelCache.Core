@@ -8,13 +8,14 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Remotion.Linq.Parsing.Structure;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
+using EFSecondLevelCache.Core.Contracts;
 
 namespace EFSecondLevelCache.Core
 {
     /// <summary>
     /// Getting the SQL for a Query
     /// </summary>
-    public static class EFQueryCompilerExtensions
+    public static class EFQueryCompilerExtensions1x
     {
         private static readonly TypeInfo _queryCompilerTypeInfo =
             typeof(QueryCompiler).GetTypeInfo();
@@ -33,8 +34,12 @@ namespace EFSecondLevelCache.Core
         /// Getting the SQL for a Query
         /// </summary>
         /// <param name="query">The query</param>
-        /// <param name="expression">The expressin tree</param>
-        public static string ToSql<TEntity>(this IQueryable<TEntity> query, Expression expression)
+        /// <param name="expression">The expression tree</param>
+        /// <param name="cacheKeyHashProvider">The CacheKey Hash Provider</param>
+        public static EFToSqlData ToSql<TEntity>(
+            this IQueryable<TEntity> query,
+            Expression expression,
+            IEFCacheKeyHashProvider cacheKeyHashProvider)
         {
             var queryCompiler = (IQueryCompiler)_queryCompilerField.GetValue(query.Provider);
             var nodeTypeProvider = (INodeTypeProvider)_nodeTypeProviderField.GetValue(queryCompiler);
@@ -56,11 +61,11 @@ namespace EFSecondLevelCache.Core
 
             if (!(modelVisitor is RelationalQueryModelVisitor relationalQueryModelVisitor))
             {
-                return queryModel.ToString();
+                return new EFToSqlData(queryModel.ToString(), string.Empty);
             }
 
             var sql = relationalQueryModelVisitor.Queries.Join(Environment.NewLine);
-            return sql;
+            return new EFToSqlData(sql, string.Empty);
         }
     }
 }

@@ -22,8 +22,8 @@ namespace EFSecondLevelCache.Core.PerformanceTests
                     .With(RankColumn.Arabic)
                     .With(Job.Core
                         .WithIterationCount(10)
-                        .WithInvocationCount(10)
-                        .WithIterationTime(TimeInterval.FromSeconds(2))
+                        .WithInvocationCount(16)
+                        .WithIterationTime(TimeInterval.FromSeconds(10))
                         .WithWarmupCount(4)
                         .WithLaunchCount(1));
             BenchmarkRunner.Run<BenchmarkTests>(config);

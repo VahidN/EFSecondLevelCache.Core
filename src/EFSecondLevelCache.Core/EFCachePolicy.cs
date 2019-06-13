@@ -26,20 +26,20 @@ namespace EFSecondLevelCache.Core
     {
         /// <summary>
         /// Defines the expiration mode of the cache item.
-        /// Its deafult value is Absolute.
+        /// Its default value is Absolute.
         /// </summary>
         public CacheExpirationMode ExpirationMode { set; get; }
 
         /// <summary>
         /// The expiration timeout.
-        /// Its deafult value is 20 minutes later.
+        /// Its default value is 20 minutes later.
         /// </summary>
         /// <value></value>
         public TimeSpan Timeout { set; get; } = TimeSpan.FromMinutes(20);
 
         /// <summary>
         /// If you think the computed hash of the query to calculate the cache-key is not enough, set this value.
-        /// Its deafult value is string.Empty.
+        /// Its default value is string.Empty.
         /// </summary>
         public string SaltKey { set; get; } = string.Empty;
 
