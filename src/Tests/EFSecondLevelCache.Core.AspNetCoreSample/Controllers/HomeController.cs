@@ -232,5 +232,45 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
             var users = _context.Users.DynamicGetWithCacheableAtEnd(debugInfo, x => x.Id > 0, x => x.Posts);
             return Json(new { users, debugInfo }); // https://github.com/aspnet/EntityFrameworkCore/issues/12098
         }
+
+        public IActionResult FirstOrDefaultInline()
+        {
+            var debugInfo = new EFCacheDebugInfo();
+            var post1 = _context.Set<Post>()
+                                .Where(x => x.Id == 1)
+                                .Cacheable(debugInfo)
+                                .FirstOrDefault();
+            return Json(new { post1.Title, debugInfo });
+        }
+
+        public IActionResult FirstOrDefaultInlineAtTheEnd()
+        {
+            var debugInfo = new EFCacheDebugInfo();
+            var post1 = _context.Set<Post>()
+                                .Cacheable(debugInfo)
+                                .FirstOrDefault(x => x.Id == 1);
+            return Json(new { post1.Title, debugInfo });
+        }
+
+        public IActionResult FirstOrDefaultWithParam()
+        {
+            var param1 = 1;
+            var debugInfo = new EFCacheDebugInfo();
+            var post1 = _context.Set<Post>()
+                                .Where(x => x.Id == param1)
+                                .Cacheable(debugInfo)
+                                .FirstOrDefault();
+            return Json(new { post1.Title, debugInfo });
+        }
+
+        public IActionResult FirstOrDefaultAtTheEndWithParam()
+        {
+            var param1 = 1;
+            var debugInfo = new EFCacheDebugInfo();
+            var post1 = _context.Set<Post>()
+                                .Cacheable(debugInfo)
+                                .FirstOrDefault(x => x.Id == param1);
+            return Json(new { post1.Title, debugInfo });
+        }
     }
 }

@@ -115,7 +115,7 @@ namespace EFSecondLevelCache.Core
             var queryContextFactory = (IQueryContextFactory)_queryContextFactoryField.GetValue(queryCompiler);
             var queryContext = queryContextFactory.Create();
             var logger = (IDiagnosticsLogger<DbLoggerCategory.Query>)_loggerField.GetValue(queryCompiler);
-            queryModelGenerator.ExtractParameters(logger, expression, queryContext);
+            expression = queryModelGenerator.ExtractParameters(logger, expression, queryContext);
 
             var expressionKey = $"{ExpressionEqualityComparer.Instance.GetHashCode(expression)};";
             var parameterValues = queryContext.ParameterValues;
