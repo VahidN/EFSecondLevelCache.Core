@@ -1,4 +1,4 @@
-#if !NETSTANDARD2_0 && !NET4_6_1
+#if !NETSTANDARD2_0 && !NET4_6_1 && !NETSTANDARD2_1
 using System;
 using System.Linq;
 using System.Reflection;

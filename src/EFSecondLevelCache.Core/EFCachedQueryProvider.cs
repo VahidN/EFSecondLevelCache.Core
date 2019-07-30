@@ -117,6 +117,7 @@ namespace EFSecondLevelCache.Core
             return Task.FromResult(Execute(expression));
         }
 
+#if !NETSTANDARD2_1
         /// <summary>
         /// Asynchronously executes the strongly-typed query represented by a specified expression tree.
         /// </summary>
@@ -128,6 +129,20 @@ namespace EFSecondLevelCache.Core
         {
             return Task.FromResult(Execute<TResult>(expression));
         }
+#else
+        /// <summary>
+        /// Asynchronously executes the strongly-typed query represented by a specified expression tree.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the value that results from executing the query.</typeparam>
+        /// <param name="expression">An expression tree that represents a LINQ query.</param>
+        /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
+        /// <returns>A task that represents the asynchronous operation.  The task result contains the value that results from executing the specified query.</returns>
+        public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
+        {
+            return Execute<TResult>(expression);
+        }
+#endif
+
 
         /// <summary>
         /// Executes the query represented by a specified expression tree to cache its results.

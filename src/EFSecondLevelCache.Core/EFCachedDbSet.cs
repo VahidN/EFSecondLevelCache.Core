@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using EFSecondLevelCache.Core.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -13,7 +14,13 @@ namespace EFSecondLevelCache.Core
     /// Provides functionality to evaluate queries against a specific data source.
     /// </summary>
     /// <typeparam name="TType"></typeparam>
-    public class EFCachedDbSet<TType> : IQueryable<TType>, IAsyncEnumerableAccessor<TType> where TType : class
+    public class EFCachedDbSet<TType> : IQueryable<TType>
+#if !NETSTANDARD2_1
+        , IAsyncEnumerableAccessor<TType>
+#else
+        , IAsyncEnumerable<TType>
+#endif
+        where TType : class
     {
         private readonly EFCachedQueryProvider<TType> _provider;
 
@@ -102,5 +109,16 @@ namespace EFSecondLevelCache.Core
         {
             return ((IEnumerable<TType>)_provider.Materialize(Query.AsQueryable().Expression, () => Query.ToArray())).GetEnumerator();
         }
+
+#if NETSTANDARD2_1
+        /// <summary>
+        /// Returns an enumerator that iterates through a collection.
+        /// </summary>
+        /// <returns>A collections that can be used to iterate through the collection.</returns>
+        public IAsyncEnumerator<TType> GetAsyncEnumerator(CancellationToken cancellationToken = new CancellationToken())
+        {
+            return new EFAsyncEnumerator<TType>(((IEnumerable<TType>)_provider.Materialize(Query.AsQueryable().Expression, () => Query.ToArray())).GetEnumerator());
+        }
+#endif
     }
 }

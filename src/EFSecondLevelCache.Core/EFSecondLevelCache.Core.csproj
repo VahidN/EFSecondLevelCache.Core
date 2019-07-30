@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>Entity Framework Core Second Level Caching Library.</Description>
-    <VersionPrefix>2.4.1</VersionPrefix>
+    <VersionPrefix>2.5.0</VersionPrefix>
     <Authors>Vahid Nasiri</Authors>
-    <TargetFrameworks>netstandard1.3;net451;net461;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard1.3;net451;net461;netstandard2.0;netstandard2.1</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>EFSecondLevelCache.Core</AssemblyName>
     <PackageId>EFSecondLevelCache.Core</PackageId>
@@ -50,8 +50,18 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.2.4" />
   </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
+    <PackageReference Include="CacheManager.Core" Version="1.2.0" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.6.0-preview7.19362.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0-preview7.19362.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.0.0-preview7.19362.6" />
+  </ItemGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>NETSTANDARD2_0</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+    <DefineConstants>NETSTANDARD2_1</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Issue15", "src\Tests\Issues
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFSecondLevelCache.Core.PerformanceTests", "src\Tests\EFSecondLevelCache.Core.PerformanceTests\EFSecondLevelCache.Core.PerformanceTests.csproj", "{01DE3CF0-AA97-43B3-B95C-45184DF223CB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Issue43", "src\Tests\Issues\Issue43\Issue43.csproj", "{65D28CEA-604F-4283-BDEE-9D6B669A37E1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +79,18 @@ Global
 		{01DE3CF0-AA97-43B3-B95C-45184DF223CB}.Release|x64.Build.0 = Release|Any CPU
 		{01DE3CF0-AA97-43B3-B95C-45184DF223CB}.Release|x86.ActiveCfg = Release|Any CPU
 		{01DE3CF0-AA97-43B3-B95C-45184DF223CB}.Release|x86.Build.0 = Release|Any CPU
+		{65D28CEA-604F-4283-BDEE-9D6B669A37E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65D28CEA-604F-4283-BDEE-9D6B669A37E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65D28CEA-604F-4283-BDEE-9D6B669A37E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65D28CEA-604F-4283-BDEE-9D6B669A37E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65D28CEA-604F-4283-BDEE-9D6B669A37E1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{65D28CEA-604F-4283-BDEE-9D6B669A37E1}.Debug|x64.Build.0 = Debug|Any CPU
+		{65D28CEA-604F-4283-BDEE-9D6B669A37E1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{65D28CEA-604F-4283-BDEE-9D6B669A37E1}.Debug|x86.Build.0 = Debug|Any CPU
+		{65D28CEA-604F-4283-BDEE-9D6B669A37E1}.Release|x64.ActiveCfg = Release|Any CPU
+		{65D28CEA-604F-4283-BDEE-9D6B669A37E1}.Release|x64.Build.0 = Release|Any CPU
+		{65D28CEA-604F-4283-BDEE-9D6B669A37E1}.Release|x86.ActiveCfg = Release|Any CPU
+		{65D28CEA-604F-4283-BDEE-9D6B669A37E1}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -90,5 +104,6 @@ Global
 		{EDE35C41-BFB7-492F-A8FD-C13FB276486C} = {4D31E9D7-B686-44FF-8BCD-C17BA26A0333}
 		{767215E4-AF19-4AD0-968C-532BE14AF75A} = {EDE35C41-BFB7-492F-A8FD-C13FB276486C}
 		{01DE3CF0-AA97-43B3-B95C-45184DF223CB} = {4D31E9D7-B686-44FF-8BCD-C17BA26A0333}
+		{65D28CEA-604F-4283-BDEE-9D6B669A37E1} = {EDE35C41-BFB7-492F-A8FD-C13FB276486C}
 	EndGlobalSection
 EndGlobal
