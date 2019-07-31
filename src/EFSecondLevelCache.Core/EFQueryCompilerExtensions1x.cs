@@ -36,7 +36,7 @@ namespace EFSecondLevelCache.Core
         /// <param name="query">The query</param>
         /// <param name="expression">The expression tree</param>
         /// <param name="cacheKeyHashProvider">The CacheKey Hash Provider</param>
-        public static EFToSqlData ToSql<TEntity>(
+        public static string ToSql<TEntity>(
             this IQueryable<TEntity> query,
             Expression expression,
             IEFCacheKeyHashProvider cacheKeyHashProvider)
@@ -61,11 +61,10 @@ namespace EFSecondLevelCache.Core
 
             if (!(modelVisitor is RelationalQueryModelVisitor relationalQueryModelVisitor))
             {
-                return new EFToSqlData(queryModel.ToString(), string.Empty);
+                return queryModel.ToString();
             }
 
-            var sql = relationalQueryModelVisitor.Queries.Join(Environment.NewLine);
-            return new EFToSqlData(sql, string.Empty);
+            return relationalQueryModelVisitor.Queries.Join(Environment.NewLine);
         }
     }
 }

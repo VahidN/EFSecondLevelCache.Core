@@ -32,7 +32,7 @@ namespace EFSecondLevelCache.Core
         {
             var expressionVisitorResult = EFQueryExpressionVisitor.GetDebugView(expression);
             var sqlData = query.ToSql(expression, _cacheKeyHashProvider);
-            var key = $"{sqlData.Sql};{sqlData.ExpressionKeyHash};{expressionVisitorResult.DebugView};{saltKey}";
+            var key = $"{sqlData};{expressionVisitorResult.DebugView};{saltKey}";
             var keyHash = _cacheKeyHashProvider.ComputeHash(key);
             return new EFCacheKey
             {
