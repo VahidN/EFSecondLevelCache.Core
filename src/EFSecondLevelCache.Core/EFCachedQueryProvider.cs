@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EFSecondLevelCache.Core.Contracts;
@@ -21,6 +22,10 @@ namespace EFSecondLevelCache.Core
         private readonly EFCachePolicy _cachePolicy;
         private readonly IQueryable<TType> _query;
         private static readonly Object _syncLock = new Object();
+
+#if NETSTANDARD2_1
+        private static readonly MethodInfo _fromResultMethodInfo = typeof(Task).GetMethod("FromResult");
+#endif
 
         /// <summary>
         /// Defines methods to create and execute queries that are described by an System.Linq.IQueryable object.
@@ -139,10 +144,16 @@ namespace EFSecondLevelCache.Core
         /// <returns>A task that represents the asynchronous operation.  The task result contains the value that results from executing the specified query.</returns>
         public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
+            if (typeof(TResult).GetGenericTypeDefinition() == typeof(Task<>))
+            {
+                var result = Execute(expression);
+                var taskFromResultMethod = _fromResultMethodInfo.MakeGenericMethod(
+                                                result == null ? expression.Type : result.GetType());
+                return (TResult)taskFromResultMethod.Invoke(null, new[] { result });
+            }
             return Execute<TResult>(expression);
         }
 #endif
-
 
         /// <summary>
         /// Executes the query represented by a specified expression tree to cache its results.

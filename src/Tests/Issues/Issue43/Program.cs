@@ -70,9 +70,9 @@ namespace Issue43
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(
-                @"Data Source=(LocalDB)\MSSQLLocalDB;Initial Catalog=EFSecondLevelCache.Issue43;AttachDbFilename=|DataDirectory|\EFSecondLevelCache.Issue43.mdf;Integrated Security=True;MultipleActiveResultSets=True;"
-                    .Replace("|DataDirectory|", Path.Combine(Directory.GetCurrentDirectory(), "app_data")));
+            string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;Initial Catalog=EFSecondLevelCache.Issue43;AttachDbFilename=|DataDirectory|\EFSecondLevelCache.Issue43.mdf;Integrated Security=True;MultipleActiveResultSets=True;"
+                    .Replace("|DataDirectory|", Path.Combine(Directory.GetCurrentDirectory(), "app_data"));
+            optionsBuilder.UseSqlServer(connectionString);
         }
 
         public override int SaveChanges()
@@ -117,43 +117,76 @@ namespace Issue43
             using (var context = new SampleContext())
             {
                 var debugInfo = new EFCacheDebugInfo();
-                var items = await context.Users.Where(x => x.Name == "user-1").Cacheable(debugInfo, serviceProvider)
-                    .ToListAsync();
-                Console.WriteLine($"ToListAsync->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{items[0].Name}, Key:{debugInfo.EFCacheKey.Key}");
-                
+                var item = await context.Users.Where(x => x.Name == "user-1").Cacheable(debugInfo, serviceProvider).FirstOrDefaultAsync();
+                Console.WriteLine($"FirstOrDefaultAsync->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{item.Name}");
+
                 debugInfo = new EFCacheDebugInfo();
-                items = await context.Users.Where(x => x.Name == "user-1").Cacheable(debugInfo, serviceProvider)
-                    .ToListAsync();
-                Console.WriteLine($"ToListAsync->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{items[0].Name}, Key:{debugInfo.EFCacheKey.Key}");
+                item = await context.Users.Where(x => x.Name == "user-1").Cacheable(debugInfo, serviceProvider).FirstOrDefaultAsync();
+                Console.WriteLine($"FirstOrDefaultAsync->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{item.Name}");
+
+                debugInfo = new EFCacheDebugInfo();
+                item = await context.Users.Where(x => x.Name == "user-11").Cacheable(debugInfo, serviceProvider).FirstOrDefaultAsync();
+                Console.WriteLine($"FirstOrDefaultAsync->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{item?.Name}");
+
+                debugInfo = new EFCacheDebugInfo();
+                item = await context.Users.Where(x => x.Name == "user-11").Cacheable(debugInfo, serviceProvider).FirstOrDefaultAsync();
+                Console.WriteLine($"FirstOrDefaultAsync->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{item?.Name}");
+
+                debugInfo = new EFCacheDebugInfo();
+                item = context.Users.Cacheable(debugInfo, serviceProvider).Find(1);
+                Console.WriteLine($"Find->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{item?.Name}");
+
+                debugInfo = new EFCacheDebugInfo();
+                item = context.Users.Cacheable(debugInfo, serviceProvider).Find(1);
+                Console.WriteLine($"Find->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{item?.Name}");
+
+                debugInfo = new EFCacheDebugInfo();
+                item = await context.Users.Cacheable(debugInfo, serviceProvider).FindAsync(1);
+                Console.WriteLine($"FindAsync->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{item?.Name}");
+
+                debugInfo = new EFCacheDebugInfo();
+                item = await context.Users.Cacheable(debugInfo, serviceProvider).FindAsync(1);
+                Console.WriteLine($"FindAsync->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{item?.Name}");
+
+                debugInfo = new EFCacheDebugInfo();
+                var items = await context.Users.Where(x => x.Name == "user-1").Cacheable(debugInfo, serviceProvider).ToListAsync();
+                Console.WriteLine($"ToListAsync->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{items[0].Name}");
+
+                debugInfo = new EFCacheDebugInfo();
+                items = await context.Users.Where(x => x.Name == "user-1").Cacheable(debugInfo, serviceProvider).ToListAsync();
+                Console.WriteLine($"ToListAsync->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{items[0].Name}");
 
                 debugInfo = new EFCacheDebugInfo();
                 items = context.Users.Where(x => x.Name == "user-2").Cacheable(debugInfo, serviceProvider).ToList();
-                Console.WriteLine($"ToList->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{items[0].Name}, Key:{debugInfo.EFCacheKey.Key}");
-                
-                debugInfo = new EFCacheDebugInfo();
-                items = context.Users.Where(x => x.Name == "user-2").Cacheable(debugInfo, serviceProvider).ToList();
-                Console.WriteLine($"ToList->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{items[0].Name}, Key:{debugInfo.EFCacheKey.Key}");
+                Console.WriteLine($"ToList->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{items[0].Name}");
 
                 debugInfo = new EFCacheDebugInfo();
-                var item = context.Users.Where(x => x.Name == "user-3").Cacheable(debugInfo, serviceProvider)
-                    .FirstOrDefault();
-                Console.WriteLine($"FirstOrDefault->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{item.Name}, Key:{debugInfo.EFCacheKey.Key}");
-                
+                items = context.Users.Where(x => x.Name == "user-2").Cacheable(debugInfo, serviceProvider).ToList();
+                Console.WriteLine($"ToList->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{items[0].Name}");
+
                 debugInfo = new EFCacheDebugInfo();
-                item = context.Users.Where(x => x.Name == "user-3").Cacheable(debugInfo, serviceProvider)
-                    .FirstOrDefault();
-                Console.WriteLine($"FirstOrDefault->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{item.Name}, Key:{debugInfo.EFCacheKey.Key}");
-                
+                item = context.Users.Where(x => x.Name == "user-3").Cacheable(debugInfo, serviceProvider).FirstOrDefault();
+                Console.WriteLine($"FirstOrDefault->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{item.Name}");
+
                 debugInfo = new EFCacheDebugInfo();
-                var count = context.Users.Where(x => x.Name == "user-3").Cacheable(debugInfo, serviceProvider)
-                    .Count();
-                Console.WriteLine($"Count->IsCacheHit: {debugInfo.IsCacheHit}, count:{count}, Key:{debugInfo.EFCacheKey.Key}");
-                
+                item = context.Users.Where(x => x.Name == "user-3").Cacheable(debugInfo, serviceProvider).FirstOrDefault();
+                Console.WriteLine($"FirstOrDefault->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{item.Name}");
+
                 debugInfo = new EFCacheDebugInfo();
-                count = context.Users.Where(x => x.Name == "user-3").Cacheable(debugInfo, serviceProvider)
-                    .Count();
-                Console.WriteLine($"Count->IsCacheHit: {debugInfo.IsCacheHit}, count:{count}, Key:{debugInfo.EFCacheKey.Key}");
-                
+                var count = context.Users.Where(x => x.Name == "user-3").Cacheable(debugInfo, serviceProvider).Count();
+                Console.WriteLine($"Count->IsCacheHit: {debugInfo.IsCacheHit}, count:{count}");
+
+                debugInfo = new EFCacheDebugInfo();
+                count = context.Users.Where(x => x.Name == "user-3").Cacheable(debugInfo, serviceProvider).Count();
+                Console.WriteLine($"Count->IsCacheHit: {debugInfo.IsCacheHit}, count:{count}");
+
+                debugInfo = new EFCacheDebugInfo();
+                item = await context.Users.Where(x => x.Name == "user-1").Cacheable(debugInfo, serviceProvider).SingleOrDefaultAsync();
+                Console.WriteLine($"SingleOrDefaultAsync->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{item.Name}");
+
+                debugInfo = new EFCacheDebugInfo();
+                item = await context.Users.Where(x => x.Name == "user-1").Cacheable(debugInfo, serviceProvider).SingleOrDefaultAsync();
+                Console.WriteLine($"SingleOrDefaultAsync->IsCacheHit: {debugInfo.IsCacheHit}, items[0]:{item.Name}");
             }
         }
 
@@ -163,13 +196,13 @@ namespace Issue43
             {
                 if (db.Database.EnsureCreated())
                 {
-                    var item1 = new User {Name = "user-1"};
+                    var item1 = new User { Name = "user-1" };
                     db.Users.Add(item1);
 
-                    var item2 = new User {Name = "user-2"};
+                    var item2 = new User { Name = "user-2" };
                     db.Users.Add(item2);
 
-                    var item3 = new User {Name = "user-3"};
+                    var item3 = new User { Name = "user-3" };
                     db.Users.Add(item3);
 
                     db.SaveChanges();

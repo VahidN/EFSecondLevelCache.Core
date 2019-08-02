@@ -1,21 +1,21 @@
 #if !NETSTANDARD2_0 && !NET4_6_1 && !NETSTANDARD2_1
-using System;
 using System.Linq;
+using System.Linq.Expressions;
+using EFSecondLevelCache.Core.Contracts;
+using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Remotion.Linq.Parsing.Structure;
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
-using EFSecondLevelCache.Core.Contracts;
 
 namespace EFSecondLevelCache.Core
 {
     /// <summary>
-    /// Getting the SQL for a Query
+    /// A custom cache key provider for EF queries.
     /// </summary>
-    public static class EFQueryCompilerExtensions1x
+    public class EFCacheKeyProvider : IEFCacheKeyProvider
     {
         private static readonly TypeInfo _queryCompilerTypeInfo =
             typeof(QueryCompiler).GetTypeInfo();
@@ -30,14 +30,41 @@ namespace EFSecondLevelCache.Core
         private static readonly FieldInfo _queryCompilationContextFactoryField =
             typeof(Database).GetTypeInfo().DeclaredFields.Single(x => x.Name == "_queryCompilationContextFactory");
 
+        private readonly IEFCacheKeyHashProvider _cacheKeyHashProvider;
+
         /// <summary>
-        /// Getting the SQL for a Query
+        /// A custom cache key provider for EF queries.
         /// </summary>
-        /// <param name="query">The query</param>
-        /// <param name="expression">The expression tree</param>
-        /// <param name="cacheKeyHashProvider">The CacheKey Hash Provider</param>
-        public static string ToSql<TEntity>(
-            this IQueryable<TEntity> query,
+        /// <param name="cacheKeyHashProvider">Provides the custom hashing algorithm.</param>
+        public EFCacheKeyProvider(IEFCacheKeyHashProvider cacheKeyHashProvider)
+        {
+            _cacheKeyHashProvider = cacheKeyHashProvider;
+        }
+
+        /// <summary>
+        /// Gets an EF query and returns its hashed key to store in the cache.
+        /// </summary>
+        /// <typeparam name="T">Type of the entity</typeparam>
+        /// <param name="query">The EF query.</param>
+        /// <param name="expression">An expression tree that represents a LINQ query.</param>
+        /// <param name="saltKey">If you think the computed hash of the query is not enough, set this value.</param>
+        /// <returns>Information of the computed key of the input LINQ query.</returns>
+        public EFCacheKey GetEFCacheKey<T>(IQueryable<T> query, Expression expression, string saltKey = "")
+        {
+            var expressionVisitorResult = EFQueryExpressionVisitor.GetDebugView(expression);
+            var sqlData = toSql(query, expression, _cacheKeyHashProvider);
+            var key = $"{sqlData};{expressionVisitorResult.DebugView};{saltKey}";
+            var keyHash = _cacheKeyHashProvider.ComputeHash(key);
+            return new EFCacheKey
+            {
+                Key = key,
+                KeyHash = keyHash,
+                CacheDependencies = expressionVisitorResult.Types
+            };
+        }
+
+        private static string toSql<TEntity>(
+            IQueryable<TEntity> query,
             Expression expression,
             IEFCacheKeyHashProvider cacheKeyHashProvider)
         {
