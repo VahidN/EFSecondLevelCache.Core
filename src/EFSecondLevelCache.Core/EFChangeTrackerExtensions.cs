@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace EFSecondLevelCache.Core
 {
@@ -53,6 +54,22 @@ namespace EFSecondLevelCache.Core
         }
 
         /// <summary>
+        /// Checks for changes to the entity and all owns entities.
+        /// </summary>
+        private static bool IsEntityChanged(EntityEntry entry)
+        {
+            return entry.State == EntityState.Added
+                   || entry.State == EntityState.Modified
+                   || entry.State == EntityState.Deleted
+#if NETSTANDARD2_0 || NET4_6_1 || NETSTANDARD2_1
+                   || entry.References.Any(r => r.TargetEntry != null
+                                                && r.TargetEntry.Metadata.IsOwned()
+                                                && IsChanged(r.TargetEntry))
+#endif
+                ;
+        }
+
+        /// <summary>
         /// Using the ChangeTracker to find types of the changed entities.
         /// It calls ChangeTracker.DetectChanges() explicitly.
         /// </summary>
@@ -64,10 +81,8 @@ namespace EFSecondLevelCache.Core
                 dbContext.ChangeTracker.DetectChanges();
             }
 
-            return dbContext.ChangeTracker.Entries().Where(
-                            dbEntityEntry => dbEntityEntry.State == EntityState.Added ||
-                            dbEntityEntry.State == EntityState.Modified ||
-                            dbEntityEntry.State == EntityState.Deleted)
+            return dbContext.ChangeTracker.Entries()
+                .Where(IsEntityChanged)
                 .Select(dbEntityEntry => dbEntityEntry.Entity.GetType());
         }
 
