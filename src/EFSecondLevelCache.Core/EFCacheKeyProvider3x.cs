@@ -31,8 +31,8 @@ namespace EFSecondLevelCache.Core
 
         private static readonly TimeSpan _slidingExpirationTimeSpan = TimeSpan.FromMinutes(7);
 
-        private static readonly ICacheManager<string> _keysCacheManager =
-            EFStaticServiceProvider.Instance.GetRequiredService<ICacheManager<string>>();
+        private static readonly ICacheManager<EFCacheKey> _keysCacheManager =
+            EFStaticServiceProvider.Instance.GetRequiredService<ICacheManager<EFCacheKey>>();
 
         private readonly IEFCacheKeyHashProvider _cacheKeyHashProvider;
 
@@ -55,44 +55,36 @@ namespace EFSecondLevelCache.Core
         /// <returns>Information of the computed key of the input LINQ query.</returns>
         public EFCacheKey GetEFCacheKey<T>(IQueryable<T> query, Expression expression, string saltKey = "")
         {
-            var expressionVisitorResult = EFQueryExpressionVisitor.GetDebugView(expression);
-            var sqlData = toSql(query, expression, _cacheKeyHashProvider);
-            var key = $"{sqlData};{expressionVisitorResult.DebugView};{saltKey}";
-            var keyHash = _cacheKeyHashProvider.ComputeHash(key);
-            return new EFCacheKey
-            {
-                Key = key,
-                KeyHash = keyHash,
-                CacheDependencies = expressionVisitorResult.Types
-            };
-        }
-
-        private static string toSql<TEntity>(
-            IQueryable<TEntity> query,
-            Expression expression,
-            IEFCacheKeyHashProvider cacheKeyHashProvider)
-        {
             var queryCompiler = (QueryCompiler)_queryCompilerField.GetValue(query.Provider);
-            var (expressionKeyHash, modifiedExpression) =
-                getExpressionKeyHash(queryCompiler, cacheKeyHashProvider, expression);
-
-            var cachedSql = _keysCacheManager.Get<string>(expressionKeyHash);
-            if (cachedSql != null)
+            var (expressionKeyHash, modifiedExpression) = getExpressionKeyHash(queryCompiler, _cacheKeyHashProvider, expression);
+            var cachedKey = _keysCacheManager.Get<EFCacheKey>(expressionKeyHash);
+            if (cachedKey != null)
             {
-                return cachedSql;
+                return cachedKey;
             }
 
             var expressionPrinter = new ExpressionPrinter();
             expressionPrinter.Visit(modifiedExpression);
             var sql = expressionPrinter.StringBuilder.ToString();
-            setCache(expressionKeyHash, sql);
-            return sql;
+
+            var expressionVisitorResult = EFQueryExpressionVisitor.GetDebugView(expression);
+            var key = $"{sql};{expressionVisitorResult.DebugView};{saltKey}";
+            var keyHash = _cacheKeyHashProvider.ComputeHash(key);
+
+            var cacheKey = new EFCacheKey
+            {
+                Key = key,
+                KeyHash = keyHash,
+                CacheDependencies = expressionVisitorResult.Types
+            };
+            setCache(expressionKeyHash, cacheKey);
+            return cacheKey;
         }
 
-        private static void setCache(string expressionKeyHash, string sql)
+        private static void setCache(string expressionKeyHash, EFCacheKey value)
         {
             _keysCacheManager.Add(
-                new CacheItem<string>(expressionKeyHash, sql, ExpirationMode.Sliding, _slidingExpirationTimeSpan));
+                new CacheItem<EFCacheKey>(expressionKeyHash, value, ExpirationMode.Sliding, _slidingExpirationTimeSpan));
         }
 
         private static (string ExpressionKeyHash, Expression ModifiedExpression) getExpressionKeyHash(
