@@ -64,7 +64,7 @@ namespace EFSecondLevelCache.Core
 #if NETSTANDARD2_0 || NET4_6_1 || NETSTANDARD2_1
                    || entry.References.Any(r => r.TargetEntry != null
                                                 && r.TargetEntry.Metadata.IsOwned()
-                                                && IsChanged(r.TargetEntry))
+                                                && IsEntityChanged(r.TargetEntry))
 #endif
                 ;
         }
