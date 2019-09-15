@@ -1297,10 +1297,7 @@ namespace EFSecondLevelCache.Core
                 if (instance is ConstantExpression instanceExp)
                 {
                     var memberInfoValue = getMemberInfoValue(member, instanceExp.Value);
-                    if (memberInfoValue != null)
-                    {
-                        printConstant(instanceExp, memberInfoValue);
-                    }
+                    printConstant(instanceExp, memberInfoValue);
                 }
             }
             else
