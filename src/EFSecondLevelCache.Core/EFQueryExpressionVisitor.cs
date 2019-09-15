@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using EFSecondLevelCache.Core.Contracts;
@@ -263,8 +265,12 @@ namespace EFSecondLevelCache.Core
         /// <returns></returns>
         protected override Expression VisitConstant(ConstantExpression node)
         {
-            object value = node.Value;
+            printConstant(node, node.Value);
+            return node;
+        }
 
+        private void printConstant(ConstantExpression node, object value)
+        {
             if (value == null)
             {
                 Out("null");
@@ -283,10 +289,15 @@ namespace EFSecondLevelCache.Core
                     "'{0}'",
                     value));
             }
-            else if ((value is int) && node.Type == typeof(int)
-              || (value is bool) && node.Type == typeof(bool))
+            else if (((value is int) && node.Type == typeof(int))
+              || ((value is bool) && node.Type == typeof(bool)))
             {
                 Out(value.ToString());
+            }
+            else if (typeof(IEnumerable).IsAssignableFrom(value.GetType())
+                        && !node.Type.ToString().Contains("Microsoft"))
+            {
+                Out($".Constant<{node.Type}>(new[]{{{string.Join(", ", ((IEnumerable)value).Cast<object>().ToList())}}})");
             }
             else
             {
@@ -306,7 +317,6 @@ namespace EFSecondLevelCache.Core
                     addType(node.Type);
                 }
             }
-            return node;
         }
 
         /// <summary>
@@ -1283,11 +1293,33 @@ namespace EFSecondLevelCache.Core
             {
                 parenthesizedVisit(node, instance);
                 Out($".{member.Name}");
+
+                if (instance is ConstantExpression instanceExp)
+                {
+                    var memberInfoValue = getMemberInfoValue(member, instanceExp.Value);
+                    if (memberInfoValue != null)
+                    {
+                        printConstant(instanceExp, memberInfoValue);
+                    }
+                }
             }
             else
             {
                 // For static members, include the type name
                 Out($"{member.DeclaringType}.{member.Name}");
+            }
+        }
+
+        private static object getMemberInfoValue(MemberInfo memberInfo, object forObject)
+        {
+            switch (memberInfo.MemberType)
+            {
+                case MemberTypes.Field:
+                    return ((FieldInfo)memberInfo).GetValue(forObject);
+                case MemberTypes.Property:
+                    return ((PropertyInfo)memberInfo).GetValue(forObject);
+                default:
+                    return null;
             }
         }
 

@@ -1,6 +1,11 @@
 EFSecondLevelCache.Core
 =======
-[![Build status](https://ci.appveyor.com/api/projects/status/2vulcij72pc59ghv?svg=true)](https://ci.appveyor.com/project/VahidN/efsecondlevelcache-core)
+
+<p align="left">
+  <a href="https://github.com/VahidN/EFSecondLevelCache.Core">
+     <img alt="GitHub Actions status" src="https://github.com/VahidN/EFSecondLevelCache.Core/workflows/.NET%20Core%20Build/badge.svg">
+  </a>
+</p>
 
 Entity Framework Core Second Level Caching Library.
 
@@ -21,7 +26,7 @@ To use its in-memory caching mechanism, add these entries to the `.csproj` file:
 
 ```xml
   <ItemGroup>
-    <PackageReference Include="EFSecondLevelCache.Core" Version="2.6.3" />
+    <PackageReference Include="EFSecondLevelCache.Core" Version="2.6.4" />
     <PackageReference Include="CacheManager.Core" Version="1.2.0" />
     <PackageReference Include="CacheManager.Microsoft.Extensions.Caching.Memory" Version="1.2.0" />
     <PackageReference Include="CacheManager.Serialization.Json" Version="1.2.0" />

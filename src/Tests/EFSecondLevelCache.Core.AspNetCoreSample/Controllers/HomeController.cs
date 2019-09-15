@@ -119,12 +119,19 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
         public async Task<IActionResult> CollectionsTest()
         {
             var collection1 = new[] { 1, 2, 3 };
-            var debugInfo = new EFCacheDebugInfo();
+            var debugInfo1 = new EFCacheDebugInfo();
             var post1 = await _context.Posts
                                       .Where(x => collection1.Contains(x.Id))
-                                      .Cacheable(debugInfo)
+                                      .Cacheable(debugInfo1)
                                       .FirstOrDefaultAsync();
-            return Json(new { post1.Title, debugInfo });
+
+            var collection2 = new[] { 1, 2, 3, 4 };
+            var debugInfo2 = new EFCacheDebugInfo();
+            var post2 = await _context.Posts
+                                      .Where(x => collection2.Contains(x.Id))
+                                      .Cacheable(debugInfo2)
+                                      .FirstOrDefaultAsync();
+            return Json(new { post1.Title, post2.Id, debugInfo1, debugInfo2 });
         }
 
         /// <summary>
