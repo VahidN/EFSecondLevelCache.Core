@@ -1312,15 +1312,19 @@ namespace EFSecondLevelCache.Core
 
         private static object getMemberInfoValue(MemberInfo memberInfo, object forObject)
         {
-            switch (memberInfo.MemberType)
+            var field = memberInfo as FieldInfo;
+            if (field != null)
             {
-                case MemberTypes.Field:
-                    return ((FieldInfo)memberInfo).GetValue(forObject);
-                case MemberTypes.Property:
-                    return ((PropertyInfo)memberInfo).GetValue(forObject);
-                default:
-                    return null;
+                return field.GetValue(forObject);
             }
+
+            var property = memberInfo as PropertyInfo;
+            if (property != null)
+            {
+                return property.GetValue(forObject, null);
+            }
+
+            return null;
         }
 
         private void parenthesizedVisit(Expression parent, Expression nodeToVisit)
