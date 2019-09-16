@@ -834,7 +834,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var collection2 = new[] { 1, 2, 3, 4 };
                     var debugInfo2 = new EFCacheDebugInfo();
                     var item2 = context.Products
-                        .Where(product => collection1.Contains(product.ProductId))
+                        .Where(product => collection2.Contains(product.ProductId))
                         .Cacheable(debugInfo2)
                         .FirstOrDefault();
                     Assert.AreEqual(false, debugInfo2.IsCacheHit); // Works with `RelationalQueryModelVisitor`
