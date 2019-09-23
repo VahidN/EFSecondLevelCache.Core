@@ -279,5 +279,25 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
                                 .FirstOrDefault(x => x.Id == param1);
             return Json(new { post1.Title, debugInfo });
         }
+
+        // https://localhost:5001/home/FirstOrDefaultWithParams
+        public async Task<IActionResult> FirstOrDefaultWithParams()
+        {
+            var param1 = 1;
+            var debugInfo1 = new EFCacheDebugInfo();
+            var post1 = await _context.Set<Post>()
+                                .Where(x => x.Id == param1)
+                                .Cacheable(debugInfo1)
+                                .FirstOrDefaultAsync();
+
+            param1 = 2;
+            var debugInfo2 = new EFCacheDebugInfo();
+            var post2 = await _context.Set<Post>()
+                                .Where(x => x.Id == param1)
+                                .Cacheable(debugInfo2)
+                                .FirstOrDefaultAsync();
+
+            return Json(new { post1Title = post1.Title, debugInfo1, post2Title = post2.Title, debugInfo2 });
+        }
     }
 }
