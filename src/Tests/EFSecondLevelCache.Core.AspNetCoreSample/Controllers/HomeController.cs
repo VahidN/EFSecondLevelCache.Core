@@ -299,5 +299,19 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
 
             return Json(new { post1Title = post1.Title, debugInfo1, post2Title = post2.Title, debugInfo2 });
         }
+
+        // https://github.com/VahidN/EFSecondLevelCache.Core/issues/53
+        public async Task<IActionResult> FirstOrDefaultWithParams2()
+        {
+            var param1 = 1;
+            var debugInfo1 = new EFCacheDebugInfo();
+            var post1 = await _context.GetFirstOrDefaultAsync<Post, SampleContext>(debugInfo1, x => x.Id == param1);
+
+            param1 = 2;
+            var debugInfo2 = new EFCacheDebugInfo();
+            var post2 = await _context.GetFirstOrDefaultAsync<Post, SampleContext>(debugInfo2, x => x.Id == param1);
+
+            return Json(new { post1Title = post1.Title, debugInfo1, post2Title = post2.Title, debugInfo2 });
+        }
     }
 }
