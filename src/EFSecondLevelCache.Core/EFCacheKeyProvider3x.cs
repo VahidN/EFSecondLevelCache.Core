@@ -64,8 +64,7 @@ namespace EFSecondLevelCache.Core
             }
 
             var expressionPrinter = new ExpressionPrinter();
-            expressionPrinter.Visit(modifiedExpression);
-            var sql = expressionPrinter.ToString();
+            var sql = expressionPrinter.PrintDebug(modifiedExpression);
 
             var expressionVisitorResult = EFQueryExpressionVisitor.GetDebugView(expression);
             var key = $"{sql};{expressionVisitorResult.DebugView};{saltKey}";

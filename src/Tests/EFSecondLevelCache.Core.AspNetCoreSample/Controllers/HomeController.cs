@@ -146,7 +146,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
                                       .Where(x => x.Title.Equals(value))
                                       .Cacheable(debugInfo)
                                       .FirstOrDefaultAsync();
-            return Json(new { value, debugInfo });
+            return Json(new { post1?.Title, debugInfo });
         }
 
         /// <summary>
@@ -285,8 +285,9 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
         {
             var param1 = 1;
             var debugInfo1 = new EFCacheDebugInfo();
+            var param2 = param1;
             var post1 = await _context.Set<Post>()
-                                .Where(x => x.Id == param1)
+                                .Where(x => x.Id == param2)
                                 .Cacheable(debugInfo1)
                                 .FirstOrDefaultAsync();
 
@@ -301,6 +302,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
         }
 
         // https://github.com/VahidN/EFSecondLevelCache.Core/issues/53
+        // https://localhost:5001/home/FirstOrDefaultWithParams2
         public async Task<IActionResult> FirstOrDefaultWithParams2()
         {
             var param1 = 1;

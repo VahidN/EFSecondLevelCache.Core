@@ -147,8 +147,7 @@ namespace EFSecondLevelCache.Core
             if (typeof(TResult).GetGenericTypeDefinition() == typeof(Task<>))
             {
                 var result = Execute(expression);
-                var taskFromResultMethod = _fromResultMethodInfo.MakeGenericMethod(
-                                                result == null ? expression.Type : result.GetType());
+                var taskFromResultMethod = _fromResultMethodInfo.MakeGenericMethod(expression.Type);
                 return (TResult)taskFromResultMethod.Invoke(null, new[] { result });
             }
             return Execute<TResult>(expression);

@@ -8,12 +8,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using EFSecondLevelCache.Core.AspNetCoreSample.Profiles;
 using System.Reflection;
+using Microsoft.Extensions.Hosting;
 
 namespace EFSecondLevelCache.Core.AspNetCoreSample
 {
@@ -21,22 +19,17 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
     {
         private readonly string _contentRootPath;
 
-        public Startup(IHostingEnvironment env)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             _contentRootPath = env.ContentRootPath;
-            var builder = new Microsoft.Extensions.Configuration.ConfigurationBuilder()
-                                .SetBasePath(_contentRootPath)
-                                .AddJsonFile("appsettings.json", reloadOnChange: true, optional: false)
-                                .AddJsonFile($"appsettings.{env}.json", optional: true)
-                                .AddEnvironmentVariables();
-            Configuration = builder.Build();
+            Configuration = configuration;
         }
 
-        public IConfigurationRoot Configuration { set; get; }
+        public IConfiguration Configuration { get; }
+
         public void Configure(
             IApplicationBuilder app,
-            IHostingEnvironment env,
-            ILoggerFactory loggerFactory,
+            IWebHostEnvironment env,
             IServiceScopeFactory scopeFactory)
         {
             //app.UseBlockingDetection();
@@ -46,18 +39,19 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
 
             if (env.IsDevelopment())
             {
-                app.UseDatabaseErrorPage();
                 app.UseDeveloperExceptionPage();
             }
 
             app.UseHttpsRedirection();
-            app.UseFileServer();
+            app.UseStaticFiles();
 
-            app.UseMvc(routes =>
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
         }
 
@@ -67,7 +61,6 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
             addInMemoryCacheServiceProvider(services);
             //addRedisCacheServiceProvider(services);
 
-            services.AddSingleton<IConfigurationRoot>(provider => { return Configuration; });
             services.AddDbContext<SampleContext>(optionsBuilder =>
             {
                 var useInMemoryDatabase = Configuration["UseInMemoryDatabase"].Equals("true", StringComparison.OrdinalIgnoreCase);
@@ -92,16 +85,12 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample
                     optionsBuilder.EnableSensitiveDataLogging();
                     optionsBuilder.ConfigureWarnings(w =>
                     {
-                        w.Throw(CoreEventId.IncludeIgnoredWarning);
-                        w.Throw(RelationalEventId.QueryClientEvaluationWarning);
                     });
                 }
             });
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
-              .AddJsonOptions(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
-            services.AddDirectoryBrowser();
             services.AddAutoMapper(typeof(PostProfile).GetTypeInfo().Assembly);
+            services.AddControllersWithViews();
         }
 
         private static void addInMemoryCacheServiceProvider(IServiceCollection services)

@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using EFSecondLevelCache.Core;
 using EFSecondLevelCache.Core.Contracts;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Issue15
 {
@@ -27,11 +26,6 @@ namespace Issue15
             optionsBuilder.UseSqlServer(
                 @"Data Source=(LocalDB)\MSSQLLocalDB;Initial Catalog=EFSecondLevelCache.Issue15;AttachDbFilename=|DataDirectory|\EFSecondLevelCache.Issue15.mdf;Integrated Security=True;MultipleActiveResultSets=True;"
                 .Replace("|DataDirectory|", Path.Combine(Directory.GetCurrentDirectory(), "app_data")));
-            optionsBuilder.UseLoggerFactory(new LoggerFactory().AddConsole((message, logLevel) =>
-            {
-                return logLevel == LogLevel.Debug && message.StartsWith("Microsoft.EntityFrameworkCore.Database.Command");
-                //return true;
-            }));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
