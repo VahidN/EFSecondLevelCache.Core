@@ -20,7 +20,7 @@ namespace EFSecondLevelCache.Core
         , IAsyncEnumerable<TType>
 #endif
     {
-        private readonly EFCachedQueryProvider<TType> _provider;
+        private readonly EFCachedQueryProvider _provider;
 
         /// <summary>
         /// Provides functionality to evaluate queries against a specific data source.
@@ -42,7 +42,7 @@ namespace EFSecondLevelCache.Core
             CacheKeyProvider = cacheKeyProvider;
             CacheServiceProvider = cacheServiceProvider;
             Query = query.MarkAsNoTracking();
-            _provider = new EFCachedQueryProvider<TType>(Query, cachePolicy, debugInfo, cacheKeyProvider, cacheServiceProvider);
+            _provider = new EFCachedQueryProvider(Query, cachePolicy, debugInfo, cacheKeyProvider, cacheServiceProvider);
         }
 
         /// <summary>
@@ -96,7 +96,9 @@ namespace EFSecondLevelCache.Core
         /// <returns>A collections that can be used to iterate through the collection.</returns>
         public IEnumerator GetEnumerator()
         {
-            return ((IEnumerable)_provider.Materialize(Query.Expression, () => Query.ToArray())).GetEnumerator();
+            return ((IEnumerable)_provider.Materializer.Materialize(
+                               Query.Expression, 
+                               () => Query.ToArray())).GetEnumerator();
         }
 
         /// <summary>
@@ -105,7 +107,9 @@ namespace EFSecondLevelCache.Core
         /// <returns>A collections that can be used to iterate through the collection.</returns>
         IEnumerator<TType> IEnumerable<TType>.GetEnumerator()
         {
-            return ((IEnumerable<TType>)_provider.Materialize(Query.Expression, () => Query.ToArray())).GetEnumerator();
+            return ((IEnumerable<TType>)_provider.Materializer.Materialize(
+                                   Query.Expression, 
+                                   () => Query.ToArray())).GetEnumerator();
         }
 
 #if NETSTANDARD2_1
@@ -115,7 +119,10 @@ namespace EFSecondLevelCache.Core
         /// <returns>A collections that can be used to iterate through the collection.</returns>
         public IAsyncEnumerator<TType> GetAsyncEnumerator(CancellationToken cancellationToken)
         {
-            return new EFAsyncEnumerator<TType>(((IEnumerable<TType>)_provider.Materialize(Query.Expression, () => Query.ToArray())).GetEnumerator());
+            return new EFAsyncEnumerator<TType>(
+                     ((IEnumerable<TType>)_provider.Materializer.Materialize(
+                                        Query.Expression, 
+                                        () => Query.ToArray())).GetEnumerator());
         }
 #endif
     }

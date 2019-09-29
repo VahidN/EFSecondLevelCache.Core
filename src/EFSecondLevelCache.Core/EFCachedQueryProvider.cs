@@ -12,20 +12,19 @@ namespace EFSecondLevelCache.Core
 {
     /// <summary>
     /// Defines methods to create and execute queries that are described by an System.Linq.IQueryable object.
-    /// </summary>
-    /// <typeparam name="TType">Type of the entity.</typeparam>
-    public class EFCachedQueryProvider<TType> : IAsyncQueryProvider
+    /// </summary>    
+    public class EFCachedQueryProvider : IAsyncQueryProvider
     {
         private readonly IEFCacheKeyProvider _cacheKeyProvider;
         private readonly IEFCacheServiceProvider _cacheServiceProvider;
         private readonly EFCacheDebugInfo _debugInfo;
         private readonly EFCachePolicy _cachePolicy;
-        private readonly IQueryable<TType> _query;
-        private static readonly Object _syncLock = new Object();
+        private readonly IQueryable _query;
 
 #if NETSTANDARD2_1
         private static readonly MethodInfo _fromResultMethodInfo = typeof(Task).GetMethod("FromResult");
 #endif
+        private static readonly MethodInfo _materializeAsyncMethodInfo = typeof(EFMaterializer).GetMethod(nameof(EFMaterializer.MaterializeAsync));
 
         /// <summary>
         /// Defines methods to create and execute queries that are described by an System.Linq.IQueryable object.
@@ -36,7 +35,7 @@ namespace EFSecondLevelCache.Core
         /// <param name="cacheKeyProvider">Gets an EF query and returns its hash to store in the cache.</param>
         /// <param name="cacheServiceProvider">The Cache Service Provider.</param>
         public EFCachedQueryProvider(
-            IQueryable<TType> query,
+            IQueryable query,
             EFCachePolicy cachePolicy,
             EFCacheDebugInfo debugInfo,
             IEFCacheKeyProvider cacheKeyProvider,
@@ -47,7 +46,14 @@ namespace EFSecondLevelCache.Core
             _debugInfo = debugInfo;
             _cacheKeyProvider = cacheKeyProvider;
             _cacheServiceProvider = cacheServiceProvider;
+            Materializer =
+                new EFMaterializer(_query, _cachePolicy, _debugInfo, _cacheKeyProvider, _cacheServiceProvider);
         }
+
+        /// <summary>
+        /// Defines methods to create and execute queries that are described by an System.Linq.IQueryable object.
+        /// </summary>
+        public EFMaterializer Materializer { get; }
 
         /// <summary>
         /// Constructs an System.Linq.IQueryable of T object that can evaluate the query represented by a specified expression tree.
@@ -57,7 +63,7 @@ namespace EFSecondLevelCache.Core
         /// <returns>An System.Linq.IQueryable of T that can evaluate the query represented by the specified expression tree.</returns>
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
-            return (IQueryable<TElement>)CreateQuery(expression);
+            return (IQueryable<TElement>) CreateQuery(expression);
         }
 
         /// <summary>
@@ -77,7 +83,7 @@ namespace EFSecondLevelCache.Core
                 _cacheKeyProvider,
                 _cacheServiceProvider
             };
-            return (IQueryable)Activator.CreateInstance(cachedQueryable, constructorArgs);
+            return (IQueryable) Activator.CreateInstance(cachedQueryable, constructorArgs);
         }
 
         /// <summary>
@@ -87,7 +93,7 @@ namespace EFSecondLevelCache.Core
         /// <returns>The value that results from executing the specified query.</returns>
         public object Execute(Expression expression)
         {
-            return Materialize(expression, () => _query.Provider.Execute(expression));
+            return Materializer.Materialize(expression, () => _query.Provider.Execute(expression));
         }
 
         /// <summary>
@@ -98,9 +104,10 @@ namespace EFSecondLevelCache.Core
         /// <returns>The value that results from executing the specified query.</returns>
         public TResult Execute<TResult>(Expression expression)
         {
-            return (TResult)Materialize(expression, () => _query.Provider.Execute<TResult>(expression));
+            return Materializer.Materialize(expression, () => _query.Provider.Execute<TResult>(expression));
         }
 
+#if !NETSTANDARD2_1
         /// <summary>
         /// This API supports the Entity Framework Core infrastructure
         /// </summary>
@@ -108,6 +115,13 @@ namespace EFSecondLevelCache.Core
         /// <param name="expression">An expression tree that represents a LINQ query.</param>
         public IAsyncEnumerable<TResult> ExecuteAsync<TResult>(Expression expression)
         {
+            if(_query.Provider is EntityQueryProvider eqProvider)
+            {
+                return Materializer.Materialize(
+                             expression, 
+                             () => eqProvider.ExecuteAsync<TResult>(expression));
+            }
+            
             return new EFAsyncTaskEnumerable<TResult>(Task.FromResult(Execute<TResult>(expression)));
         }
 
@@ -119,10 +133,16 @@ namespace EFSecondLevelCache.Core
         /// <returns>A task that represents the asynchronous operation.  The task result contains the value that results from executing the specified query.</returns>
         public Task<object> ExecuteAsync(Expression expression, CancellationToken cancellationToken)
         {
+            if(_query.Provider is EntityQueryProvider eqProvider)
+            {
+               return Materializer.MaterializeAsync(
+                             expression, 
+                             () => eqProvider.ExecuteAsync<object>(expression, cancellationToken));
+            }
+            
             return Task.FromResult(Execute(expression));
         }
 
-#if !NETSTANDARD2_1
         /// <summary>
         /// Asynchronously executes the strongly-typed query represented by a specified expression tree.
         /// </summary>
@@ -132,9 +152,18 @@ namespace EFSecondLevelCache.Core
         /// <returns>A task that represents the asynchronous operation.  The task result contains the value that results from executing the specified query.</returns>
         public Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
+            if(_query.Provider is EntityQueryProvider eqProvider)
+            {
+               return Materializer.MaterializeAsync(
+                            expression, 
+                            () => eqProvider.ExecuteAsync<TResult>(expression, cancellationToken));
+            }
+
             return Task.FromResult(Execute<TResult>(expression));
         }
-#else
+#endif
+
+#if NETSTANDARD2_1
         /// <summary>
         /// Asynchronously executes the strongly-typed query represented by a specified expression tree.
         /// </summary>
@@ -144,48 +173,32 @@ namespace EFSecondLevelCache.Core
         /// <returns>A task that represents the asynchronous operation.  The task result contains the value that results from executing the specified query.</returns>
         public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
+            if (_query.Provider is EntityQueryProvider eqProvider)
+            {
+                if (typeof(TResult).GetGenericTypeDefinition() == typeof(Task<>))
+                {
+                    var materializeAsyncMethod = _materializeAsyncMethodInfo.MakeGenericMethod(expression.Type);
+                    return  (TResult)materializeAsyncMethod.Invoke(Materializer, new object[] 
+                            {
+                                expression, 
+                                new Func<TResult>(() => eqProvider.ExecuteAsync<TResult>(expression, cancellationToken)) 
+                            });
+                }
+
+                return Materializer.Materialize(
+                             expression,
+                             () => eqProvider.ExecuteAsync<TResult>(expression, cancellationToken));
+            }
+
             if (typeof(TResult).GetGenericTypeDefinition() == typeof(Task<>))
             {
                 var result = Execute(expression);
                 var taskFromResultMethod = _fromResultMethodInfo.MakeGenericMethod(expression.Type);
-                return (TResult)taskFromResultMethod.Invoke(null, new[] { result });
+                return (TResult) taskFromResultMethod.Invoke(null, new[] {result});
             }
+
             return Execute<TResult>(expression);
         }
 #endif
-
-        /// <summary>
-        /// Executes the query represented by a specified expression tree to cache its results.
-        /// </summary>
-        /// <param name="expression">An expression tree that represents a LINQ query.</param>
-        /// <param name="materializer">How to run the query.</param>
-        /// <returns>The value that results from executing the specified query.</returns>
-        public object Materialize(Expression expression, Func<object> materializer)
-        {
-            lock (_syncLock)
-            {
-                var cacheKey = _cacheKeyProvider.GetEFCacheKey(_query, expression, _cachePolicy?.SaltKey);
-                _debugInfo.EFCacheKey = cacheKey;
-                var queryCacheKey = cacheKey.KeyHash;
-                var result = _cacheServiceProvider.GetValue(queryCacheKey);
-                if (Equals(result, _cacheServiceProvider.NullObject))
-                {
-                    _debugInfo.IsCacheHit = true;
-                    return null;
-                }
-
-                if (result != null)
-                {
-                    _debugInfo.IsCacheHit = true;
-                    return result;
-                }
-
-                result = materializer();
-
-                _cacheServiceProvider.InsertValue(queryCacheKey, result, cacheKey.CacheDependencies, _cachePolicy);
-
-                return result;
-            }
-        }
     }
 }

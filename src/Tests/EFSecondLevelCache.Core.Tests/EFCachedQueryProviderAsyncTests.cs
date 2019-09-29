@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer;
@@ -12,7 +13,6 @@ namespace EFSecondLevelCache.Core.Tests
     [TestClass]
     public class EFCachedQueryProviderAsyncTests
     {
-
         [TestMethod]
         public async Task TestSecondLevelCacheUsingAsyncMethodsDoesNotHitTheDatabase()
         {
@@ -27,10 +27,10 @@ namespace EFSecondLevelCache.Core.Tests
                     Console.WriteLine("1st async query, reading from db");
                     var debugInfo1 = new EFCacheDebugInfo();
                     var list1 = await context.Products
-                                       .OrderBy(product => product.ProductNumber)
-                                       .Where(product => product.IsActive == isActive && product.ProductName == name)
-                                       .Cacheable(debugInfo1, serviceProvider)
-                                       .ToListAsync();
+                        .OrderBy(product => product.ProductNumber)
+                        .Where(product => product.IsActive == isActive && product.ProductName == name)
+                        .Cacheable(debugInfo1, serviceProvider)
+                        .ToListAsync();
                     Assert.AreEqual(false, debugInfo1.IsCacheHit);
                     Assert.IsTrue(list1.Any());
                     var hash1 = debugInfo1.EFCacheKey.KeyHash;
@@ -39,10 +39,10 @@ namespace EFSecondLevelCache.Core.Tests
                     Console.WriteLine("same async query, reading from 2nd level cache");
                     var debugInfo2 = new EFCacheDebugInfo();
                     var list2 = await context.Products
-                                       .OrderBy(product => product.ProductNumber)
-                                       .Where(product => product.IsActive == isActive && product.ProductName == name)
-                                       .Cacheable(debugInfo2, serviceProvider)
-                                       .ToListAsync();
+                        .OrderBy(product => product.ProductNumber)
+                        .Where(product => product.IsActive == isActive && product.ProductName == name)
+                        .Cacheable(debugInfo2, serviceProvider)
+                        .ToListAsync();
                     Assert.AreEqual(true, debugInfo2.IsCacheHit);
                     Assert.IsTrue(list2.Any());
                     var hash2 = debugInfo2.EFCacheKey.KeyHash;
@@ -51,10 +51,10 @@ namespace EFSecondLevelCache.Core.Tests
                     Console.WriteLine("same async query, reading from 2nd level cache.");
                     var debugInfo3 = new EFCacheDebugInfo();
                     var list3 = await context.Products
-                                       .OrderBy(product => product.ProductNumber)
-                                       .Where(product => product.IsActive == isActive && product.ProductName == name)
-                                       .Cacheable(debugInfo3, serviceProvider)
-                                       .ToListAsync();
+                        .OrderBy(product => product.ProductNumber)
+                        .Where(product => product.IsActive == isActive && product.ProductName == name)
+                        .Cacheable(debugInfo3, serviceProvider)
+                        .ToListAsync();
                     Assert.AreEqual(true, debugInfo3.IsCacheHit);
                     Assert.IsTrue(list3.Any());
                     var hash3 = debugInfo3.EFCacheKey.KeyHash;
@@ -65,10 +65,10 @@ namespace EFSecondLevelCache.Core.Tests
                     Console.WriteLine("different async query, reading from db.");
                     var debugInfo4 = new EFCacheDebugInfo();
                     var list4 = await context.Products
-                                       .OrderBy(product => product.ProductNumber)
-                                       .Where(product => product.IsActive == isActive && product.ProductName == "Product2")
-                                       .Cacheable(debugInfo4, serviceProvider)
-                                       .ToListAsync();
+                        .OrderBy(product => product.ProductNumber)
+                        .Where(product => product.IsActive == isActive && product.ProductName == "Product2")
+                        .Cacheable(debugInfo4, serviceProvider)
+                        .ToListAsync();
                     Assert.AreEqual(false, debugInfo4.IsCacheHit);
                     Assert.IsTrue(list4.Any());
 
@@ -78,10 +78,10 @@ namespace EFSecondLevelCache.Core.Tests
                     Console.WriteLine("different async query, reading from db.");
                     var debugInfo5 = new EFCacheDebugInfo();
                     var product1 = await context.Products
-                                       .OrderBy(product => product.ProductNumber)
-                                       .Where(product => product.IsActive == isActive && product.ProductName == "Product2")
-                                       .Cacheable(debugInfo5, serviceProvider)
-                                       .FirstOrDefaultAsync();
+                        .OrderBy(product => product.ProductNumber)
+                        .Where(product => product.IsActive == isActive && product.ProductName == "Product2")
+                        .Cacheable(debugInfo5, serviceProvider)
+                        .FirstOrDefaultAsync();
                     Assert.AreEqual(false, debugInfo5.IsCacheHit);
                     Assert.IsNotNull(product1);
 
@@ -105,10 +105,10 @@ namespace EFSecondLevelCache.Core.Tests
                     Console.WriteLine("ToListAsync");
                     var debugInfo1 = new EFCacheDebugInfo();
                     var list1 = await context.Products
-                                       .OrderBy(product => product.ProductNumber)
-                                       .Where(product => product.IsActive == isActive && product.ProductName == name)
-                                       .Cacheable(debugInfo1, serviceProvider)
-                                       .ToListAsync();
+                        .OrderBy(product => product.ProductNumber)
+                        .Where(product => product.IsActive == isActive && product.ProductName == name)
+                        .Cacheable(debugInfo1, serviceProvider)
+                        .ToListAsync();
                     Assert.AreEqual(false, debugInfo1.IsCacheHit);
                     Assert.IsTrue(list1.Any());
 
@@ -116,10 +116,10 @@ namespace EFSecondLevelCache.Core.Tests
                     Console.WriteLine("CountAsync");
                     var debugInfo2 = new EFCacheDebugInfo();
                     var count = await context.Products
-                                       .OrderBy(product => product.ProductNumber)
-                                       .Where(product => product.IsActive == isActive && product.ProductName == name)
-                                       .Cacheable(debugInfo2, serviceProvider)
-                                       .CountAsync();
+                        .OrderBy(product => product.ProductNumber)
+                        .Where(product => product.IsActive == isActive && product.ProductName == name)
+                        .Cacheable(debugInfo2, serviceProvider)
+                        .CountAsync();
                     Assert.AreEqual(false, debugInfo2.IsCacheHit);
                     Assert.IsTrue(count > 0);
 
@@ -127,10 +127,10 @@ namespace EFSecondLevelCache.Core.Tests
                     Console.WriteLine("FirstOrDefaultAsync");
                     var debugInfo3 = new EFCacheDebugInfo();
                     var product1 = await context.Products
-                                       .OrderBy(product => product.ProductNumber)
-                                       .Where(product => product.IsActive == isActive && product.ProductName == name)
-                                       .Cacheable(debugInfo3, serviceProvider)
-                                       .FirstOrDefaultAsync();
+                        .OrderBy(product => product.ProductNumber)
+                        .Where(product => product.IsActive == isActive && product.ProductName == name)
+                        .Cacheable(debugInfo3, serviceProvider)
+                        .FirstOrDefaultAsync();
                     Assert.AreEqual(false, debugInfo3.IsCacheHit);
                     Assert.IsTrue(product1 != null);
 
@@ -138,10 +138,10 @@ namespace EFSecondLevelCache.Core.Tests
                     Console.WriteLine("AnyAsync");
                     var debugInfo4 = new EFCacheDebugInfo();
                     var any = await context.Products
-                                       .OrderBy(product => product.ProductNumber)
-                                       .Where(product => product.IsActive == isActive && product.ProductName == "Product2")
-                                       .Cacheable(debugInfo4, serviceProvider)
-                                       .AnyAsync();
+                        .OrderBy(product => product.ProductNumber)
+                        .Where(product => product.IsActive == isActive && product.ProductName == "Product2")
+                        .Cacheable(debugInfo4, serviceProvider)
+                        .AnyAsync();
                     Assert.AreEqual(false, debugInfo4.IsCacheHit);
                     Assert.IsTrue(any);
 
@@ -173,20 +173,20 @@ namespace EFSecondLevelCache.Core.Tests
                     Console.WriteLine("Count 1, From DB");
                     var debugInfo2 = new EFCacheDebugInfo();
                     var count = await context.Products
-                                       .OrderBy(product => product.ProductNumber)
-                                       .Where(product => product.IsActive == isActive && product.ProductName == name)
-                                       .Cacheable(debugInfo2, serviceProvider)
-                                       .CountAsync();
+                        .OrderBy(product => product.ProductNumber)
+                        .Where(product => product.IsActive == isActive && product.ProductName == name)
+                        .Cacheable(debugInfo2, serviceProvider)
+                        .CountAsync();
                     Assert.AreEqual(false, debugInfo2.IsCacheHit);
                     Assert.IsTrue(count > 0);
 
                     Console.WriteLine("Count 2, Reading from cache");
                     var debugInfo3 = new EFCacheDebugInfo();
                     count = await context.Products
-                                       .OrderBy(product => product.ProductNumber)
-                                       .Where(product => product.IsActive == isActive && product.ProductName == name)
-                                       .Cacheable(debugInfo3, serviceProvider)
-                                       .CountAsync();
+                        .OrderBy(product => product.ProductNumber)
+                        .Where(product => product.IsActive == isActive && product.ProductName == name)
+                        .Cacheable(debugInfo3, serviceProvider)
+                        .CountAsync();
                     Assert.AreEqual(true, debugInfo3.IsCacheHit);
                     Assert.IsTrue(count > 0);
                 }
@@ -218,6 +218,31 @@ namespace EFSecondLevelCache.Core.Tests
                     Assert.IsTrue(product1 != null);
                 }
             }
+        }
+
+        [TestMethod]
+        public void TestParallelAsyncCalls()
+        {
+            var serviceProvider = TestsBase.GetServiceProvider();
+            var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
+            var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>();
+
+            var tests = new List<Action>();
+            for (var i = 0; i < 4000; i++)
+            {
+                var i1 = i.ToString();
+                tests.Add(async () =>
+                {
+                    var count = await context.Products
+                        .OrderBy(product => product.ProductNumber)
+                        .Where(product => product.IsActive && product.ProductName == i1)
+                        .Cacheable(serviceProvider)
+                        .CountAsync();
+                });
+            }
+
+            var rnd = new Random();
+            Parallel.Invoke(tests.OrderBy(a => rnd.Next()).ToArray());
         }
     }
 }

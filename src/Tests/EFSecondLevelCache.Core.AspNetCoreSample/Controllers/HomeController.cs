@@ -24,66 +24,66 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
             _mapper = mapper;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             var debugInfo = new EFCacheDebugInfo();
-            var post1 = _context.Set<Post>()
+            var post1 = await _context.Set<Post>()
                                 .Where(x => x.Id > 0)
                                 .OrderBy(x => x.Id)
                                 .Cacheable(debugInfo)
-                                .FirstOrDefault();
+                                .FirstOrDefaultAsync();
             return Json(new { post1.Title, debugInfo });
         }
 
-        public IActionResult MapToDtoBefore()
+        public async Task<IActionResult> MapToDtoBefore()
         {
             var debugInfo = new EFCacheDebugInfo();
-            var posts = _context.Set<Post>()
+            var posts = await _context.Set<Post>()
                                 .Where(x => x.Id > 0)
                                 .OrderBy(x => x.Id)
                                 .ProjectTo<PostDto>(configuration: _mapper.ConfigurationProvider)
                                 .Cacheable(debugInfo)
-                                .ToList();
+                                .ToListAsync();
             return Json(new { posts, debugInfo });
         }
 
-        public IActionResult MapToDtoAfter()
+        public async Task<IActionResult> MapToDtoAfter()
         {
             var debugInfo = new EFCacheDebugInfo();
-            var posts = _context.Set<Post>()
+            var posts = await _context.Set<Post>()
                                 .Where(x => x.Id > 0)
                                 .OrderBy(x => x.Id)
                                 .Cacheable(debugInfo)
                                 .ProjectTo<PostDto>(configuration: _mapper.ConfigurationProvider)
-                                .ToList();
+                                .ToListAsync();
             return Json(new { posts, debugInfo });
         }
 
         /// <summary>
         /// Get https://localhost:5001/home/WithSlidingExpiration
         /// </summary>
-        public IActionResult WithSlidingExpiration()
+        public async Task<IActionResult> WithSlidingExpiration()
         {
             var debugInfo = new EFCacheDebugInfo();
-            var post1 = _context.Set<Post>()
+            var post1 = await _context.Set<Post>()
                                 .Where(x => x.Id > 0)
                                 .OrderBy(x => x.Id)
                                 .Cacheable(new EFCachePolicy(CacheExpirationMode.Sliding, TimeSpan.FromMinutes(5)), debugInfo)
-                                .FirstOrDefault();
+                                .FirstOrDefaultAsync();
             return Json(new { post1.Title, debugInfo });
         }
 
         /// <summary>
         /// Get https://localhost:5001/home/WithAbsoluteExpiration
         /// </summary>
-        public IActionResult WithAbsoluteExpiration()
+        public async Task<IActionResult> WithAbsoluteExpiration()
         {
             var debugInfo = new EFCacheDebugInfo();
-            var post1 = _context.Set<Post>()
+            var post1 = await _context.Set<Post>()
                                 .Where(x => x.Id > 0)
                                 .OrderBy(x => x.Id)
                                 .Cacheable(CacheExpirationMode.Absolute, TimeSpan.FromMinutes(5), debugInfo)
-                                .FirstOrDefault();
+                                .FirstOrDefaultAsync();
             return Json(new { post1.Title, debugInfo });
         }
 
@@ -240,43 +240,43 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
             return Json(new { users, debugInfo }); // https://github.com/aspnet/EntityFrameworkCore/issues/12098
         }
 
-        public IActionResult FirstOrDefaultInline()
+        public async Task<IActionResult> FirstOrDefaultInline()
         {
             var debugInfo = new EFCacheDebugInfo();
-            var post1 = _context.Set<Post>()
+            var post1 = await _context.Set<Post>()
                                 .Where(x => x.Id == 1)
                                 .Cacheable(debugInfo)
-                                .FirstOrDefault();
+                                .FirstOrDefaultAsync();
             return Json(new { post1.Title, debugInfo });
         }
 
-        public IActionResult FirstOrDefaultInlineAtTheEnd()
+        public async Task<IActionResult> FirstOrDefaultInlineAtTheEnd()
         {
             var debugInfo = new EFCacheDebugInfo();
-            var post1 = _context.Set<Post>()
+            var post1 = await _context.Set<Post>()
                                 .Cacheable(debugInfo)
-                                .FirstOrDefault(x => x.Id == 1);
+                                .FirstOrDefaultAsync(x => x.Id == 1);
             return Json(new { post1.Title, debugInfo });
         }
 
-        public IActionResult FirstOrDefaultWithParam()
+        public async Task<IActionResult> FirstOrDefaultWithParam()
         {
             var param1 = 1;
             var debugInfo = new EFCacheDebugInfo();
-            var post1 = _context.Set<Post>()
+            var post1 = await _context.Set<Post>()
                                 .Where(x => x.Id == param1)
                                 .Cacheable(debugInfo)
-                                .FirstOrDefault();
+                                .FirstOrDefaultAsync();
             return Json(new { post1.Title, debugInfo });
         }
 
-        public IActionResult FirstOrDefaultAtTheEndWithParam()
+        public async Task<IActionResult> FirstOrDefaultAtTheEndWithParam()
         {
             var param1 = 1;
             var debugInfo = new EFCacheDebugInfo();
-            var post1 = _context.Set<Post>()
+            var post1 = await _context.Set<Post>()
                                 .Cacheable(debugInfo)
-                                .FirstOrDefault(x => x.Id == param1);
+                                .FirstOrDefaultAsync(x => x.Id == param1);
             return Json(new { post1.Title, debugInfo });
         }
 

@@ -15,6 +15,7 @@ Install via NuGet
 -----------------
 To install EFSecondLevelCache.Core, run the following command in the Package Manager Console:
 
+[![Nuget](https://img.shields.io/nuget/v/EFSecondLevelCache.Core)](https://github.com/VahidN/EFSecondLevelCache.Core)
 ```
 PM> Install-Package EFSecondLevelCache.Core
 ```
@@ -26,7 +27,7 @@ To use its in-memory caching mechanism, add these entries to the `.csproj` file:
 
 ```xml
   <ItemGroup>
-    <PackageReference Include="EFSecondLevelCache.Core" Version="2.7.0" />
+    <PackageReference Include="EFSecondLevelCache.Core" Version="2.8.0" />
     <PackageReference Include="CacheManager.Core" Version="1.2.0" />
     <PackageReference Include="CacheManager.Microsoft.Extensions.Caching.Memory" Version="1.2.0" />
     <PackageReference Include="CacheManager.Serialization.Json" Version="1.2.0" />

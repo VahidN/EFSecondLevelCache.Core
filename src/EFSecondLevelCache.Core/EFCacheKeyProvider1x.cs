@@ -44,12 +44,11 @@ namespace EFSecondLevelCache.Core
         /// <summary>
         /// Gets an EF query and returns its hashed key to store in the cache.
         /// </summary>
-        /// <typeparam name="T">Type of the entity</typeparam>
         /// <param name="query">The EF query.</param>
         /// <param name="expression">An expression tree that represents a LINQ query.</param>
         /// <param name="saltKey">If you think the computed hash of the query is not enough, set this value.</param>
         /// <returns>Information of the computed key of the input LINQ query.</returns>
-        public EFCacheKey GetEFCacheKey<T>(IQueryable<T> query, Expression expression, string saltKey = "")
+        public EFCacheKey GetEFCacheKey(IQueryable query, Expression expression, string saltKey = "")
         {
             var expressionVisitorResult = EFQueryExpressionVisitor.GetDebugView(expression);
             var sqlData = toSql(query, expression, _cacheKeyHashProvider);
@@ -63,8 +62,8 @@ namespace EFSecondLevelCache.Core
             };
         }
 
-        private static string toSql<TEntity>(
-            IQueryable<TEntity> query,
+        private static string toSql(
+            IQueryable query,
             Expression expression,
             IEFCacheKeyHashProvider cacheKeyHashProvider)
         {
@@ -79,7 +78,8 @@ namespace EFSecondLevelCache.Core
 
             try
             {
-                modelVisitor.CreateQueryExecutor<TEntity>(queryModel);
+                var createQueryExecutorMethod = modelVisitor.GetType().GetMethod("CreateQueryExecutor").MakeGenericMethod(query.ElementType);
+                createQueryExecutorMethod.Invoke(modelVisitor, new object[] { queryModel });
             }
             catch (ArgumentException)
             {
