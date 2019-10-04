@@ -21,7 +21,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceRoot}/src/Tests/EFSecondLevelCache.Core.AspNetCoreSample/bin/Debug/netcoreapp2.2/EFSecondLevelCache.Core.AspNetCoreSample.dll",
+            "program": "${workspaceRoot}/src/Tests/EFSecondLevelCache.Core.AspNetCoreSample/bin/Debug/netcoreapp3.0/EFSecondLevelCache.Core.AspNetCoreSample.dll",
             "args": [],
             "cwd": "${workspaceRoot}/src/Tests/EFSecondLevelCache.Core.AspNetCoreSample",
             "stopAtEntry": false,

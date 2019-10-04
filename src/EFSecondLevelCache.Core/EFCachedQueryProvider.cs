@@ -12,7 +12,7 @@ namespace EFSecondLevelCache.Core
 {
     /// <summary>
     /// Defines methods to create and execute queries that are described by an System.Linq.IQueryable object.
-    /// </summary>    
+    /// </summary>
     public class EFCachedQueryProvider : IAsyncQueryProvider
     {
         private readonly IEFCacheKeyProvider _cacheKeyProvider;
@@ -63,7 +63,7 @@ namespace EFSecondLevelCache.Core
         /// <returns>An System.Linq.IQueryable of T that can evaluate the query represented by the specified expression tree.</returns>
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
-            return (IQueryable<TElement>) CreateQuery(expression);
+            return (IQueryable<TElement>)CreateQuery(expression);
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace EFSecondLevelCache.Core
                 _cacheKeyProvider,
                 _cacheServiceProvider
             };
-            return (IQueryable) Activator.CreateInstance(cachedQueryable, constructorArgs);
+            return (IQueryable)Activator.CreateInstance(cachedQueryable, constructorArgs);
         }
 
         /// <summary>
@@ -118,10 +118,10 @@ namespace EFSecondLevelCache.Core
             if(_query.Provider is EntityQueryProvider eqProvider)
             {
                 return Materializer.Materialize(
-                             expression, 
+                             expression,
                              () => eqProvider.ExecuteAsync<TResult>(expression));
             }
-            
+
             return new EFAsyncTaskEnumerable<TResult>(Task.FromResult(Execute<TResult>(expression)));
         }
 
@@ -136,10 +136,10 @@ namespace EFSecondLevelCache.Core
             if(_query.Provider is EntityQueryProvider eqProvider)
             {
                return Materializer.MaterializeAsync(
-                             expression, 
+                             expression,
                              () => eqProvider.ExecuteAsync<object>(expression, cancellationToken));
             }
-            
+
             return Task.FromResult(Execute(expression));
         }
 
@@ -155,7 +155,7 @@ namespace EFSecondLevelCache.Core
             if(_query.Provider is EntityQueryProvider eqProvider)
             {
                return Materializer.MaterializeAsync(
-                            expression, 
+                            expression,
                             () => eqProvider.ExecuteAsync<TResult>(expression, cancellationToken));
             }
 
@@ -173,15 +173,17 @@ namespace EFSecondLevelCache.Core
         /// <returns>A task that represents the asynchronous operation.  The task result contains the value that results from executing the specified query.</returns>
         public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
+            var type = typeof(TResult);
+
             if (_query.Provider is EntityQueryProvider eqProvider)
             {
-                if (typeof(TResult).GetGenericTypeDefinition() == typeof(Task<>))
+                if (isTaskOfT(type))
                 {
                     var materializeAsyncMethod = _materializeAsyncMethodInfo.MakeGenericMethod(expression.Type);
-                    return  (TResult)materializeAsyncMethod.Invoke(Materializer, new object[] 
+                    return (TResult)materializeAsyncMethod.Invoke(Materializer, new object[]
                             {
-                                expression, 
-                                new Func<TResult>(() => eqProvider.ExecuteAsync<TResult>(expression, cancellationToken)) 
+                                expression,
+                                new Func<TResult>(() => eqProvider.ExecuteAsync<TResult>(expression, cancellationToken))
                             });
                 }
 
@@ -190,14 +192,19 @@ namespace EFSecondLevelCache.Core
                              () => eqProvider.ExecuteAsync<TResult>(expression, cancellationToken));
             }
 
-            if (typeof(TResult).GetGenericTypeDefinition() == typeof(Task<>))
+            if (isTaskOfT(type))
             {
                 var result = Execute(expression);
                 var taskFromResultMethod = _fromResultMethodInfo.MakeGenericMethod(expression.Type);
-                return (TResult) taskFromResultMethod.Invoke(null, new[] {result});
+                return (TResult)taskFromResultMethod.Invoke(null, new[] { result });
             }
 
             return Execute<TResult>(expression);
+        }
+
+        private static bool isTaskOfT(Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>);
         }
 #endif
     }

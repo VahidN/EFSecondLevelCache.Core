@@ -99,7 +99,7 @@ namespace EFSecondLevelCache.Core
         public IEnumerator GetEnumerator()
         {
             return ((IEnumerable)_provider.Materializer.Materialize(
-                Query.AsQueryable().Expression, 
+                Query.AsQueryable().Expression,
                 () => Query.ToArray())).GetEnumerator();
         }
 
@@ -110,7 +110,7 @@ namespace EFSecondLevelCache.Core
         IEnumerator<TType> IEnumerable<TType>.GetEnumerator()
         {
             return ((IEnumerable<TType>)_provider.Materializer.Materialize(
-                Query.AsQueryable().Expression, 
+                Query.AsQueryable().Expression,
                 () => Query.ToArray())).GetEnumerator();
         }
 
@@ -123,7 +123,7 @@ namespace EFSecondLevelCache.Core
         {
             return new EFAsyncEnumerator<TType>(
                     ((IEnumerable<TType>)_provider.Materializer.Materialize(
-                                  Query.AsQueryable().Expression, 
+                                  Query.AsQueryable().Expression,
                                   () => Query.ToArray())).GetEnumerator());
         }
 #endif

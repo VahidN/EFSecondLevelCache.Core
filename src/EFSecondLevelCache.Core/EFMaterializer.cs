@@ -17,10 +17,12 @@ namespace EFSecondLevelCache.Core
         /// Could read from the cache?
         /// </summary>
         public bool CanRead { set; get; }
+
         /// <summary>
         /// EFCacheKey value
         /// </summary>
         public EFCacheKey CacheKey { set; get; }
+
         /// <summary>
         ///  Retrieved result from the cache
         /// </summary>
@@ -49,7 +51,7 @@ namespace EFSecondLevelCache.Core
 
     /// <summary>
     /// Defines methods to create and execute queries that are described by an System.Linq.IQueryable object.
-    /// </summary>    
+    /// </summary>
     public class EFMaterializer
     {
         private readonly IEFCacheKeyProvider _cacheKeyProvider;
@@ -149,7 +151,7 @@ namespace EFSecondLevelCache.Core
             if (result != null)
             {
                 _debugInfo.IsCacheHit = true;
-                return new CacheResult<T>(true, cacheKey, (T) result);
+                return new CacheResult<T>(true, cacheKey, (T)result);
             }
 
             return new CacheResult<T>(false, cacheKey, default);
