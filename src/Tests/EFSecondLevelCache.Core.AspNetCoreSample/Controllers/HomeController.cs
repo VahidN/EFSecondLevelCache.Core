@@ -348,5 +348,24 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
 
             return Json(new { post1Title = post1.Title, debugInfo1, post2Title = post2.Title, debugInfo2 });
         }
+
+        public async Task<IActionResult> TestEnumsWithParams()
+        {
+            var param1 = UserStatus.Active;
+            var debugInfo = new EFCacheDebugInfo();
+            var user1 = await _context.Set<User>()
+                .Cacheable(debugInfo)
+                .FirstOrDefaultAsync(x => x.UserStatus == param1);
+            return Json(new { user1, debugInfo });
+        }
+
+        public async Task<IActionResult> TestInlineEnums()
+        {
+            var debugInfo = new EFCacheDebugInfo();
+            var user1 = await _context.Set<User>()
+                .Cacheable(debugInfo)
+                .FirstOrDefaultAsync(x => x.UserStatus == UserStatus.Active);
+            return Json(new { user1, debugInfo });
+        }
     }
 }

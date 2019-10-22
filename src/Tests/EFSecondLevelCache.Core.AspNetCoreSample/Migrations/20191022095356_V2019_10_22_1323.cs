@@ -1,9 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace EFSecondLevelCache.Core.AspNetCoreSample.Migrations
 {
-    public partial class V2016_09_16_1427 : Migration
+    public partial class V2019_10_22_1323 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -12,7 +11,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -25,8 +24,9 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(nullable: false),
+                    UserStatus = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -38,7 +38,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(nullable: true),
                     UserId = table.Column<int>(nullable: false),
                     post_type = table.Column<string>(nullable: false)
@@ -59,11 +59,11 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Migrations
                 columns: table => new
                 {
                     ProductId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    IsActive = table.Column<bool>(nullable: false),
-                    Notes = table.Column<string>(nullable: true),
-                    ProductName = table.Column<string>(maxLength: 50, nullable: false),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     ProductNumber = table.Column<string>(maxLength: 30, nullable: false),
+                    ProductName = table.Column<string>(maxLength: 50, nullable: false),
+                    Notes = table.Column<string>(nullable: true),
+                    IsActive = table.Column<bool>(nullable: false),
                     UserId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
