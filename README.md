@@ -27,7 +27,7 @@ To use its in-memory caching mechanism, add these entries to the `.csproj` file:
 
 ```xml
   <ItemGroup>
-    <PackageReference Include="EFSecondLevelCache.Core" Version="2.8.0" />
+    <PackageReference Include="EFSecondLevelCache.Core" Version="2.8.2" />
     <PackageReference Include="CacheManager.Core" Version="1.2.0" />
     <PackageReference Include="CacheManager.Microsoft.Extensions.Caching.Memory" Version="1.2.0" />
     <PackageReference Include="CacheManager.Serialization.Json" Version="1.2.0" />

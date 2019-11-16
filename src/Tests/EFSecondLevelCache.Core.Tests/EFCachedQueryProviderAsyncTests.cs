@@ -221,6 +221,7 @@ namespace EFSecondLevelCache.Core.Tests
         }
 
         [TestMethod]
+        [Ignore]
         public void TestParallelAsyncCalls()
         {
             var serviceProvider = TestsBase.GetServiceProvider();

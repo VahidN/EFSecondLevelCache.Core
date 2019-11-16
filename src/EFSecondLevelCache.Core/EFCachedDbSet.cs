@@ -14,7 +14,7 @@ namespace EFSecondLevelCache.Core
     /// Provides functionality to evaluate queries against a specific data source.
     /// </summary>
     /// <typeparam name="TType"></typeparam>
-    public class EFCachedDbSet<TType> : IQueryable<TType>
+    public class EFCachedDbSet<TType> : IOrderedQueryable<TType>
 #if !NETSTANDARD2_1
         , IAsyncEnumerableAccessor<TType>
 #else

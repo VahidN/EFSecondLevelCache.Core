@@ -367,5 +367,17 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
                 .FirstOrDefaultAsync(x => x.UserStatus == UserStatus.Active);
             return Json(new { user1, debugInfo });
         }
+
+        public async Task<IActionResult> TestEFCachedDbSet()
+        {
+            var users1 = await _context.CachedPosts.OrderByDescending(x => x.Id).ToListAsync();
+
+            var debugInfo2 = new EFCacheDebugInfo();
+            var users2 = await _context.Set<Post>().Cacheable(debugInfo2).OrderByDescending(x => x.Id).ToListAsync();
+
+            var debugInfo3 = new EFCacheDebugInfo();
+            var users3 = await _context.Set<Post>().OrderByDescending(x => x.Id).Cacheable(debugInfo3).ToListAsync();
+            return Json(new { users1, debugInfo2, debugInfo3});
+        }
     }
 }

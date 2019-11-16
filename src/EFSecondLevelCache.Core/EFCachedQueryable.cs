@@ -13,7 +13,7 @@ namespace EFSecondLevelCache.Core
     /// Provides functionality to evaluate queries against a specific data source.
     /// </summary>
     /// <typeparam name="TType">Type of the entity.</typeparam>
-    public class EFCachedQueryable<TType> : IQueryable<TType>
+    public class EFCachedQueryable<TType> : IOrderedQueryable<TType>
 #if !NETSTANDARD2_1
         , IAsyncEnumerableAccessor<TType>
 #else
@@ -97,7 +97,7 @@ namespace EFSecondLevelCache.Core
         public IEnumerator GetEnumerator()
         {
             return ((IEnumerable)_provider.Materializer.Materialize(
-                               Query.Expression, 
+                               Query.Expression,
                                () => Query.ToArray())).GetEnumerator();
         }
 
@@ -108,7 +108,7 @@ namespace EFSecondLevelCache.Core
         IEnumerator<TType> IEnumerable<TType>.GetEnumerator()
         {
             return ((IEnumerable<TType>)_provider.Materializer.Materialize(
-                                   Query.Expression, 
+                                   Query.Expression,
                                    () => Query.ToArray())).GetEnumerator();
         }
 
@@ -121,7 +121,7 @@ namespace EFSecondLevelCache.Core
         {
             return new EFAsyncEnumerator<TType>(
                      ((IEnumerable<TType>)_provider.Materializer.Materialize(
-                                        Query.Expression, 
+                                        Query.Expression,
                                         () => Query.ToArray())).GetEnumerator());
         }
 #endif

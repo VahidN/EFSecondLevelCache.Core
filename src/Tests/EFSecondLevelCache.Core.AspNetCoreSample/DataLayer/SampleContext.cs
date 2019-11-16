@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer.Entities;
 using EFSecondLevelCache.Core.Contracts;
@@ -14,6 +15,8 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.DataLayer
         public virtual DbSet<TagProduct> TagProducts { get; set; }
         public virtual DbSet<Tag> Tags { get; set; }
         public virtual DbSet<User> Users { get; set; }
+
+        public IOrderedQueryable<Post> CachedPosts => this.Set<Post>().Cacheable();
 
         public SampleContext(DbContextOptions<SampleContext> options) : base(options)
         { }
