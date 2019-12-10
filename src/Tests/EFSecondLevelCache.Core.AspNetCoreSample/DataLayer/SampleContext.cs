@@ -16,7 +16,7 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.DataLayer
         public virtual DbSet<Tag> Tags { get; set; }
         public virtual DbSet<User> Users { get; set; }
 
-        public IOrderedQueryable<Post> CachedPosts => this.Set<Post>().Cacheable();
+        public EFCachedDbSet<Post> CachedPosts => this.Set<Post>().Cacheable();
 
         public SampleContext(DbContextOptions<SampleContext> options) : base(options)
         { }

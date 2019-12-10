@@ -61,12 +61,9 @@ namespace EFSecondLevelCache.Core
             return entry.State == EntityState.Added
                    || entry.State == EntityState.Modified
                    || entry.State == EntityState.Deleted
-#if NETSTANDARD2_0 || NET4_6_1 || NETSTANDARD2_1
                    || entry.References.Any(r => r.TargetEntry != null
                                                 && r.TargetEntry.Metadata.IsOwned()
-                                                && IsEntityChanged(r.TargetEntry))
-#endif
-                ;
+                                                && IsEntityChanged(r.TargetEntry));
         }
 
         /// <summary>

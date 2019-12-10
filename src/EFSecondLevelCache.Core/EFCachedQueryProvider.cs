@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -21,9 +20,7 @@ namespace EFSecondLevelCache.Core
         private readonly EFCachePolicy _cachePolicy;
         private readonly IQueryable _query;
 
-#if NETSTANDARD2_1
         private static readonly MethodInfo _fromResultMethodInfo = typeof(Task).GetMethod("FromResult");
-#endif
         private static readonly MethodInfo _materializeAsyncMethodInfo = typeof(EFMaterializer).GetMethod(nameof(EFMaterializer.MaterializeAsync));
 
         /// <summary>
@@ -107,63 +104,6 @@ namespace EFSecondLevelCache.Core
             return Materializer.Materialize(expression, () => _query.Provider.Execute<TResult>(expression));
         }
 
-#if !NETSTANDARD2_1
-        /// <summary>
-        /// This API supports the Entity Framework Core infrastructure
-        /// </summary>
-        /// <typeparam name="TResult">The type of the value that results from executing the query.</typeparam>
-        /// <param name="expression">An expression tree that represents a LINQ query.</param>
-        public IAsyncEnumerable<TResult> ExecuteAsync<TResult>(Expression expression)
-        {
-            if(_query.Provider is EntityQueryProvider eqProvider)
-            {
-                return Materializer.Materialize(
-                             expression,
-                             () => eqProvider.ExecuteAsync<TResult>(expression));
-            }
-
-            return new EFAsyncTaskEnumerable<TResult>(Task.FromResult(Execute<TResult>(expression)));
-        }
-
-        /// <summary>
-        /// Asynchronously executes the query represented by a specified expression tree.
-        /// </summary>
-        /// <param name="expression">An expression tree that represents a LINQ query.</param>
-        /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-        /// <returns>A task that represents the asynchronous operation.  The task result contains the value that results from executing the specified query.</returns>
-        public Task<object> ExecuteAsync(Expression expression, CancellationToken cancellationToken)
-        {
-            if(_query.Provider is EntityQueryProvider eqProvider)
-            {
-               return Materializer.MaterializeAsync(
-                             expression,
-                             () => eqProvider.ExecuteAsync<object>(expression, cancellationToken));
-            }
-
-            return Task.FromResult(Execute(expression));
-        }
-
-        /// <summary>
-        /// Asynchronously executes the strongly-typed query represented by a specified expression tree.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the value that results from executing the query.</typeparam>
-        /// <param name="expression">An expression tree that represents a LINQ query.</param>
-        /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-        /// <returns>A task that represents the asynchronous operation.  The task result contains the value that results from executing the specified query.</returns>
-        public Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
-        {
-            if(_query.Provider is EntityQueryProvider eqProvider)
-            {
-               return Materializer.MaterializeAsync(
-                            expression,
-                            () => eqProvider.ExecuteAsync<TResult>(expression, cancellationToken));
-            }
-
-            return Task.FromResult(Execute<TResult>(expression));
-        }
-#endif
-
-#if NETSTANDARD2_1
         /// <summary>
         /// Asynchronously executes the strongly-typed query represented by a specified expression tree.
         /// </summary>
@@ -206,6 +146,5 @@ namespace EFSecondLevelCache.Core
         {
             return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>);
         }
-#endif
     }
 }

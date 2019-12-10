@@ -26,15 +26,6 @@ namespace EFSecondLevelCache.Core
         /// </summary>
         public T Current => !_moved ? default(T) : _task.Result;
 
-#if !NETSTANDARD2_1
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        void IDisposable.Dispose()
-        {
-        }
-#endif
-
         /// <summary>
         /// Advances the enumerator to the next element in the sequence, returning the result asynchronously.
         /// </summary>
@@ -54,13 +45,12 @@ namespace EFSecondLevelCache.Core
             return false;
         }
 
-#if NETSTANDARD2_1
         /// <summary>
         /// Advances the enumerator to the next element in the sequence, returning the result asynchronously.
         /// </summary>
         public ValueTask<bool> MoveNextAsync()
         {
-            return  new ValueTask<bool>(MoveNext(new CancellationToken()));
+            return new ValueTask<bool>(MoveNext(new CancellationToken()));
         }
 
         /// <summary>
@@ -70,6 +60,5 @@ namespace EFSecondLevelCache.Core
         {
             return default;
         }
-#endif
     }
 }

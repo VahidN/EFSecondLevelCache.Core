@@ -24,7 +24,6 @@ namespace EFSecondLevelCache.Core
         /// </summary>
         public IAsyncEnumerator<T> GetEnumerator() => new EFAsyncTaskEnumerator<T>(_task);
 
-#if NETSTANDARD2_1
         /// <summary>
         /// Gets an asynchronous enumerator over the sequence.
         /// </summary>
@@ -32,6 +31,5 @@ namespace EFSecondLevelCache.Core
         {
             return new EFAsyncTaskEnumerator<T>(_task);
         }
-#endif
     }
 }

@@ -45,7 +45,6 @@ namespace EFSecondLevelCache.Core
             return Task.FromResult(_inner.MoveNext());
         }
 
-#if NETSTANDARD2_1
         /// <summary>
         /// Advances the enumerator to the next element in the sequence, returning the result asynchronously.
         /// </summary>
@@ -60,9 +59,8 @@ namespace EFSecondLevelCache.Core
         /// </summary>
         public ValueTask DisposeAsync()
         {
-           _inner.Dispose();
-           return default;
+            _inner.Dispose();
+            return default;
         }
-#endif
     }
 }

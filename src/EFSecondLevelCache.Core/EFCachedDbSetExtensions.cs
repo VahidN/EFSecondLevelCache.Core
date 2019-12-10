@@ -7,10 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
-
-#if NETSTANDARD2_1
 using Microsoft.EntityFrameworkCore.Diagnostics;
-#endif
 
 namespace EFSecondLevelCache.Core
 {

@@ -1,4 +1,3 @@
-#if NETSTANDARD2_1
 using System.Linq;
 using System.Linq.Expressions;
 using EFSecondLevelCache.Core.Contracts;
@@ -107,4 +106,3 @@ namespace EFSecondLevelCache.Core
         }
     }
 }
-#endif
