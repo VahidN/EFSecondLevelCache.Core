@@ -17,12 +17,23 @@ namespace EFSecondLevelCache.Core.Tests
     [TestClass]
     public class EFCachedQueryProviderBasicTests
     {
+        private readonly IServiceProvider _serviceProvider;
+
+        public EFCachedQueryProviderBasicTests()
+        {
+            _serviceProvider = TestsBase.GetServiceProvider();
+        }
+
+        [TestInitialize]
+        public void ClearEFGlobalCacheBeforeEachTest()
+        {
+            _serviceProvider.GetRequiredService<IEFCacheServiceProvider>().ClearAllCachedEntries();
+        }
 
         [TestMethod]
         public void TestIncludeMethodAffectsKeyCache()
         {
-            var serviceProvider = TestsBase.GetServiceProvider();
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
@@ -34,7 +45,7 @@ namespace EFSecondLevelCache.Core.Tests
                     Console.WriteLine("1st query using Include method.");
                     var debugInfo1 = new EFCacheDebugInfo();
                     var firstProductIncludeTags = context.Products.Include(x => x.TagProducts).ThenInclude(x => x.Tag)
-                                                                 .Cacheable(debugInfo1, serviceProvider)
+                                                                 .Cacheable(debugInfo1, _serviceProvider)
                                                                  .FirstOrDefault();
                     Assert.IsNotNull(firstProductIncludeTags);
                     Assert.AreEqual(false, debugInfo1.IsCacheHit);
@@ -45,7 +56,7 @@ namespace EFSecondLevelCache.Core.Tests
                         @"2nd query looks the same, but it doesn't have the Include method, so it shouldn't produce the same queryKeyHash.
                  This was the problem with just parsing the LINQ expression, without considering the produced SQL.");
                     var debugInfo2 = new EFCacheDebugInfo();
-                    var firstProduct = context.Products.Cacheable(debugInfo2, serviceProvider)
+                    var firstProduct = context.Products.Cacheable(debugInfo2, _serviceProvider)
                                                       .FirstOrDefault();
                     Assert.IsNotNull(firstProduct);
                     Assert.AreEqual(false, debugInfo2.IsCacheHit);
@@ -61,8 +72,7 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestQueriesUsingDifferentParameterValuesWillNotUseTheCache()
         {
-            var serviceProvider = TestsBase.GetServiceProvider();
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
@@ -71,7 +81,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var list1 = context.Products.Include(x => x.TagProducts).ThenInclude(x => x.Tag)
                         .OrderBy(product => product.ProductNumber)
                         .Where(product => product.IsActive && product.ProductName == "Product1")
-                        .Cacheable(debugInfo1, serviceProvider)
+                        .Cacheable(debugInfo1, _serviceProvider)
                         .ToList();
                     Assert.AreEqual(false, debugInfo1.IsCacheHit);
                     Assert.IsNotNull(list1);
@@ -81,7 +91,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var list2 = context.Products.Include(x => x.TagProducts).ThenInclude(x => x.Tag)
                         .OrderBy(product => product.ProductNumber)
                         .Where(product => product.IsActive == false && product.ProductName == "Product1")
-                        .Cacheable(debugInfo2, serviceProvider)
+                        .Cacheable(debugInfo2, _serviceProvider)
                         .ToList();
                     Assert.AreEqual(false, debugInfo2.IsCacheHit);
                     Assert.IsNotNull(list2);
@@ -91,7 +101,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var list3 = context.Products.Include(x => x.TagProducts).ThenInclude(x => x.Tag)
                         .OrderBy(product => product.ProductNumber)
                         .Where(product => product.IsActive == false && product.ProductName == "Product2")
-                        .Cacheable(debugInfo3, serviceProvider)
+                        .Cacheable(debugInfo3, _serviceProvider)
                         .ToList();
                     Assert.AreEqual(false, debugInfo3.IsCacheHit);
                     Assert.IsNotNull(list3);
@@ -101,7 +111,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var list4 = context.Products.Include(x => x.TagProducts).ThenInclude(x => x.Tag)
                         .OrderBy(product => product.ProductNumber)
                         .Where(product => product.IsActive == false && product.ProductName == "Product2")
-                        .Cacheable(debugInfo4, serviceProvider)
+                        .Cacheable(debugInfo4, _serviceProvider)
                         .ToList();
                     Assert.AreEqual(true, debugInfo4.IsCacheHit);
                     Assert.IsNotNull(list4);
@@ -112,8 +122,7 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestSecondLevelCacheCreatesTheCommandTreeAfterCallingTheSameNormalQuery()
         {
-            var serviceProvider = TestsBase.GetServiceProvider();
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
@@ -133,7 +142,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var list2 = context.Products
                                        .OrderBy(product => product.ProductNumber)
                                        .Where(product => product.IsActive == isActive && product.ProductName == name)
-                                       .Cacheable(debugInfo2, serviceProvider)
+                                       .Cacheable(debugInfo2, _serviceProvider)
                                        .ToList();
                     Assert.AreEqual(false, debugInfo2.IsCacheHit);
                     Assert.IsTrue(list2.Any());
@@ -145,7 +154,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var list3 = context.Products
                                        .OrderBy(product => product.ProductNumber)
                                        .Where(product => product.IsActive == isActive && product.ProductName == name)
-                                       .Cacheable(debugInfo3, serviceProvider)
+                                       .Cacheable(debugInfo3, _serviceProvider)
                                        .ToList();
                     Assert.AreEqual(true, debugInfo3.IsCacheHit);
                     Assert.IsTrue(list3.Any());
@@ -159,8 +168,7 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestSecondLevelCacheDoesNotHitTheDatabase()
         {
-            var serviceProvider = TestsBase.GetServiceProvider();
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
@@ -172,7 +180,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var list1 = context.Products
                                        .OrderBy(product => product.ProductNumber)
                                        .Where(product => product.IsActive == isActive && product.ProductName == name)
-                                       .Cacheable(debugInfo1, serviceProvider)
+                                       .Cacheable(debugInfo1, _serviceProvider)
                                        .ToList();
                     Assert.AreEqual(false, debugInfo1.IsCacheHit);
                     Assert.IsTrue(list1.Any());
@@ -184,7 +192,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var list2 = context.Products
                                        .OrderBy(product => product.ProductNumber)
                                        .Where(product => product.IsActive == isActive && product.ProductName == name)
-                                       .Cacheable(debugInfo2, serviceProvider)
+                                       .Cacheable(debugInfo2, _serviceProvider)
                                        .ToList();
                     Assert.AreEqual(true, debugInfo2.IsCacheHit);
                     Assert.IsTrue(list2.Any());
@@ -196,7 +204,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var list3 = context.Products
                                        .OrderBy(product => product.ProductNumber)
                                        .Where(product => product.IsActive == isActive && product.ProductName == name)
-                                       .Cacheable(debugInfo3, serviceProvider)
+                                       .Cacheable(debugInfo3, _serviceProvider)
                                        .ToList();
                     Assert.AreEqual(true, debugInfo3.IsCacheHit);
                     Assert.IsTrue(list3.Any());
@@ -210,7 +218,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var list4 = context.Products
                                        .OrderBy(product => product.ProductNumber)
                                        .Where(product => product.IsActive == isActive && product.ProductName == "Product2")
-                                       .Cacheable(debugInfo4, serviceProvider)
+                                       .Cacheable(debugInfo4, _serviceProvider)
                                        .ToList();
                     Assert.AreEqual(false, debugInfo4.IsCacheHit);
                     Assert.IsTrue(list4.Any());
@@ -224,15 +232,13 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestSecondLevelCacheInTwoDifferentContextsDoesNotHitTheDatabase()
         {
-            var serviceProvider = TestsBase.GetServiceProvider();
-
             var isActive = true;
             var name = "Product1";
             string hash2;
             string hash3;
 
             Console.WriteLine("context 1.");
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
@@ -241,7 +247,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var list2 = context.Products
                         .OrderBy(product => product.ProductNumber)
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
-                        .Cacheable(debugInfo2, serviceProvider)
+                        .Cacheable(debugInfo2, _serviceProvider)
                         .ToList();
                     Assert.AreEqual(false, debugInfo2.IsCacheHit);
                     Assert.IsTrue(list2.Any());
@@ -250,7 +256,7 @@ namespace EFSecondLevelCache.Core.Tests
             }
 
             Console.WriteLine("context 2");
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
@@ -259,7 +265,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var list3 = context.Products
                                        .OrderBy(product => product.ProductNumber)
                                        .Where(product => product.IsActive == isActive && product.ProductName == name)
-                                       .Cacheable(debugInfo3, serviceProvider)
+                                       .Cacheable(debugInfo3, _serviceProvider)
                                        .ToList();
                     Assert.AreEqual(true, debugInfo3.IsCacheHit);
                     Assert.IsTrue(list3.Any());
@@ -274,8 +280,6 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestSecondLevelCacheInTwoDifferentParallelContexts()
         {
-            var serviceProvider = TestsBase.GetServiceProvider();
-
             var isActive = true;
             var name = "Product1";
             var debugInfo2 = new EFCacheDebugInfo();
@@ -284,7 +288,7 @@ namespace EFSecondLevelCache.Core.Tests
             var task1 = Task.Factory.StartNew(() =>
             {
                 Console.WriteLine("context 1.");
-                using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+                using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
                 {
                     using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                     {
@@ -292,7 +296,7 @@ namespace EFSecondLevelCache.Core.Tests
                         var list2 = context.Products
                             .OrderBy(product => product.ProductNumber)
                             .Where(product => product.IsActive == isActive && product.ProductName == name)
-                            .Cacheable(debugInfo2, serviceProvider)
+                            .Cacheable(debugInfo2, _serviceProvider)
                             .ToList();
                         Assert.IsTrue(list2.Any());
                     }
@@ -302,7 +306,7 @@ namespace EFSecondLevelCache.Core.Tests
             var task2 = Task.Factory.StartNew(() =>
             {
                 Console.WriteLine("context 2");
-                using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+                using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
                 {
                     using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                     {
@@ -310,7 +314,7 @@ namespace EFSecondLevelCache.Core.Tests
                         var list3 = context.Products
                             .OrderBy(product => product.ProductNumber)
                             .Where(product => product.IsActive == isActive && product.ProductName == name)
-                            .Cacheable(debugInfo3, serviceProvider)
+                            .Cacheable(debugInfo3, _serviceProvider)
                             .ToList();
                         Assert.IsTrue(list3.Any());
                     }
@@ -325,9 +329,7 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestSecondLevelCacheUsingDifferentSyncMethods()
         {
-            var serviceProvider = TestsBase.GetServiceProvider();
-
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
@@ -339,7 +341,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var count = context.Products
                                        .OrderBy(product => product.ProductNumber)
                                        .Where(product => product.IsActive == isActive && product.ProductName == name)
-                                       .Cacheable(debugInfo2, serviceProvider)
+                                       .Cacheable(debugInfo2, _serviceProvider)
                                        .Count();
                     Assert.AreEqual(false, debugInfo2.IsCacheHit);
                     Assert.IsTrue(count > 0);
@@ -350,7 +352,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var list1 = context.Products
                                        .OrderBy(product => product.ProductNumber)
                                        .Where(product => product.IsActive == isActive && product.ProductName == name)
-                                       .Cacheable(debugInfo1, serviceProvider)
+                                       .Cacheable(debugInfo1, _serviceProvider)
                                        .ToList();
                     Assert.AreEqual(false, debugInfo1.IsCacheHit);
                     Assert.IsTrue(list1.Any());
@@ -361,7 +363,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var product1 = context.Products
                                        .OrderBy(product => product.ProductNumber)
                                        .Where(product => product.IsActive == isActive && product.ProductName == name)
-                                       .Cacheable(debugInfo3, serviceProvider)
+                                       .Cacheable(debugInfo3, _serviceProvider)
                                        .FirstOrDefault();
                     Assert.AreEqual(false, debugInfo3.IsCacheHit);
                     Assert.IsTrue(product1 != null);
@@ -372,7 +374,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var any = context.Products
                                        .OrderBy(product => product.ProductNumber)
                                        .Where(product => product.IsActive == isActive && product.ProductName == "Product2")
-                                       .Cacheable(debugInfo4, serviceProvider)
+                                       .Cacheable(debugInfo4, _serviceProvider)
                                        .Any();
                     Assert.AreEqual(false, debugInfo4.IsCacheHit);
                     Assert.IsTrue(any);
@@ -383,7 +385,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var sum = context.Products
                         .OrderBy(product => product.ProductNumber)
                         .Where(product => product.IsActive == isActive && product.ProductName == "Product2")
-                        .Cacheable(debugInfo5, serviceProvider)
+                        .Cacheable(debugInfo5, _serviceProvider)
                         .Sum(x => x.ProductId);
                     Assert.AreEqual(false, debugInfo5.IsCacheHit);
                     Assert.IsTrue(sum > 0);
@@ -394,8 +396,7 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestSecondLevelCacheUsingTwoCountMethods()
         {
-            var serviceProvider = TestsBase.GetServiceProvider();
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
@@ -408,7 +409,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var count = context.Products
                                        .OrderBy(product => product.ProductNumber)
                                        .Where(product => product.IsActive == isActive && product.ProductName == name)
-                                       .Cacheable(debugInfo2, serviceProvider)
+                                       .Cacheable(debugInfo2, _serviceProvider)
                                        .Count();
                     Assert.AreEqual(false, debugInfo2.IsCacheHit);
                     Assert.IsTrue(count > 0);
@@ -418,7 +419,7 @@ namespace EFSecondLevelCache.Core.Tests
                     count = context.Products
                                        .OrderBy(product => product.ProductNumber)
                                        .Where(product => product.IsActive == isActive && product.ProductName == name)
-                                       .Cacheable(debugInfo3, serviceProvider)
+                                       .Cacheable(debugInfo3, _serviceProvider)
                                        .Count();
                     Assert.AreEqual(true, debugInfo3.IsCacheHit);
                     Assert.IsTrue(count > 0);
@@ -429,8 +430,7 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestSecondLevelCacheUsingProjections()
         {
-            var serviceProvider = TestsBase.GetServiceProvider();
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
@@ -443,7 +443,7 @@ namespace EFSecondLevelCache.Core.Tests
                                        .OrderBy(product => product.ProductNumber)
                                        .Where(product => product.IsActive == isActive && product.ProductName == name)
                                        .Select(x => x.ProductId)
-                                       .Cacheable(debugInfo2, serviceProvider)
+                                       .Cacheable(debugInfo2, _serviceProvider)
                                        .ToList();
                     Assert.AreEqual(false, debugInfo2.IsCacheHit);
                     Assert.IsTrue(list2.Any());
@@ -454,7 +454,7 @@ namespace EFSecondLevelCache.Core.Tests
                                        .OrderBy(product => product.ProductNumber)
                                        .Where(product => product.IsActive == isActive && product.ProductName == name)
                                        .Select(x => x.ProductId)
-                                       .Cacheable(debugInfo3, serviceProvider)
+                                       .Cacheable(debugInfo3, _serviceProvider)
                                        .ToList();
                     Assert.AreEqual(true, debugInfo3.IsCacheHit);
                     Assert.IsTrue(list2.Any());
@@ -466,15 +466,14 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestSecondLevelCacheUsingFiltersAfterCacheableMethod()
         {
-            var serviceProvider = TestsBase.GetServiceProvider();
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
                     Console.WriteLine("Filters After Cacheable Method 1.");
                     var debugInfo2 = new EFCacheDebugInfo();
                     var product1 = context.Products
-                                       .Cacheable(debugInfo2, serviceProvider)
+                                       .Cacheable(debugInfo2, _serviceProvider)
                                        .FirstOrDefault(product => product.IsActive);
                     Assert.AreEqual(false, debugInfo2.IsCacheHit);
                     Assert.IsNotNull(product1);
@@ -483,7 +482,7 @@ namespace EFSecondLevelCache.Core.Tests
                     Console.WriteLine("Filters After Cacheable Method 2, Same query.");
                     var debugInfo3 = new EFCacheDebugInfo();
                     product1 = context.Products
-                                       .Cacheable(debugInfo3, serviceProvider)
+                                       .Cacheable(debugInfo3, _serviceProvider)
                                        .FirstOrDefault(product => product.IsActive);
                     Assert.AreEqual(true, debugInfo3.IsCacheHit);
                     Assert.IsNotNull(product1);
@@ -492,7 +491,7 @@ namespace EFSecondLevelCache.Core.Tests
                     Console.WriteLine("Filters After Cacheable Method 3, Different query.");
                     var debugInfo4 = new EFCacheDebugInfo();
                     product1 = context.Products
-                                       .Cacheable(debugInfo4, serviceProvider)
+                                       .Cacheable(debugInfo4, _serviceProvider)
                                        .FirstOrDefault(product => !product.IsActive);
                     Assert.AreEqual(false, debugInfo4.IsCacheHit);
                     Assert.IsNotNull(product1);
@@ -501,7 +500,7 @@ namespace EFSecondLevelCache.Core.Tests
                     Console.WriteLine("Filters After Cacheable Method 4, Different query.");
                     var debugInfo5 = new EFCacheDebugInfo();
                     product1 = context.Products
-                                       .Cacheable(debugInfo5, serviceProvider)
+                                       .Cacheable(debugInfo5, _serviceProvider)
                                        .FirstOrDefault(product => product.ProductName == "Product2");
                     Assert.AreEqual(false, debugInfo5.IsCacheHit);
                     Assert.IsNotNull(product1);
@@ -510,7 +509,7 @@ namespace EFSecondLevelCache.Core.Tests
                     Console.WriteLine("Filters After Cacheable Method 5, Different query.");
                     var debugInfo6 = new EFCacheDebugInfo();
                     product1 = context.Products
-                                       .Cacheable(debugInfo6, serviceProvider)
+                                       .Cacheable(debugInfo6, _serviceProvider)
                                        .FirstOrDefault(product => product.TagProducts.Any(tag => tag.TagId == 1));
                     Assert.AreEqual(false, debugInfo6.IsCacheHit);
                     Assert.IsNotNull(product1);
@@ -521,8 +520,7 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestEagerlyLoadingMultipleLevels()
         {
-            var serviceProvider = TestsBase.GetServiceProvider();
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
@@ -541,7 +539,7 @@ namespace EFSecondLevelCache.Core.Tests
                                                          .Include(x => x.Products)
                                                          .ThenInclude(x => x.TagProducts)
                                                          .ThenInclude(x => x.Tag)
-                                                         .Cacheable(debugInfo1, serviceProvider)
+                                                         .Cacheable(debugInfo1, _serviceProvider)
                                                          .FirstOrDefault();
                     Assert.IsNotNull(firstProductIncludeTags);
                     Assert.AreEqual(false, debugInfo1.IsCacheHit);
@@ -555,7 +553,7 @@ namespace EFSecondLevelCache.Core.Tests
                                                         .Include(x => x.Products)
                                                         .ThenInclude(x => x.TagProducts)
                                                         .ThenInclude(x => x.Tag)
-                                                        .Cacheable(debugInfo11, serviceProvider)
+                                                        .Cacheable(debugInfo11, _serviceProvider)
                                                         .FirstOrDefault();
                     Assert.IsNotNull(firstProductIncludeTags11);
                     Assert.AreEqual(true, debugInfo11.IsCacheHit);
@@ -566,7 +564,7 @@ namespace EFSecondLevelCache.Core.Tests
                  This was the problem with just parsing the LINQ expression, without considering the produced SQL.");
 
                     var debugInfo2 = new EFCacheDebugInfo();
-                    var firstProduct = context.Users.Cacheable(debugInfo2, serviceProvider)
+                    var firstProduct = context.Users.Cacheable(debugInfo2, _serviceProvider)
                                                    .FirstOrDefault();
                     Assert.IsNotNull(firstProduct);
                     Assert.AreEqual(false, debugInfo2.IsCacheHit);
@@ -582,8 +580,7 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestIncludeMethodAndProjectionAffectsKeyCache()
         {
-            var serviceProvider = TestsBase.GetServiceProvider();
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
@@ -599,7 +596,7 @@ namespace EFSecondLevelCache.Core.Tests
 
             string hash1;
             ISet<string> cacheDependencies1;
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
@@ -610,7 +607,7 @@ namespace EFSecondLevelCache.Core.Tests
                         .Include(x => x.TagProducts).ThenInclude(x => x.Tag)
                         .Select(x => new { Name = x.ProductName, Tag = x.TagProducts.Select(y => y.Tag) })
                         .OrderBy(x => x.Name)
-                        .Cacheable(debugInfo1, serviceProvider)
+                        .Cacheable(debugInfo1, _serviceProvider)
                         .FirstOrDefault();
                     Assert.IsNotNull(firstProductIncludeTags);
                     Assert.AreEqual(false, debugInfo1.IsCacheHit);
@@ -619,7 +616,7 @@ namespace EFSecondLevelCache.Core.Tests
                 }
             }
 
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
@@ -629,14 +626,14 @@ namespace EFSecondLevelCache.Core.Tests
                         .Include(x => x.TagProducts).ThenInclude(x => x.Tag)
                         .Select(x => new { Name = x.ProductName, Tag = x.TagProducts.Select(y => y.Tag) })
                         .OrderBy(x => x.Name)
-                        .Cacheable(debugInfo2, serviceProvider)
+                        .Cacheable(debugInfo2, _serviceProvider)
                         .FirstOrDefault();
                     Assert.IsNotNull(firstProductIncludeTags2);
                     Assert.AreEqual(true, debugInfo2.IsCacheHit);
                 }
             }
 
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
@@ -648,7 +645,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var firstProduct = context.Products
                         .Select(x => new { Name = x.ProductName, Tag = x.TagProducts.Select(y => y.Tag) })
                         .OrderBy(x => x.Name)
-                        .Cacheable(debugInfo3, serviceProvider)
+                        .Cacheable(debugInfo3, _serviceProvider)
                         .FirstOrDefault();
                     Assert.IsNotNull(firstProduct);
                     Assert.AreEqual(false, debugInfo3.IsCacheHit);
@@ -664,11 +661,10 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestParallelQueriesShouldCacheData()
         {
-            var serviceProvider = TestsBase.GetServiceProvider();
             var debugInfo1 = new EFCacheDebugInfo();
             TestsBase.ExecuteInParallel(() =>
              {
-                 using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+                 using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
                  {
                      using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                      {
@@ -676,7 +672,7 @@ namespace EFSecondLevelCache.Core.Tests
                              .Include(x => x.TagProducts).ThenInclude(x => x.Tag)
                              .Select(x => new { Name = x.ProductName, Tag = x.TagProducts.Select(y => y.Tag) })
                              .OrderBy(x => x.Name)
-                             .Cacheable(debugInfo1, serviceProvider)
+                             .Cacheable(debugInfo1, _serviceProvider)
                              .FirstOrDefault();
                          Assert.IsNotNull(firstProductIncludeTags);
                      }
@@ -688,15 +684,13 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestSecondLevelCacheUsingFindMethods()
         {
-            var serviceProvider = TestsBase.GetServiceProvider();
-
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
                     var debugInfo = new EFCacheDebugInfo();
                     var product1 = context.Products
-                        .Cacheable(debugInfo, serviceProvider)
+                        .Cacheable(debugInfo, _serviceProvider)
                         .Find(1);
                     Assert.AreEqual(false, debugInfo.IsCacheHit);
                     Assert.IsTrue(product1 != null);
@@ -704,7 +698,7 @@ namespace EFSecondLevelCache.Core.Tests
 
                     var debugInfo2 = new EFCacheDebugInfo();
                     product1 = context.Products
-                        .Cacheable(debugInfo2, serviceProvider)
+                        .Cacheable(debugInfo2, _serviceProvider)
                         .Find(1);
                     Assert.AreEqual(true, debugInfo2.IsCacheHit);
                     Assert.IsTrue(product1 != null);
@@ -715,8 +709,7 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestNullValuesWillUseTheCache()
         {
-            var serviceProvider = TestsBase.GetServiceProvider();
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
@@ -746,8 +739,7 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestEqualsMethodWillUseTheCache()
         {
-            var serviceProvider = TestsBase.GetServiceProvider();
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
@@ -784,8 +776,7 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestSecondLevelCacheDoesNotHitTheDatabaseForIQueryableCacheables()
         {
-            var serviceProvider = TestsBase.GetServiceProvider();
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
@@ -797,7 +788,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var list1IQueryable = context.Products
                             .OrderBy(product => product.ProductNumber)
                             .Where(product => product.IsActive == isActive && product.ProductName == name) as IQueryable;
-                    var list1 = (list1IQueryable.Cacheable(debugInfo1, serviceProvider) as IEnumerable).Cast<object>().ToList();
+                    var list1 = (list1IQueryable.Cacheable(debugInfo1, _serviceProvider) as IEnumerable).Cast<object>().ToList();
                     Assert.AreEqual(false, debugInfo1.IsCacheHit);
                     Assert.IsTrue(list1.Any());
 
@@ -807,7 +798,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var list2IQueryable = context.Products
                                        .OrderBy(product => product.ProductNumber)
                                        .Where(product => product.IsActive == isActive && product.ProductName == name) as IQueryable;
-                    var list2 = (list2IQueryable.Cacheable(debugInfo2, serviceProvider) as IEnumerable).Cast<object>().ToList();
+                    var list2 = (list2IQueryable.Cacheable(debugInfo2, _serviceProvider) as IEnumerable).Cast<object>().ToList();
                     Assert.AreEqual(true, debugInfo2.IsCacheHit);
                     Assert.IsTrue(list2.Any());
                 }
@@ -817,8 +808,7 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void Test2DifferentCollectionsWillNotUseTheCache()
         {
-            var serviceProvider = TestsBase.GetServiceProvider();
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
@@ -844,10 +834,10 @@ namespace EFSecondLevelCache.Core.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))] // This is a bug or a limitation in EF Core
         public void TestSubqueriesWillUseTheCache()
         {
-            var serviceProvider = TestsBase.GetServiceProvider();
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
@@ -883,8 +873,7 @@ namespace EFSecondLevelCache.Core.Tests
         [TestMethod]
         public void TestSecondLevelCacheUsingProjectToMethods()
         {
-            var serviceProvider = TestsBase.GetServiceProvider();
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
@@ -893,7 +882,7 @@ namespace EFSecondLevelCache.Core.Tests
                     var posts = context.Posts
                         .Where(x => x.Id > 0)
                         .OrderBy(x => x.Id)
-                        .Cacheable(debugInfo, serviceProvider)
+                        .Cacheable(debugInfo, _serviceProvider)
                         .ProjectTo<PostDto>(configuration: mapper.ConfigurationProvider)
                         .ToList();
                     Assert.AreEqual(false, debugInfo.IsCacheHit);
@@ -903,7 +892,7 @@ namespace EFSecondLevelCache.Core.Tests
                     posts = context.Posts
                         .Where(x => x.Id > 0)
                         .OrderBy(x => x.Id)
-                        .Cacheable(debugInfo2, serviceProvider)
+                        .Cacheable(debugInfo2, _serviceProvider)
                         .ProjectTo<PostDto>(configuration: mapper.ConfigurationProvider)
                         .ToList();
                     Assert.AreEqual(true, debugInfo2.IsCacheHit);
