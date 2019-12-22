@@ -20,7 +20,7 @@ namespace EFSecondLevelCache.Core.PerformanceTests
                     .With(StatisticColumn.OperationsPerSecond)
                     .With(BaselineRatioColumn.RatioMean)
                     .With(RankColumn.Arabic)
-                    .With(Job.Core
+                    .With(Job.Default
                         .WithIterationCount(10)
                         .WithInvocationCount(16)
                         .WithIterationTime(TimeInterval.FromSeconds(10))

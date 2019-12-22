@@ -4,12 +4,11 @@ using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer;
 using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer.Entities;
 using EFSecondLevelCache.Core.Contracts;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.EntityFrameworkCore;
+using Xunit;
 
 namespace EFSecondLevelCache.Core.Tests
 {
-    [TestClass]
     public class EFCachedQueryProviderInvalidationTests
     {
         private readonly IServiceProvider _serviceProvider;
@@ -17,15 +16,10 @@ namespace EFSecondLevelCache.Core.Tests
         public EFCachedQueryProviderInvalidationTests()
         {
             _serviceProvider = TestsBase.GetServiceProvider();
-        }
-
-        [TestInitialize]
-        public void ClearEFGlobalCacheBeforeEachTest()
-        {
             _serviceProvider.GetRequiredService<IEFCacheServiceProvider>().ClearAllCachedEntries();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestInsertingDataIntoTheSameTableShouldInvalidateTheCacheAutomatically()
         {
             using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
@@ -42,8 +36,8 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo1, _serviceProvider)
                         .ToList();
-                    Assert.AreEqual(false, debugInfo1.IsCacheHit);
-                    Assert.IsTrue(list1.Any());
+                    Assert.Equal(false, debugInfo1.IsCacheHit);
+                    Assert.True(list1.Any());
 
 
                     Console.WriteLine("same query, reading from 2nd level cache");
@@ -53,8 +47,8 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo2, _serviceProvider)
                         .ToList();
-                    Assert.AreEqual(true, debugInfo2.IsCacheHit);
-                    Assert.IsTrue(list2.Any());
+                    Assert.Equal(true, debugInfo2.IsCacheHit);
+                    Assert.True(list2.Any());
 
 
                     Console.WriteLine("inserting data, invalidates the cache on SaveChanges");
@@ -71,7 +65,7 @@ namespace EFSecondLevelCache.Core.Tests
 
                     context.ChangeTracker.DetectChanges();
                     var changedEntityNames = context.GetChangedEntityNames();
-                    Assert.IsTrue(debugInfo2.EFCacheKey.CacheDependencies.Any(item => changedEntityNames.Contains(item)));
+                    Assert.True(debugInfo2.EFCacheKey.CacheDependencies.Any(item => changedEntityNames.Contains(item)));
 
                     context.SaveChanges();
 
@@ -83,13 +77,13 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo3, _serviceProvider)
                         .ToList();
-                    Assert.AreEqual(false, debugInfo3.IsCacheHit);
-                    Assert.IsTrue(list3.Any());
+                    Assert.Equal(false, debugInfo3.IsCacheHit);
+                    Assert.True(list3.Any());
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestInsertingDataToOtherTablesShouldNotInvalidateTheCacheDependencyAutomatically()
         {
             using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
@@ -106,8 +100,8 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo1, _serviceProvider)
                         .ToList();
-                    Assert.AreEqual(false, debugInfo1.IsCacheHit);
-                    Assert.IsTrue(list1.Any());
+                    Assert.Equal(false, debugInfo1.IsCacheHit);
+                    Assert.True(list1.Any());
 
 
                     Console.WriteLine("same query, reading from 2nd level cache.");
@@ -117,8 +111,8 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo2, _serviceProvider)
                         .ToList();
-                    Assert.AreEqual(true, debugInfo2.IsCacheHit);
-                    Assert.IsTrue(list2.Any());
+                    Assert.Equal(true, debugInfo2.IsCacheHit);
+                    Assert.True(list2.Any());
 
 
                     Console.WriteLine(
@@ -132,7 +126,7 @@ namespace EFSecondLevelCache.Core.Tests
 
                     context.ChangeTracker.DetectChanges();
                     var changedEntityNames = context.GetChangedEntityNames();
-                    Assert.IsFalse(debugInfo2.EFCacheKey.CacheDependencies.Any(item => changedEntityNames.Contains(item)));
+                    Assert.False(debugInfo2.EFCacheKey.CacheDependencies.Any(item => changedEntityNames.Contains(item)));
 
                     context.SaveChanges();
 
@@ -144,13 +138,13 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo3, _serviceProvider)
                         .ToList();
-                    Assert.AreEqual(true, debugInfo3.IsCacheHit);
-                    Assert.IsTrue(list3.Any());
+                    Assert.Equal(true, debugInfo3.IsCacheHit);
+                    Assert.True(list3.Any());
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestInsertingDataToRelatedTablesShouldInvalidateTheCacheDependencyAutomatically()
         {
             using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
@@ -167,8 +161,8 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo1, _serviceProvider)
                         .ToList();
-                    Assert.AreEqual(false, debugInfo1.IsCacheHit);
-                    Assert.IsTrue(list1.Any());
+                    Assert.Equal(false, debugInfo1.IsCacheHit);
+                    Assert.True(list1.Any());
 
 
                     Console.WriteLine("same query, reading from 2nd level cache");
@@ -178,8 +172,8 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo2, _serviceProvider)
                         .ToList();
-                    Assert.AreEqual(true, debugInfo2.IsCacheHit);
-                    Assert.IsTrue(list2.Any());
+                    Assert.Equal(true, debugInfo2.IsCacheHit);
+                    Assert.True(list2.Any());
 
 
                     Console.WriteLine("inserting data into a *related* table, invalidates the cache on SaveChanges.");
@@ -192,7 +186,7 @@ namespace EFSecondLevelCache.Core.Tests
 
                     context.ChangeTracker.DetectChanges();
                     var changedEntityNames = context.GetChangedEntityNames();
-                    Assert.IsTrue(debugInfo2.EFCacheKey.CacheDependencies.Any(item => changedEntityNames.Contains(item)));
+                    Assert.True(debugInfo2.EFCacheKey.CacheDependencies.Any(item => changedEntityNames.Contains(item)));
 
                     context.SaveChanges();
 
@@ -205,14 +199,13 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo3, _serviceProvider)
                         .ToList();
-                    Assert.AreEqual(false, debugInfo3.IsCacheHit);
-                    Assert.IsTrue(list3.Any());
+                    Assert.Equal(false, debugInfo3.IsCacheHit);
+                    Assert.True(list3.Any());
                 }
             }
         }
 
-        [TestMethod]
-        [Ignore("This doesn't work with `EntityFrameworkInMemoryDatabase`. Because it doesn't support constraints.")]
+        // This doesn't work with `EntityFrameworkInMemoryDatabase`. Because it doesn't support constraints.
         public void TestTransactionRollbackShouldNotInvalidateTheCacheDependencyAutomatically()
         {
             using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
@@ -229,8 +222,8 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo1, _serviceProvider)
                         .ToList();
-                    Assert.AreEqual(false, debugInfo1.IsCacheHit);
-                    Assert.IsTrue(list1.Any());
+                    Assert.Equal(false, debugInfo1.IsCacheHit);
+                    Assert.True(list1.Any());
 
 
                     Console.WriteLine("same query, reading from 2nd level cache.");
@@ -240,8 +233,8 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo2, _serviceProvider)
                         .ToList();
-                    Assert.AreEqual(true, debugInfo2.IsCacheHit);
-                    Assert.IsTrue(list2.Any());
+                    Assert.Equal(true, debugInfo2.IsCacheHit);
+                    Assert.True(list2.Any());
 
                     Console.WriteLine(
                         "inserting data with transaction.Rollback, shouldn't invalidate the cache on SaveChanges.");
@@ -275,13 +268,13 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo3, _serviceProvider)
                         .ToList();
-                    Assert.AreEqual(true, debugInfo3.IsCacheHit);
-                    Assert.IsTrue(list3.Any());
+                    Assert.Equal(true, debugInfo3.IsCacheHit);
+                    Assert.True(list3.Any());
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestRemoveDataShouldInvalidateTheCacheAutomatically()
         {
             using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
@@ -298,8 +291,8 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo1, _serviceProvider)
                         .ToList();
-                    Assert.AreEqual(false, debugInfo1.IsCacheHit);
-                    Assert.IsNotNull(list1);
+                    Assert.Equal(false, debugInfo1.IsCacheHit);
+                    Assert.NotNull(list1);
 
 
                     Console.WriteLine("same query, reading from 2nd level cache");
@@ -309,8 +302,8 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo2, _serviceProvider)
                         .ToList();
-                    Assert.AreEqual(true, debugInfo2.IsCacheHit);
-                    Assert.IsTrue(list2.Any());
+                    Assert.Equal(true, debugInfo2.IsCacheHit);
+                    Assert.True(list2.Any());
 
 
                     Console.WriteLine("removing data, invalidates the cache on SaveChanges");
@@ -319,7 +312,7 @@ namespace EFSecondLevelCache.Core.Tests
 
                     context.ChangeTracker.DetectChanges();
                     var changedEntityNames = context.GetChangedEntityNames();
-                    Assert.IsTrue(debugInfo2.EFCacheKey.CacheDependencies.Any(item => changedEntityNames.Contains(item)));
+                    Assert.True(debugInfo2.EFCacheKey.CacheDependencies.Any(item => changedEntityNames.Contains(item)));
 
                     context.SaveChanges();
 
@@ -331,13 +324,13 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo3, _serviceProvider)
                         .ToList();
-                    Assert.AreEqual(false, debugInfo3.IsCacheHit);
-                    Assert.IsNotNull(list3);
+                    Assert.Equal(false, debugInfo3.IsCacheHit);
+                    Assert.NotNull(list3);
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestRemoveTptDataShouldInvalidateTheCacheAutomatically()
         {
             using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
@@ -347,15 +340,15 @@ namespace EFSecondLevelCache.Core.Tests
                     Console.WriteLine("1st query, reading from db");
                     var debugInfo1 = new EFCacheDebugInfo();
                     var list1 = context.Posts.OfType<Page>().Cacheable(debugInfo1, _serviceProvider).ToList();
-                    Assert.AreEqual(false, debugInfo1.IsCacheHit);
-                    Assert.AreEqual(2, list1.Count);
+                    Assert.Equal(false, debugInfo1.IsCacheHit);
+                    Assert.Equal(2, list1.Count);
 
 
                     Console.WriteLine("same query, reading from 2nd level cache");
                     var debugInfo2 = new EFCacheDebugInfo();
                     var list2 = context.Posts.OfType<Page>().Cacheable(debugInfo2, _serviceProvider).ToList();
-                    Assert.AreEqual(true, debugInfo2.IsCacheHit);
-                    Assert.AreEqual(2, list2.Count);
+                    Assert.Equal(true, debugInfo2.IsCacheHit);
+                    Assert.Equal(2, list2.Count);
 
 
                     Console.WriteLine("removing data, invalidates the cache on SaveChanges");
@@ -364,7 +357,7 @@ namespace EFSecondLevelCache.Core.Tests
 
                     context.ChangeTracker.DetectChanges();
                     var changedEntityNames = context.GetChangedEntityNames();
-                    Assert.IsTrue(debugInfo2.EFCacheKey.CacheDependencies.Any(item => changedEntityNames.Contains(item)));
+                    Assert.True(debugInfo2.EFCacheKey.CacheDependencies.Any(item => changedEntityNames.Contains(item)));
 
                     context.SaveChanges();
 
@@ -372,13 +365,13 @@ namespace EFSecondLevelCache.Core.Tests
                     Console.WriteLine("same query after remove, reading from database.");
                     var debugInfo3 = new EFCacheDebugInfo();
                     var list3 = context.Posts.OfType<Page>().Cacheable(debugInfo3, _serviceProvider).ToList();
-                    Assert.AreEqual(false, debugInfo3.IsCacheHit);
-                    Assert.AreEqual(1, list3.Count);
+                    Assert.Equal(false, debugInfo3.IsCacheHit);
+                    Assert.Equal(1, list3.Count);
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestAddThenRemoveDataShouldInvalidateTheCacheAutomatically()
         {
             using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
@@ -414,15 +407,15 @@ namespace EFSecondLevelCache.Core.Tests
                     var p98 = context.Products
                                      .Cacheable(debugInfo1, _serviceProvider)
                                      .FirstOrDefault(p => p.ProductId == product.ProductId);
-                    Assert.AreEqual(false, debugInfo1.IsCacheHit);
-                    Assert.IsNotNull(p98);
+                    Assert.Equal(false, debugInfo1.IsCacheHit);
+                    Assert.NotNull(p98);
 
                     var debugInfoWithWhere1 = new EFCacheDebugInfo();
                     var firstQueryWithWhereClauseResult = context.Products.Where(p => p.ProductId == product.ProductId)
                                     .Cacheable(debugInfoWithWhere1)
                                     .FirstOrDefault();
-                    Assert.AreEqual(false, debugInfoWithWhere1.IsCacheHit);
-                    Assert.IsNotNull(firstQueryWithWhereClauseResult);
+                    Assert.Equal(false, debugInfoWithWhere1.IsCacheHit);
+                    Assert.NotNull(firstQueryWithWhereClauseResult);
 
                     Console.WriteLine("Delete it from db, invalidates the cache on SaveChanges");
                     context.Products.Remove(product);
@@ -433,20 +426,20 @@ namespace EFSecondLevelCache.Core.Tests
                     p98 = context.Products
                                  .Cacheable(debugInfo2, _serviceProvider)
                                  .FirstOrDefault(p => p.ProductId == product.ProductId);
-                    Assert.AreEqual(false, debugInfo2.IsCacheHit);
-                    Assert.IsNull(p98);
+                    Assert.Equal(false, debugInfo2.IsCacheHit);
+                    Assert.Null(p98);
 
                     var debugInfoWithWhere2 = new EFCacheDebugInfo();
                     var firstQueryWithWhereClauseResult2 = context.Products.Where(p => p.ProductId == product.ProductId)
                                     .Cacheable(debugInfoWithWhere2)
                                     .FirstOrDefault();
-                    Assert.AreEqual(false, debugInfoWithWhere2.IsCacheHit);
-                    Assert.IsNull(firstQueryWithWhereClauseResult2);
+                    Assert.Equal(false, debugInfoWithWhere2.IsCacheHit);
+                    Assert.Null(firstQueryWithWhereClauseResult2);
 
                     Console.WriteLine("retrieving it directly from database");
                     p98 = context.Products
                                  .FirstOrDefault(p => p.ProductId == product.ProductId);
-                    Assert.IsNull(p98);
+                    Assert.Null(p98);
                 }
             }
         }

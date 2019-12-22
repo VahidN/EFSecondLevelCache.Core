@@ -6,11 +6,10 @@ using EFSecondLevelCache.Core.AspNetCoreSample.DataLayer;
 using EFSecondLevelCache.Core.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace EFSecondLevelCache.Core.Tests
 {
-    [TestClass]
     public class EFCachedQueryProviderAsyncTests
     {
         private readonly IServiceProvider _serviceProvider;
@@ -18,15 +17,10 @@ namespace EFSecondLevelCache.Core.Tests
         public EFCachedQueryProviderAsyncTests()
         {
             _serviceProvider = TestsBase.GetServiceProvider();
-        }
-
-        [TestInitialize]
-        public void ClearEFGlobalCacheBeforeEachTest()
-        {
             _serviceProvider.GetRequiredService<IEFCacheServiceProvider>().ClearAllCachedEntries();
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestSecondLevelCacheUsingAsyncMethodsDoesNotHitTheDatabase()
         {
             using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
@@ -43,8 +37,8 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo1, _serviceProvider)
                         .ToListAsync();
-                    Assert.AreEqual(false, debugInfo1.IsCacheHit);
-                    Assert.IsTrue(list1.Any());
+                    Assert.Equal(false, debugInfo1.IsCacheHit);
+                    Assert.True(list1.Any());
                     var hash1 = debugInfo1.EFCacheKey.KeyHash;
 
 
@@ -55,8 +49,8 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo2, _serviceProvider)
                         .ToListAsync();
-                    Assert.AreEqual(true, debugInfo2.IsCacheHit);
-                    Assert.IsTrue(list2.Any());
+                    Assert.Equal(true, debugInfo2.IsCacheHit);
+                    Assert.True(list2.Any());
                     var hash2 = debugInfo2.EFCacheKey.KeyHash;
 
 
@@ -67,12 +61,12 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo3, _serviceProvider)
                         .ToListAsync();
-                    Assert.AreEqual(true, debugInfo3.IsCacheHit);
-                    Assert.IsTrue(list3.Any());
+                    Assert.Equal(true, debugInfo3.IsCacheHit);
+                    Assert.True(list3.Any());
                     var hash3 = debugInfo3.EFCacheKey.KeyHash;
 
-                    Assert.AreEqual(hash1, hash2);
-                    Assert.AreEqual(hash2, hash3);
+                    Assert.Equal(hash1, hash2);
+                    Assert.Equal(hash2, hash3);
 
                     Console.WriteLine("different async query, reading from db.");
                     var debugInfo4 = new EFCacheDebugInfo();
@@ -81,11 +75,11 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == "Product2")
                         .Cacheable(debugInfo4, _serviceProvider)
                         .ToListAsync();
-                    Assert.AreEqual(false, debugInfo4.IsCacheHit);
-                    Assert.IsTrue(list4.Any());
+                    Assert.Equal(false, debugInfo4.IsCacheHit);
+                    Assert.True(list4.Any());
 
                     var hash4 = debugInfo4.EFCacheKey.KeyHash;
-                    Assert.AreNotSame(hash3, hash4);
+                    Assert.NotSame(hash3, hash4);
 
                     Console.WriteLine("different async query, reading from db.");
                     var debugInfo5 = new EFCacheDebugInfo();
@@ -94,16 +88,16 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == "Product2")
                         .Cacheable(debugInfo5, _serviceProvider)
                         .FirstOrDefaultAsync();
-                    Assert.AreEqual(false, debugInfo5.IsCacheHit);
-                    Assert.IsNotNull(product1);
+                    Assert.Equal(false, debugInfo5.IsCacheHit);
+                    Assert.NotNull(product1);
 
                     var hash5 = debugInfo5.EFCacheKey.KeyHash;
-                    Assert.AreNotSame(hash4, hash5);
+                    Assert.NotSame(hash4, hash5);
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestSecondLevelCacheUsingDifferentAsyncMethods()
         {
             using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
@@ -120,8 +114,8 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo1, _serviceProvider)
                         .ToListAsync();
-                    Assert.AreEqual(false, debugInfo1.IsCacheHit);
-                    Assert.IsTrue(list1.Any());
+                    Assert.Equal(false, debugInfo1.IsCacheHit);
+                    Assert.True(list1.Any());
 
 
                     Console.WriteLine("CountAsync");
@@ -131,8 +125,8 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo2, _serviceProvider)
                         .CountAsync();
-                    Assert.AreEqual(false, debugInfo2.IsCacheHit);
-                    Assert.IsTrue(count > 0);
+                    Assert.Equal(false, debugInfo2.IsCacheHit);
+                    Assert.True(count > 0);
 
 
                     Console.WriteLine("FirstOrDefaultAsync");
@@ -142,8 +136,8 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo3, _serviceProvider)
                         .FirstOrDefaultAsync();
-                    Assert.AreEqual(false, debugInfo3.IsCacheHit);
-                    Assert.IsTrue(product1 != null);
+                    Assert.Equal(false, debugInfo3.IsCacheHit);
+                    Assert.True(product1 != null);
 
 
                     Console.WriteLine("AnyAsync");
@@ -153,8 +147,8 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == "Product2")
                         .Cacheable(debugInfo4, _serviceProvider)
                         .AnyAsync();
-                    Assert.AreEqual(false, debugInfo4.IsCacheHit);
-                    Assert.IsTrue(any);
+                    Assert.Equal(false, debugInfo4.IsCacheHit);
+                    Assert.True(any);
 
 
                     Console.WriteLine("SumAsync");
@@ -164,13 +158,13 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == "Product2")
                         .Cacheable(debugInfo5, _serviceProvider)
                         .SumAsync(x => x.ProductId);
-                    Assert.AreEqual(false, debugInfo5.IsCacheHit);
-                    Assert.IsTrue(sum > 0);
+                    Assert.Equal(false, debugInfo5.IsCacheHit);
+                    Assert.True(sum > 0);
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestSecondLevelCacheUsingTwoCountAsyncMethods()
         {
             using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
@@ -187,8 +181,8 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo2, _serviceProvider)
                         .CountAsync();
-                    Assert.AreEqual(false, debugInfo2.IsCacheHit);
-                    Assert.IsTrue(count > 0);
+                    Assert.Equal(false, debugInfo2.IsCacheHit);
+                    Assert.True(count > 0);
 
                     Console.WriteLine("Count 2, Reading from cache");
                     var debugInfo3 = new EFCacheDebugInfo();
@@ -197,13 +191,13 @@ namespace EFSecondLevelCache.Core.Tests
                         .Where(product => product.IsActive == isActive && product.ProductName == name)
                         .Cacheable(debugInfo3, _serviceProvider)
                         .CountAsync();
-                    Assert.AreEqual(true, debugInfo3.IsCacheHit);
-                    Assert.IsTrue(count > 0);
+                    Assert.Equal(true, debugInfo3.IsCacheHit);
+                    Assert.True(count > 0);
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestSecondLevelCacheUsingFindAsyncMethods()
         {
             using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
@@ -214,22 +208,21 @@ namespace EFSecondLevelCache.Core.Tests
                     var product1 = await context.Products
                         .Cacheable(debugInfo, _serviceProvider)
                         .FindAsync(1);
-                    Assert.AreEqual(false, debugInfo.IsCacheHit);
-                    Assert.IsTrue(product1 != null);
+                    Assert.Equal(false, debugInfo.IsCacheHit);
+                    Assert.True(product1 != null);
 
 
                     var debugInfo2 = new EFCacheDebugInfo();
                     product1 = await context.Products
                         .Cacheable(debugInfo2, _serviceProvider)
                         .FindAsync(1);
-                    Assert.AreEqual(true, debugInfo2.IsCacheHit);
-                    Assert.IsTrue(product1 != null);
+                    Assert.Equal(true, debugInfo2.IsCacheHit);
+                    Assert.True(product1 != null);
                 }
             }
         }
-
-        [TestMethod]
-        [Ignore]
+        
+        // Ignore
         public void TestParallelAsyncCalls()
         {
             var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();

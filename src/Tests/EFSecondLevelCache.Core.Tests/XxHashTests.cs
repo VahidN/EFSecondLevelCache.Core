@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 
 namespace EFSecondLevelCache.Core.Tests
 {
@@ -9,28 +9,27 @@ namespace EFSecondLevelCache.Core.Tests
         public static readonly string LoremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.  Ut ornare aliquam mauris, at volutpat massa.  Phasellus pulvinar purus eu venenatis commodo.";
     }
 
-    [TestClass]
     public class XxHashTests
     {
-        [TestMethod]
+        [Fact]
         public void TestEmptyXxHashReturnsCorrectValue()
         {
             var hash = XxHashUnsafe.ComputeHash(TestConstants.Empty);
-            Assert.AreEqual((uint)0x02cc5d05, hash);
+            Assert.Equal((uint)0x02cc5d05, hash);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestFooBarXxHashReturnsCorrectValue()
         {
             var hash = XxHashUnsafe.ComputeHash(TestConstants.FooBar);
-            Assert.AreEqual((uint)2348340516, hash);
+            Assert.Equal((uint)2348340516, hash);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestLoremIpsumXxHashReturnsCorrectValue()
         {
             var hash = XxHashUnsafe.ComputeHash(TestConstants.LoremIpsum);
-            Assert.AreEqual((uint)4046722717, hash);
+            Assert.Equal((uint)4046722717, hash);
         }
     }
 }
