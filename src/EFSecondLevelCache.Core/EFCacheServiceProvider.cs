@@ -29,6 +29,17 @@ namespace EFSecondLevelCache.Core
         public object NullObject => _nullObject;
 
         /// <summary>
+        /// Using ICacheManager as a cache service.
+        /// </summary>
+        public EFCacheServiceProvider()
+        {
+            // Occurs when an item was removed by the cache handle due to expiration or e.g. memory pressure eviction.
+            // Without _dependenciesCacheManager items, we can't invalidate cached items on Insert/Update/Delete.
+            // So to prevent stale reads, we have to clear all cached data in this case.
+            _dependenciesCacheManager.OnRemoveByHandle += (sender, args) => ClearAllCachedEntries();
+        }
+
+        /// <summary>
         /// Removes the cached entries added by this library.
         /// </summary>
         public void ClearAllCachedEntries()

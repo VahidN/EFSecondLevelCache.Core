@@ -233,7 +233,7 @@ namespace EFSecondLevelCache.Core.Tests
         public void TestSecondLevelCacheInTwoDifferentContextsDoesNotHitTheDatabase()
         {
             var isActive = true;
-            var name = "Product1";
+            var name = "Product2";
             string hash2;
             string hash3;
 
@@ -401,7 +401,7 @@ namespace EFSecondLevelCache.Core.Tests
                 using (var context = serviceScope.ServiceProvider.GetRequiredService<SampleContext>())
                 {
                     var isActive = true;
-                    var name = "Product1";
+                    var name = "Product3";
 
                     Console.WriteLine("Count 1");
 

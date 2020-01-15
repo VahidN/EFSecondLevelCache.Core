@@ -11,8 +11,10 @@ using EFSecondLevelCache.Core.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 
+//[assembly: Parallelize(Workers = 0, Scope = ExecutionScope.MethodLevel)] // Workers: The number of threads to run the tests. Set it to 0 to use the number of core of your computer.
 namespace EFSecondLevelCache.Core.Tests
 {
     public static class TestsBase
@@ -112,7 +114,11 @@ namespace EFSecondLevelCache.Core.Tests
                     {
                         config.WithAllowAdmin()
                             .WithDatabase(0)
-                            .WithEndpoint("localhost", 6379);
+                            .WithEndpoint("localhost", 6379)
+                            // Enables keyspace notifications to react on eviction/expiration of items.
+                            // Make sure that all servers are configured correctly and 'notify-keyspace-events' is at least set to 'Exe', otherwise CacheManager will not retrieve any events.
+                            // See https://redis.io/topics/notifications#configuration for configuration details.
+                            .EnableKeyspaceEvents();
                     })
                     .WithMaxRetries(100)
                     .WithRetryTimeout(50)
