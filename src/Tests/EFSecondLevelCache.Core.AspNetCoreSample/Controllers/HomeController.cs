@@ -377,7 +377,35 @@ namespace EFSecondLevelCache.Core.AspNetCoreSample.Controllers
 
             var debugInfo3 = new EFCacheDebugInfo();
             var users3 = await _context.Set<Post>().OrderByDescending(x => x.Id).Cacheable(debugInfo3).ToListAsync();
-            return Json(new { users1, debugInfo2, debugInfo3});
+            return Json(new { users1, debugInfo2, debugInfo3 });
+        }
+
+        // https://github.com/VahidN/EFSecondLevelCache.Core/issues/65
+        // https://localhost:5001/home/TestIncludes
+        public async Task<IActionResult> TestIncludes()
+        {
+            var debugInfo1 = new EFCacheDebugInfo();
+            var firstProductIncludeTags1 = await _context.Products.Include(x => x.TagProducts).ThenInclude(x => x.Tag)
+                                             .Cacheable(debugInfo1)
+                                             .FirstOrDefaultAsync();
+
+            var debugInfo2 = new EFCacheDebugInfo();
+            var firstProductIncludeTags2 = await _context.Products
+                                                         .Cacheable(debugInfo2)
+                                                         .Include(x => x.TagProducts).ThenInclude(x => x.Tag)
+                                                         .FirstOrDefaultAsync();
+
+            return Json(new { productName1 = firstProductIncludeTags1.ProductName, productName2 = debugInfo1, firstProductIncludeTags2.ProductName, debugInfo2 });
+        }
+
+        public async Task<IActionResult> TestFind()
+        {
+            var debugInfo = new EFCacheDebugInfo();
+            var product1 = await _context.Products
+                .Cacheable(debugInfo)
+                .FindAsync(1);
+
+            return Json(new { product1.ProductName, debugInfo });
         }
     }
 }

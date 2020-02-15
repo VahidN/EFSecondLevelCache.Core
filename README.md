@@ -1,3 +1,5 @@
+# [Announcing a better Second Level Caching Library!](https://github.com/VahidN/EFSecondLevelCache.Core/issues/67)
+
 # EFSecondLevelCache.Core
 
 <p align="left">

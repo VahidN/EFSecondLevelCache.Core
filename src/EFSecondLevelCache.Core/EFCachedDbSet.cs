@@ -39,7 +39,10 @@ namespace EFSecondLevelCache.Core
             CacheKeyProvider = cacheKeyProvider;
             CacheServiceProvider = cacheServiceProvider;
             Query = query;
-            _provider = new EFCachedQueryProvider(Query, cachePolicy, debugInfo, cacheKeyProvider, cacheServiceProvider);
+            var queryable = Query.AsNoTracking().AsQueryable();
+            ElementType = queryable.ElementType;
+            Expression = queryable.Expression;
+            _provider = new EFCachedQueryProvider(queryable, cachePolicy, debugInfo, cacheKeyProvider, cacheServiceProvider);
         }
 
         /// <summary>
@@ -65,12 +68,12 @@ namespace EFSecondLevelCache.Core
         /// <summary>
         /// Gets the type of the element(s) that are returned when the expression tree associated with this instance of System.Linq.IQueryable is executed.
         /// </summary>
-        public Type ElementType => Query.AsQueryable().ElementType;
+        public Type ElementType { get; }
 
         /// <summary>
         /// Gets the expression tree that is associated with the instance of System.Linq.IQueryable.
         /// </summary>
-        public Expression Expression => Query.AsQueryable().Expression;
+        public Expression Expression { get; }
 
         /// <summary>
         /// Gets the query provider that is associated with this data source.
@@ -93,9 +96,7 @@ namespace EFSecondLevelCache.Core
         /// <returns>A collections that can be used to iterate through the collection.</returns>
         public IEnumerator GetEnumerator()
         {
-            return ((IEnumerable)_provider.Materializer.Materialize(
-                Query.AsQueryable().Expression,
-                () => Query.ToArray())).GetEnumerator();
+            return _provider.Materializer.Materialize(Expression, () => Query.ToArray()).GetEnumerator();
         }
 
         /// <summary>
@@ -104,9 +105,7 @@ namespace EFSecondLevelCache.Core
         /// <returns>A collections that can be used to iterate through the collection.</returns>
         IEnumerator<TType> IEnumerable<TType>.GetEnumerator()
         {
-            return ((IEnumerable<TType>)_provider.Materializer.Materialize(
-                Query.AsQueryable().Expression,
-                () => Query.ToArray())).GetEnumerator();
+            return ((IEnumerable<TType>)_provider.Materializer.Materialize(Expression, () => Query.ToArray())).GetEnumerator();
         }
 
         /// <summary>
@@ -116,9 +115,7 @@ namespace EFSecondLevelCache.Core
         public IAsyncEnumerator<TType> GetAsyncEnumerator(CancellationToken cancellationToken = new CancellationToken())
         {
             return new EFAsyncEnumerator<TType>(
-                    ((IEnumerable<TType>)_provider.Materializer.Materialize(
-                                  Query.AsQueryable().Expression,
-                                  () => Query.ToArray())).GetEnumerator());
+                    ((IEnumerable<TType>)_provider.Materializer.Materialize(Expression, () => Query.ToArray())).GetEnumerator());
         }
     }
 }
